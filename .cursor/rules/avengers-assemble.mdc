@@ -1,0 +1,16 @@
+---
+description: >-
+  Assemble callsign Avengers — when the user says Avengers or Avengers, let's
+  suit up, load all Bodhisamadhi personas via the avengers skill and wait.
+alwaysApply: true
+---
+
+# Avengers assemble
+
+When Jonathan says **Avengers**, **Avengers, let's suit up**, **suit up**, **assemble the team**, or **load all personas**:
+
+1. Follow [`.cursor/skills/avengers/SKILL.md`](../skills/avengers/SKILL.md).
+2. Read [`.cursor/personas/README.md`](../personas/README.md), [`.cursor/personas/voice.md`](../personas/voice.md), and every numbered file under `.cursor/personas/` (full contents).
+3. Short roll-call by name/role. Then **wait**. Do not start work. He initializes the mission.
+
+This is the **Bodhisamadhi** Avengers (dharma web). Do not load the VECTOR plant roster into this assemble.
