@@ -1,0 +1,9 @@
+.form {
+  width: 100%;
+}
+
+.forgot {
+  margin-top: var(--sp-3);
+  text-align: center;
+  font-size: var(--fs-sm);
+}

@@ -343,9 +343,11 @@ Names only — values live in Vercel's environment settings and in git-ignored l
 
 Loaded by Next.js. **Also auto-loaded by the Supabase CLI**, so it must not contain the hosted project's ref or DB password (see below).
 
+**Local development runs against local Supabase.** The three Supabase values here are the local stack's (`http://127.0.0.1:54321` + the keys from `supabase status`, identical on every machine). The hosted equivalents live in Vercel's environment settings and in `.env.hosted` for scripts. Never point `.env.local` at the hosted project — a local `db reset` would then wipe it.
+
 | Variable | Where used |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Client and server |
+| `NEXT_PUBLIC_SUPABASE_URL` | Client and server — **local** stack in `.env.local`, hosted in Vercel |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client and server |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only — never expose; bypasses Row Level Security |
 | `STRIPE_SECRET_KEY` | Server only |
@@ -358,15 +360,17 @@ Loaded by Next.js. **Also auto-loaded by the Supabase CLI**, so it must not cont
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL for emails, Open Graph and Stripe redirects |
 | `SENTRY_DSN` | Server, if Sentry is adopted |
 
-### The Supabase CLI, hosted project only — `.env.hosted` (repo root)
+### The hosted project — `.env.hosted` (repo root)
 
-**Not** auto-loaded. Passed explicitly by the `db:push` / `db:pull` npm scripts (`dotenv -e .env.hosted -- …`). If these lived in `.env.local` the CLI would auto-load them and run local `db reset` / `db test` / `gen types --local` against the hosted database.
+**Not** auto-loaded. Passed explicitly: `dotenv -e .env.hosted -- <command>`. If these lived in `.env.local` the CLI would auto-load them and run local `db reset` / `db test` / `gen types --local` against the hosted database.
 
 | Variable | Where used |
 |---|---|
 | `SUPABASE_PROJECT_ID` | `supabase link` / `db push` — the hosted project ref |
 | `SUPABASE_DB_PASSWORD` | `db push` — the hosted database password |
 | `SUPABASE_DB_URL` | Full transaction-pooler connection string, for `db push --db-url` in CI |
+| `SUPABASE_ACCESS_TOKEN` | Management API — auth config (Phase 3). Account-wide; revoke when not in use. |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | The **hosted** values, for scripts that write to the hosted project (`seed:admins --target hosted`). Vercel holds these too. |
 
 Local development needs none of these — `supabase start` / `db reset` / `test db` use the container defaults (`config.toml` `project_id`, password `postgres`).
 

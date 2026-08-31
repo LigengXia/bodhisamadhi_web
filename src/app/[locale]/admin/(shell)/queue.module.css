@@ -1,0 +1,70 @@
+/* Docs/4 §3.23 "Work queue landing screen" */
+.title {
+  font-family: var(--ff-body);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semi);
+  color: var(--text);
+  margin-bottom: var(--sp-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-3);
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-x);
+  padding: var(--sp-3);
+  background: #fff;
+  border: 1px solid var(--n-200);
+  border-radius: var(--r-sm);
+}
+
+.count {
+  font-family: var(--ff-body);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semi);
+  line-height: 1;
+  color: var(--text);
+}
+
+.card[data-zero] .count {
+  color: var(--text-soft);
+}
+
+.label {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+.allClear {
+  padding-block: var(--sp-6);
+  text-align: center;
+}
+.allClear h2 {
+  font-family: var(--ff-body);
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-semi);
+  color: var(--text);
+  margin-bottom: var(--sp-1);
+}
+.allClear p {
+  font-size: var(--fs-body);
+  color: var(--text-soft);
+  max-width: 42ch;
+  margin-inline: auto;
+}

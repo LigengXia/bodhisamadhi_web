@@ -1,0 +1,98 @@
+/* Docs/4 §3.1 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  min-height: 44px;
+  padding-inline: var(--sp-3);
+  font-family: var(--ff-body);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  border-radius: var(--r-full);
+  cursor: pointer;
+  transition:
+    transform var(--t-fast),
+    box-shadow var(--t-fast),
+    background var(--t-fast);
+}
+
+.primary {
+  background: var(--g-crimson);
+  color: var(--text-inv);
+  box-shadow: var(--sh-btn);
+}
+.gold {
+  background: var(--g-gold);
+  color: var(--cr-950);
+  box-shadow: var(--sh-gold);
+}
+.glass {
+  background: var(--glass-d);
+  color: var(--text-inv);
+  border: 1px solid var(--glass-d-border);
+}
+.secondary {
+  background: #fff;
+  color: var(--cr-600);
+  border: 1px solid var(--field-border);
+  box-shadow: var(--sh-card);
+}
+.ghost {
+  background: transparent;
+  color: var(--text-mid);
+}
+.danger {
+  background: var(--error);
+  color: #fff;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-hover);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.sm {
+  min-height: 36px;
+  padding-inline: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+.lg {
+  min-height: 52px;
+  padding-inline: var(--sp-4);
+}
+
+@media (max-width: 480px) {
+  .block {
+    width: 100%;
+  }
+}
+
+/* Loading — label replaced by a spinner, width held by the caller. */
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
