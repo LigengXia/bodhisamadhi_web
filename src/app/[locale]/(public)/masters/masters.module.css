@@ -1,0 +1,28 @@
+.page {
+  padding-block: var(--sp-5) var(--sp-7);
+}
+
+.header {
+  margin-bottom: var(--sp-4);
+  max-width: var(--wrap-text);
+}
+
+.h1 {
+  font-size: var(--fs-h1);
+}
+
+.lede {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-h4);
+  color: var(--text-soft);
+}
+
+.grid {
+  margin-top: 0;
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding-block: var(--sp-4) var(--sp-5);
+  }
+}

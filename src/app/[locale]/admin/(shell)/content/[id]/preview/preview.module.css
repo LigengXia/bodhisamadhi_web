@@ -1,5 +1,5 @@
 .preview {
-  max-width: var(--wrap-text);
+  max-width: var(--wrap);
 }
 
 .banner {
@@ -8,42 +8,5 @@
 
 .back {
   font-size: var(--fs-sm);
-  margin-bottom: var(--sp-3);
-}
-
-.title {
-  font-family: var(--ff-heading);
-  font-size: var(--fs-h2);
-  font-weight: var(--fw-semi);
-  line-height: var(--lh-heading);
-  color: var(--text);
-  margin-bottom: var(--sp-1);
-}
-
-.meta {
-  font-size: var(--fs-sm);
-  color: var(--text-soft);
-  margin-bottom: var(--sp-3);
-}
-
-.player {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  background: var(--n-200);
-  border-radius: var(--r-md);
-  overflow: hidden;
-  margin-bottom: var(--sp-3);
-}
-.player iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.body {
-  font-size: var(--fs-body);
-  color: var(--text-mid);
-  line-height: var(--lh-body);
+  margin-bottom: var(--sp-4);
 }

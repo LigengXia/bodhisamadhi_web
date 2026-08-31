@@ -100,8 +100,6 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
 
-  const t = await getTranslations({ locale, namespace: 'a11y' });
-
   const fontVars = clsx(
     cormorant.variable,
     inter.variable,
@@ -110,15 +108,14 @@ export default async function LocaleLayout({
     locale === 'zh' && notoSansSC.variable,
   );
 
+  // The <main> landmark and the skip link belong to each route group's own
+  // layout (public chrome, admin shell, auth card) — they differ in target
+  // and in what surrounds them. This layout only sets up <html>, fonts and
+  // the intl provider.
   return (
     <html lang={HTML_LANG[locale as Locale]} className={fontVars}>
       <body>
-        <a href="#main" className="skipLink">
-          {t('skipToContent')}
-        </a>
-        <NextIntlClientProvider>
-          <main id="main">{children}</main>
-        </NextIntlClientProvider>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>
   );

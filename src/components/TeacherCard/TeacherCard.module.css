@@ -1,0 +1,75 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: #ffffff;
+  border: 1px solid var(--n-200);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-card);
+  transition:
+    transform var(--t),
+    box-shadow var(--t),
+    border-color var(--t);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sh-hover);
+  border-color: var(--n-300);
+}
+
+.portrait {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--n-200);
+}
+
+.portraitImg {
+  object-fit: cover;
+}
+
+.portraitFallback {
+  position: absolute;
+  inset: 0;
+  background: var(--n-300);
+}
+
+.name {
+  font-size: var(--fs-h4);
+}
+
+.nameLink {
+  color: var(--text);
+}
+
+.nameLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-md);
+}
+
+.nameLink:hover {
+  color: var(--cr-600);
+}
+
+.bio {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover {
+    transform: none;
+  }
+}

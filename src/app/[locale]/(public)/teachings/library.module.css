@@ -1,0 +1,95 @@
+.page {
+  padding-block: var(--sp-5) var(--sp-7);
+}
+
+.header {
+  margin-bottom: var(--sp-4);
+}
+
+.h1 {
+  font-size: var(--fs-h1);
+}
+
+.lede {
+  margin-top: var(--sp-2);
+  max-width: var(--wrap-text);
+  font-size: var(--fs-h4);
+  color: var(--text-soft);
+}
+
+.body {
+  display: flex;
+  gap: var(--sp-5);
+  margin-top: var(--sp-4);
+}
+
+.results {
+  flex: 1;
+  min-width: 0;
+}
+
+.count {
+  margin-bottom: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+.grid {
+  margin-top: 0;
+}
+
+.emptyAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--sp-3);
+  border-radius: var(--r-full);
+  background: var(--cr-600);
+  color: var(--text-inv);
+  font-size: var(--fs-body);
+}
+
+/* ── Skeletons (Docs/4 §3.16) ──────────────────────────────────────── */
+
+.skH1 {
+  height: var(--fs-h1);
+  max-width: 320px;
+}
+
+.skCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: #ffffff;
+  border: 1px solid var(--n-200);
+  border-radius: var(--r-md);
+}
+
+.skThumb {
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+.skTitle {
+  height: var(--fs-h4);
+  width: 85%;
+}
+
+.skMeta {
+  height: var(--fs-sm);
+  width: 55%;
+}
+
+@media (max-width: 960px) {
+  .body {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding-block: var(--sp-4) var(--sp-5);
+  }
+}

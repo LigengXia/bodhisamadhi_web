@@ -1,0 +1,86 @@
+/* Docs/4 §2.3 (footer gradient), §7.6. Values reference tokens.css only. */
+
+.footer {
+  background: var(--g-footer);
+  color: var(--text-inv);
+  padding-block: var(--sp-6) var(--sp-4);
+}
+
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 200px;
+}
+
+.heading {
+  font-family: var(--ff-body);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--go-400);
+}
+
+:global(html[lang='zh-Hans']) .heading,
+:global(html[lang='bo']) .heading {
+  text-transform: none;
+  letter-spacing: var(--ls-normal);
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-style: normal;
+  font-size: var(--fs-sm);
+  color: rgba(250, 243, 232, 0.72);
+}
+
+.link {
+  color: var(--text-inv);
+  font-size: var(--fs-sm);
+}
+
+.link:hover {
+  color: var(--go-300);
+}
+
+.baseline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--glass-d-border);
+  font-size: var(--fs-sm);
+  color: rgba(250, 243, 232, 0.72);
+}
+
+.dedication {
+  color: var(--go-300);
+}
+
+@media (max-width: 700px) {
+  .footer {
+    padding-block: var(--sp-5) var(--sp-3);
+  }
+
+  .inner {
+    gap: var(--sp-4);
+  }
+}

@@ -1,0 +1,175 @@
+/* Docs/4 §3.20. Values reference tokens.css only. */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--n-200);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--nav-h);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--text);
+}
+
+.brandMark {
+  width: 40px;
+  height: 40px;
+}
+
+.brandName {
+  font-family: var(--ff-heading);
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--ls-tight);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.link {
+  position: relative;
+  padding-block: var(--sp-1);
+  font-family: var(--ff-body);
+  font-size: var(--fs-body);
+  color: var(--text-mid);
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  inset-inline: 50%;
+  bottom: 0;
+  height: 2px;
+  background: var(--cr-600);
+  transition: inset-inline var(--t-fast);
+}
+
+.link:hover {
+  color: var(--text);
+}
+
+.link:hover::after {
+  inset-inline: 0;
+}
+
+.link[aria-current='page'] {
+  color: var(--text);
+  font-weight: var(--fw-medium);
+}
+
+.link[aria-current='page']::after {
+  inset-inline: 0;
+}
+
+.trailing {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.menuButton {
+  display: none;
+  min-height: 44px;
+  padding-inline: var(--sp-2);
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+  background: none;
+  border: 1px solid var(--n-300);
+  border-radius: var(--r-xs);
+  cursor: pointer;
+}
+
+.scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-drawer);
+  background: rgba(28, 0, 8, 0.4);
+}
+
+.drawer {
+  display: none;
+  position: fixed;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: var(--z-drawer);
+  width: min(320px, 82vw);
+  padding: calc(var(--nav-h) + var(--sp-3)) var(--sp-3) var(--sp-3);
+  background: var(--n-50);
+  border-inline-start: 1px solid var(--n-200);
+  box-shadow: var(--sh-dark);
+  flex-direction: column;
+  gap: var(--sp-4);
+  transform: translateX(100%);
+  transition: transform var(--t);
+}
+
+.drawerOpen {
+  transform: translateX(0);
+}
+
+.drawerLinks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.drawerLink {
+  font-family: var(--ff-heading);
+  font-size: var(--fs-h4);
+  color: var(--text-mid);
+}
+
+.drawerLink[aria-current='page'] {
+  color: var(--text);
+}
+
+/* Desktop nav below --bp-lg collapses to the drawer. */
+@media (max-width: 960px) {
+  .links,
+  .switcherDesktop {
+    display: none;
+  }
+
+  .menuButton {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .drawer {
+    display: flex;
+  }
+
+  .scrim {
+    display: block;
+  }
+
+  /* The `hidden` attribute still wins — a closed drawer is display:none. */
+  .drawer[hidden],
+  .scrim[hidden] {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    transition: none;
+  }
+}

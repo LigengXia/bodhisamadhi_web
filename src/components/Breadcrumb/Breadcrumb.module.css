@@ -1,0 +1,32 @@
+/* Docs/4 §3.14. */
+
+.breadcrumb {
+  margin-bottom: var(--sp-3);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-mid);
+}
+
+.link {
+  color: var(--text-soft);
+}
+
+.link:hover {
+  color: var(--text);
+}
+
+.sep {
+  margin-inline: var(--sp-1);
+  color: var(--text-soft);
+}

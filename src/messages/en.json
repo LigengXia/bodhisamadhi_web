@@ -1,23 +1,7 @@
 {
-  "meta": {
-    "title": "Bodhisamadhi Center · A Gelug Tibetan Buddhist dharma centre in Toronto",
-    "description": "Bodhisamadhi Center is a Gelug Tibetan Buddhist dharma centre in Toronto, founded in 2016 by Venerable Geshe Sonam Topgyal of Sera Mey Monastery."
-  },
   "a11y": {
     "skipToContent": "Skip to content",
     "siteLogoAlt": "Bodhisamadhi Center"
-  },
-  "site": {
-    "name": "Bodhisamadhi Center",
-    "descriptor": "A Gelug Tibetan Buddhist dharma centre in Toronto",
-    "dedication": "May all sentient beings be happy.",
-    "dedicationBo": "སེམས་ཅན་ཐམས་ཅད་བདེ་བ་དང་ལྡན་པར་གྱུར་ཅིག"
-  },
-  "languageSwitcher": {
-    "label": "Language",
-    "en": "EN",
-    "zh": "中文",
-    "bo": "བོད"
   },
   "admin": {
     "signIn": {
@@ -170,5 +154,130 @@
     "preview": {
       "draftBanner": "Draft — not published"
     }
+  },
+  "breadcrumb": {
+    "label": "Breadcrumb"
+  },
+  "content": {
+    "missingLocale": "This teaching is not yet available in {language}.",
+    "languageName_en": "English",
+    "languageName_zh": "中文",
+    "languageName_bo": "བོད་ཡིག",
+    "audioPlayerComingSoon": "The audio player for this recording is coming soon.",
+    "scriptReaderComingSoon": "The reader for this practice text is coming soon.",
+    "teacherLabel": "Teacher",
+    "recordedLabel": "Recorded",
+    "durationLabel": "Length",
+    "seriesLabel": "Series",
+    "partOfCount": "Part {number} of {total} — {series}",
+    "topicsLabel": "Topics",
+    "seriesNavLabel": "Series navigation",
+    "previousPart": "Previous part",
+    "nextPart": "Next part",
+    "relatedHeading": "Related teachings"
+  },
+  "emptyStates": {
+    "loadError": "Something went wrong on our side. Please try again in a moment. If it keeps happening, please let us know at bodhisamadhicenter@gmail.com.",
+    "retry": "Try again",
+    "noMatchHeading": "No teachings match these filters",
+    "noMatchBody": "Try removing a filter, or browse everything.",
+    "clearFilters": "Clear all filters",
+    "libraryPreparingHeading": "The library is being prepared",
+    "libraryPreparingBody": "Teachings will appear here as they are recorded. Please return soon.",
+    "seriesPreparingHeading": "The parts of this series are being prepared",
+    "mastersPreparingHeading": "Teacher profiles are being prepared",
+    "masterNoTeachingsHeading": "No teachings from this master yet",
+    "masterNoTeachingsBody": "Recordings will appear here as they are published."
+  },
+  "facets": {
+    "label": "Filters",
+    "teacherHeading": "Teacher",
+    "seriesHeading": "Series",
+    "topicHeading": "Topic",
+    "lineageHeading": "Lineage",
+    "clearAll": "Clear all filters",
+    "filters": "Filters",
+    "filtersWithCount": "Filters ({count})",
+    "apply": "Apply",
+    "removeFilter": "Remove filter: {filter}"
+  },
+  "footer": {
+    "teachingsHeading": "Teachings",
+    "linkAll": "All teachings",
+    "linkVideo": "Video",
+    "linkAudio": "Audio",
+    "linkScripts": "Scripts",
+    "linkMasters": "Masters",
+    "contactHeading": "Contact",
+    "hours": "Mon–Sun, 6:00–11:00 am (call before visiting)",
+    "charity": "Registered Canadian charity {number}",
+    "dedicationBo": "སེམས་ཅན་ཐམས་ཅད་བདེ་བ་དང་ལྡན་པར་གྱུར་ཅིག"
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "en": "EN",
+    "zh": "中文",
+    "bo": "བོད"
+  },
+  "library": {
+    "title": "Teachings",
+    "lede": "Recorded teachings, chanted audio and practice texts from the masters of the centre.",
+    "metaSuffix": "Bodhisamadhi Center",
+    "tabsLabel": "Filter by type",
+    "tabAll": "All",
+    "type_video": "Video",
+    "type_audio": "Audio",
+    "type_script": "Scripts",
+    "untitled": "Untitled",
+    "durationLabel": "duration",
+    "partOfSeries": "Part {number} of {series}",
+    "resultCount": "{count, plural, one {# teaching} other {# teachings}}"
+  },
+  "masters": {
+    "title": "Masters",
+    "lede": "The teachers of Bodhisamadhi Center."
+  },
+  "meta": {
+    "title": "Bodhisamadhi Center · A Gelug Tibetan Buddhist dharma centre in Toronto",
+    "description": "Bodhisamadhi Center is a Gelug Tibetan Buddhist dharma centre in Toronto, founded in 2016 by Venerable Geshe Sonam Topgyal of Sera Mey Monastery."
+  },
+  "nav": {
+    "brand": "Bodhisamadhi Center",
+    "primary": "Primary",
+    "teachings": "Teachings",
+    "masters": "Masters",
+    "menuOpen": "Menu",
+    "menuClose": "Close"
+  },
+  "notFound": {
+    "body": "This page could not be found. It may have moved. Try searching, or start from the library.",
+    "toLibrary": "Browse the library",
+    "toHome": "Go to the home page"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {current} of {total}",
+    "goToPage": "Go to page {page}"
+  },
+  "seriesDetail": {
+    "untitled": "Untitled series",
+    "eyebrow": "Series",
+    "partN": "Part {number}"
+  },
+  "site": {
+    "name": "Bodhisamadhi Center",
+    "descriptor": "A Gelug Tibetan Buddhist dharma centre in Toronto",
+    "dedication": "May all sentient beings be happy.",
+    "dedicationBo": "སེམས་ཅན་ཐམས་ཅད་བདེ་བ་དང་ལྡན་པར་གྱུར་ཅིག"
+  },
+  "teacherDetail": {
+    "teachingsHeading": "Teachings from this master"
+  },
+  "videoDetail": {
+    "playLabel": "Play: {title}",
+    "embedBlocked": "This video cannot be shown on your network. You can watch it on YouTube instead.",
+    "watchOnYouTube": "Watch on YouTube"
   }
 }

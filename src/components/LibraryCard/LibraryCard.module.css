@@ -1,0 +1,123 @@
+/* Docs/4 §3.5 / §3.6. Values reference tokens.css only. */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-3);
+  background: #ffffff;
+  border: 1px solid var(--n-200);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-card);
+  transition:
+    transform var(--t),
+    box-shadow var(--t),
+    border-color var(--t);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sh-hover);
+  border-color: var(--n-300);
+}
+
+.card:has(.titleLink:focus-visible) {
+  border-color: var(--n-300);
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--n-200);
+}
+
+.thumbImg {
+  object-fit: cover;
+}
+
+/* Missing thumbnail: a dark ground so the type badge, duration pill and the
+   centred type emoji all read (Docs/4 §3.6). --g-library is a token. */
+.thumbFallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--g-library);
+  font-family: var(--ff-emoji);
+  font-size: 32px;
+  line-height: 1;
+  opacity: 0.92;
+}
+
+.badgeTL {
+  position: absolute;
+  top: var(--sp-1);
+  inset-inline-start: var(--sp-1);
+}
+
+.duration {
+  position: absolute;
+  bottom: var(--sp-1);
+  inset-inline-end: var(--sp-1);
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  /* The §3.11 modal-overlay tone — reliable behind text on any thumbnail. */
+  background: rgba(28, 0, 8, 0.62);
+  color: var(--text-inv);
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-h4);
+  line-height: var(--lh-tight);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.titleLink {
+  color: var(--text);
+}
+
+.titleLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-md);
+}
+
+.titleLink:hover {
+  color: var(--cr-600);
+}
+
+.meta {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover {
+    transform: none;
+  }
+}

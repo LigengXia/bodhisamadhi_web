@@ -18,21 +18,26 @@ export default async function AdminAuthLayout({
   const t = await getTranslations('a11y');
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <Image
-          src="/logo.png"
-          alt={t('siteLogoAlt')}
-          width={56}
-          height={56}
-          priority
-          className={styles.logo}
-        />
-        {children}
-        <div className={styles.locale}>
-          <LanguageSwitcher />
+    <>
+      <a href="#main" className="skipLink">
+        {t('skipToContent')}
+      </a>
+      <main id="main" className={styles.page}>
+        <div className={styles.card}>
+          <Image
+            src="/logo.png"
+            alt={t('siteLogoAlt')}
+            width={56}
+            height={56}
+            priority
+            className={styles.logo}
+          />
+          {children}
+          <div className={styles.locale}>
+            <LanguageSwitcher />
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }
