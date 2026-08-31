@@ -1,0 +1,53 @@
+# ── Secrets — never commit ──────────────────
+.env
+.env.*
+!.env.example
+
+# ── Dependencies ────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ── Next.js ─────────────────────────────────
+.next/
+out/
+build/
+dist/
+next-env.d.ts
+
+# ── Testing ─────────────────────────────────
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+
+# ── Supabase ────────────────────────────────
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
+# ── Vercel ──────────────────────────────────
+.vercel/
+
+# ── Claude Code local settings ──────────────
+.claude/settings.local.json
+
+# ── macOS ───────────────────────────────────
+.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# ── Editors ─────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# ── Logs ────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-error.log*
