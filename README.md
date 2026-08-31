@@ -45,19 +45,25 @@ CI runs `npm run verify` on every pull request
 ## Layout
 
 ```
+Docs/                      the specification — read before any task
+Media/                     real photography, logos, hero video (moves into public/ in Phase 9)
+front_end/                 static HTML prototypes (v4 is the approved visual origin)
+public/                    served as-is
 src/
 ├── app/[locale]/          next-intl routing — /en, /zh, /bo
 ├── components/<Name>/      one component per folder, CSS Modules beside it
 ├── i18n/                   routing · navigation · request config
 ├── messages/{en,zh,bo}.json  every visible string (Docs/4 §7.9)
 ├── proxy.ts                Next 16 middleware — locale resolution
-└── styles/                tokens.css (the only file with hex) · base · surfaces · fonts
+├── styles/                tokens.css (the only file with hex) · base · surfaces · fonts
+└── test/                   Vitest setup
 ```
 
 ## Deployment
 
-Portable build (`output: 'standalone'`) — AWS-vs-Vercel is unresolved
-(CLAUDE.md § Known unresolved). Vercel selects the Node `24.x` major; env vars
+Portable build (`output: 'standalone'`, disabled on Vercel — see `next.config.ts`)
+— AWS-vs-Vercel is unresolved (CLAUDE.md § Known unresolved). Vercel selects the
+Node `24.x` major; env vars
 are mirrored from `.env.local` into the Vercel project (Production + Preview).
 
 ---

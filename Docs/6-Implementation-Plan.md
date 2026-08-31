@@ -299,7 +299,7 @@ Items 1–4 should be done before Phase 1 starts. Each returns a set of secrets;
 7. Emoji icons per §2.8: explicit font stack, `aria-hidden`, sized by `font-size`.
 8. Real media from `Media/` via `next/image`; note the Next 16 default changes (tech stack §11).
 
-**Acceptance:** side-by-side with `bodhisamadhi-v4.html`, the home page is visually indistinguishable in all three languages; no `.l-en` spans remain anywhere; Lighthouse performance ≥ 85 on mobile with the hero video; the teaser shows real content.
+**Acceptance:** side-by-side with `front_end/bodhisamadhi-v4.html`, the home page is visually indistinguishable in all three languages; no `.l-en` spans remain anywhere; Lighthouse performance ≥ 85 on mobile with the hero video; the teaser shows real content.
 
 **Branch:** `feat/home-masters`
 
