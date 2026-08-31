@@ -1,0 +1,46 @@
+/* Docs/4 §3.7 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--ls-label);
+  border-radius: var(--r-full);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.upper {
+  text-transform: uppercase;
+}
+
+.type {
+  background: var(--glass-d);
+  color: var(--text-inv);
+  backdrop-filter: blur(8px);
+}
+.lock {
+  background: var(--cr-800);
+  color: var(--go-300);
+}
+.live {
+  background: var(--error);
+  color: #fff;
+}
+.statusPending {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.statusOk {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.statusOff {
+  background: var(--n-200);
+  color: var(--text-mid);
+}
+.master {
+  background: var(--go-600);
+  color: #fff;
+}

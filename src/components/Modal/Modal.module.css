@@ -1,0 +1,58 @@
+/* Docs/4 §3.11 */
+.dialog {
+  padding: 0;
+  border: none;
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-modal);
+  max-width: 520px;
+  width: calc(100% - var(--sp-4));
+  max-height: 85vh;
+  color: var(--text);
+  background: #fff;
+}
+
+.dialog::backdrop {
+  background: rgba(28, 0, 8, 0.55);
+}
+
+.header {
+  padding: var(--sp-3) var(--sp-3) 0;
+}
+
+.title {
+  font-family: var(--ff-body);
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-semi);
+  color: var(--text);
+}
+
+.body {
+  padding: var(--sp-2) var(--sp-3);
+  overflow-y: auto;
+  font-size: var(--fs-body);
+  color: var(--text-mid);
+  line-height: var(--lh-body);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+}
+
+@media (max-width: 480px) {
+  .dialog {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    margin-block-start: auto;
+    border-radius: var(--r-md) var(--r-md) 0 0;
+  }
+  .footer {
+    flex-direction: column-reverse;
+  }
+  .footer > * {
+    width: 100%;
+  }
+}

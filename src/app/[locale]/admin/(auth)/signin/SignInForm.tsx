@@ -38,6 +38,7 @@ export function SignInForm({ next }: { next?: string }) {
         name="email"
         type="email"
         autoComplete="email"
+        defaultValue={state.email ?? ''}
         required
         autoFocus
       />

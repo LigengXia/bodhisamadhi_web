@@ -17,6 +17,7 @@
 }
 
 .control {
+  width: 100%;
   min-height: var(--field-h);
   padding: 0 var(--field-px);
   font-family: var(--ff-text);
@@ -47,6 +48,28 @@
 }
 .control[aria-invalid='true']:focus-visible {
   outline-color: var(--error);
+}
+
+.select {
+  appearance: none;
+  padding-inline-end: calc(var(--field-px) + 20px);
+}
+
+/* Chevron drawn as a mask so its colour stays a token (Docs/4 hard rule). */
+.selectWrap {
+  position: relative;
+}
+.selectWrap::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: var(--field-px);
+  top: calc(50% - 4px);
+  width: 12px;
+  height: 8px;
+  background: var(--text-mid);
+  pointer-events: none;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.5' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E")
+    no-repeat center / contain;
 }
 
 .help {
