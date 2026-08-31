@@ -20,7 +20,7 @@ This is the implementation specification for every screen in the application. It
 5. **Every component must be specified for all its states** before it is considered done: default, hover, focus-visible, active, disabled, loading, error, empty.
 6. **Copy follows §7.** UI text is not filler to be improvised — the terminology rules are about a religious tradition and are not stylistic preferences.
 7. **All three languages reach parity.** No string ships in English only. See §7.9.
-8. **When this document and `bodhisamadhi-v4.html` disagree, this document wins.** v4 is the origin of the visual language, not its specification; §2 corrects four defects in it.
+8. **When this document and `front_end/bodhisamadhi-v4.html` disagree, this document wins.** v4 is the origin of the visual language, not its specification; §2 corrects four defects in it.
 
 ### What changed from v4, and why
 
@@ -717,7 +717,7 @@ These are fixed. Never abbreviate, reorder or paraphrase.
 | Tibetan | **བྱང་ཆུབ་བསམ་གཏན་གླིང་།** |
 | Descriptor | "A Gelug Tibetan Buddhist dharma centre in Toronto" |
 
-> **⚠ NEEDS A DECISION — do not resolve this in code.** The Chinese name is inconsistent across existing materials: `bodhisamadhi-v4.html` and the PRD use **菩提禅院**, while the June project overview uses **菩提三摩地中心**. Both appear in committed documents. The project owner must choose one; until then, use **菩提禅院** (the newer, and the one the Master has seen in v4) and flag any occurrence of the other.
+> **⚠ NEEDS A DECISION — do not resolve this in code.** The Chinese name is inconsistent across existing materials: `front_end/bodhisamadhi-v4.html` and the PRD use **菩提禅院**, while the June project overview uses **菩提三摩地中心**. Both appear in committed documents. The project owner must choose one; until then, use **菩提禅院** (the newer, and the one the Master has seen in v4) and flag any occurrence of the other.
 
 Note the mixed spelling convention: "Center" in the organisation's name, "centre" in prose. That is deliberate — the legal name is fixed, the surrounding prose follows Canadian usage.
 

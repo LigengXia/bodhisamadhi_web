@@ -160,7 +160,7 @@ TypeScript 6.0.3 was published 2026-04-16 — four months seasoned — and every
 
 ### 6.2 No CSS framework
 
-`bodhisamadhi-v4.html` already contains a complete, coherent design system: a type scale, an 8px spacing scale, the crimson and gold palettes, the signature gradients, glass and shadow tokens. The Master has reviewed and approved how it looks.
+`front_end/bodhisamadhi-v4.html` already contains a complete, coherent design system: a type scale, an 8px spacing scale, the crimson and gold palettes, the signature gradients, glass and shadow tokens. The Master has reviewed and approved how it looks.
 
 Adopting Tailwind would mean re-expressing all of that in a different notation and converting every component — a large one-time cost inside a three-month MVP, carrying real risk of visual drift from an approved design, and buying nothing this project needs. The CSS moves across as a global stylesheet holding the `:root` tokens, plus CSS Modules per component. It adds zero dependencies and any web developer can read it.
 
@@ -241,13 +241,15 @@ npm view next@16.3.3 dist.tarball   # confirm the exact pin still resolves
 
 ## 10. `package.json` — copy-paste ready
 
+`engines.node` is deliberately the **major range `"24.x"`, not an exact pin.** Vercel reads this field and accepts only a major version — `"24.16.0"` there produces *"only major Node.js Version can be selected"* on every build. The exact patch is pinned where it can actually be honoured: `.nvmrc` (§2), read by local `nvm` and by GitHub Actions. This is the one place the "exact everywhere" rule of §1 yields, because the runtime host does not support it.
+
 ```json
 {
   "name": "bodhisamadhi-web",
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "24.16.0",
+    "node": "24.x",
     "npm": ">=11.0.0"
   },
   "scripts": {

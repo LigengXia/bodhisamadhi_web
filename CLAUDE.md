@@ -22,7 +22,7 @@ This is a religious institution's website, in three languages, serving people wh
 | Tables, RLS policies, API endpoints, auth flows? | `Docs/5-Backend-Schema-and-API.md` |
 | What do I build next, and in what order? | `Docs/6-Implementation-Plan.md` |
 
-`bodhisamadhi-v4.html` is the working front end — a self-contained trilingual prototype the Master has reviewed. It is the **origin** of the visual language. Where it and `Docs/4` disagree, **`Docs/4` wins**: it corrects four accessibility defects in v4 deliberately.
+`front_end/bodhisamadhi-v4.html` is the working front end — a self-contained trilingual prototype the Master has reviewed. It is the **origin** of the visual language. Where it and `Docs/4` disagree, **`Docs/4` wins**: it corrects four accessibility defects in v4 deliberately.
 
 `Media/` holds real photography, logos and hero video for the site.
 
