@@ -1,0 +1,15 @@
+.note {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-x);
+  margin-top: var(--sp-1);
+  padding: var(--sp-1) var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+  background: var(--n-100);
+  border-radius: var(--r-xs);
+}
+
+.note span {
+  font-family: var(--ff-emoji);
+}

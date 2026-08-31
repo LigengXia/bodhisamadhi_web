@@ -1,0 +1,74 @@
+/* Docs/4 §3.13. */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-x);
+  min-height: 44px;
+  padding-inline: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+}
+
+.arrow:hover {
+  color: var(--text);
+}
+
+.disabled {
+  color: var(--n-300);
+  pointer-events: none;
+}
+
+.pages {
+  display: flex;
+  gap: var(--sp-x);
+  list-style: none;
+}
+
+.page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding-inline: var(--sp-1);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-mid);
+}
+
+.page:hover {
+  background: var(--n-100);
+}
+
+.current {
+  background: var(--cr-600);
+  color: var(--text-inv);
+}
+
+.summary {
+  display: none;
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+/* Below --bp-sm: Previous · "Page N of M" · Next only. */
+@media (max-width: 480px) {
+  .pages {
+    display: none;
+  }
+
+  .summary {
+    display: inline;
+  }
+}

@@ -18,3 +18,21 @@ export function pickLocale(
   const first = Object.values(obj).find((v) => typeof v === 'string' && v);
   return (first as string) ?? '';
 }
+
+/**
+ * Like {@link pickLocale}, but also reports whether the requested locale was
+ * actually present — the caller shows the §3.8 "not yet available in …" note
+ * when `missing` is true and some text was still found.
+ */
+export function pickLocaleMeta(
+  value: Json | null | undefined,
+  locale: string,
+): { text: string; missing: boolean } {
+  const text = pickLocale(value, locale);
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return { text, missing: false };
+  }
+  const own = (value as Record<string, unknown>)[locale];
+  const present = typeof own === 'string' && own !== '';
+  return { text, missing: text !== '' && !present };
+}

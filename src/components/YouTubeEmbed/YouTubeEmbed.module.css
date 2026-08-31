@@ -1,0 +1,52 @@
+/* Docs/4 §3.22 — 16:9, --r-md, --n-200 before load. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.player {
+  display: block;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background-color: var(--n-200);
+}
+
+.blocked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  aspect-ratio: 16 / 9;
+  padding: var(--sp-3);
+  text-align: center;
+  border-radius: var(--r-md);
+  background: var(--n-100);
+  color: var(--text-mid);
+}
+
+.watchButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--sp-3);
+  border-radius: var(--r-full);
+  background: var(--cr-600);
+  color: var(--text-inv);
+  font-family: var(--ff-body);
+  font-size: var(--fs-body);
+}
+
+.watchLink {
+  align-self: flex-end;
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+.watchLink:hover {
+  color: var(--text);
+}

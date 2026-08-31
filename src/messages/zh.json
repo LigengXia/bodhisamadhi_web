@@ -1,23 +1,7 @@
 {
-  "meta": {
-    "title": "菩提禅院 · 多伦多格鲁派藏传佛教道场",
-    "description": "菩提禅院是位于多伦多的格鲁派藏传佛教道场，由色拉昧寺格西索南顿珠于 2016 年创立。"
-  },
   "a11y": {
     "skipToContent": "跳至主要内容",
     "siteLogoAlt": "菩提禅院"
-  },
-  "site": {
-    "name": "菩提禅院",
-    "descriptor": "多伦多格鲁派藏传佛教道场",
-    "dedication": "愿一切有情皆得安乐。",
-    "dedicationBo": "སེམས་ཅན་ཐམས་ཅད་བདེ་བ་དང་ལྡན་པར་གྱུར་ཅིག"
-  },
-  "languageSwitcher": {
-    "label": "语言",
-    "en": "EN",
-    "zh": "中文",
-    "bo": "བོད"
   },
   "admin": {
     "signIn": {
@@ -170,5 +154,130 @@
     "preview": {
       "draftBanner": "草稿 — 尚未发布"
     }
+  },
+  "breadcrumb": {
+    "label": "面包屑导航"
+  },
+  "content": {
+    "missingLocale": "此教法尚无 {language} 版本。",
+    "languageName_en": "English",
+    "languageName_zh": "中文",
+    "languageName_bo": "བོད་ཡིག",
+    "audioPlayerComingSoon": "此录音的播放器即将推出。",
+    "scriptReaderComingSoon": "此修持经文的阅读器即将推出。",
+    "teacherLabel": "上师",
+    "recordedLabel": "录制日期",
+    "durationLabel": "时长",
+    "seriesLabel": "系列",
+    "partOfCount": "第 {number} 讲，共 {total} 讲 — {series}",
+    "topicsLabel": "主题",
+    "seriesNavLabel": "系列导航",
+    "previousPart": "上一讲",
+    "nextPart": "下一讲",
+    "relatedHeading": "相关教法"
+  },
+  "emptyStates": {
+    "loadError": "我们这边出了点问题，请稍后再试。若持续发生，请来信 bodhisamadhicenter@gmail.com 告知我们。",
+    "retry": "重试",
+    "noMatchHeading": "没有符合这些筛选的教法",
+    "noMatchBody": "请尝试移除一个筛选，或浏览全部。",
+    "clearFilters": "清除全部筛选",
+    "libraryPreparingHeading": "典籍正在筹备中",
+    "libraryPreparingBody": "教法录制后将陆续在此呈现，请稍后再来。",
+    "seriesPreparingHeading": "此系列的各讲正在筹备中",
+    "mastersPreparingHeading": "上师简介正在筹备中",
+    "masterNoTeachingsHeading": "这位上师尚无教法",
+    "masterNoTeachingsBody": "发布后的录制内容将在此呈现。"
+  },
+  "facets": {
+    "label": "筛选",
+    "teacherHeading": "上师",
+    "seriesHeading": "系列",
+    "topicHeading": "主题",
+    "lineageHeading": "传承",
+    "clearAll": "清除全部筛选",
+    "filters": "筛选",
+    "filtersWithCount": "筛选（{count}）",
+    "apply": "套用",
+    "removeFilter": "移除筛选：{filter}"
+  },
+  "footer": {
+    "teachingsHeading": "教法",
+    "linkAll": "全部教法",
+    "linkVideo": "影片",
+    "linkAudio": "音频",
+    "linkScripts": "经文",
+    "linkMasters": "上师",
+    "contactHeading": "联络",
+    "hours": "周一至周日 上午 6:00–11:00（来访前请先来电）",
+    "charity": "加拿大注册慈善机构 {number}",
+    "dedicationBo": "སེམས་ཅན་ཐམས་ཅད་བདེ་བ་དང་ལྡན་པར་གྱུར་ཅིག"
+  },
+  "languageSwitcher": {
+    "label": "语言",
+    "en": "EN",
+    "zh": "中文",
+    "bo": "བོད"
+  },
+  "library": {
+    "title": "教法",
+    "lede": "本院上师的教法影片、唱诵音频与修持经文。",
+    "metaSuffix": "菩提禅院",
+    "tabsLabel": "按类型筛选",
+    "tabAll": "全部",
+    "type_video": "影片",
+    "type_audio": "音频",
+    "type_script": "经文",
+    "untitled": "无标题",
+    "durationLabel": "时长",
+    "partOfSeries": "第 {number} 讲 · {series}",
+    "resultCount": "{count} 项教法"
+  },
+  "masters": {
+    "title": "上师",
+    "lede": "菩提禅院的上师。"
+  },
+  "meta": {
+    "title": "菩提禅院 · 多伦多格鲁派藏传佛教道场",
+    "description": "菩提禅院是位于多伦多的格鲁派藏传佛教道场，由色拉昧寺格西索南顿珠于 2016 年创立。"
+  },
+  "nav": {
+    "brand": "菩提禅院",
+    "primary": "主导航",
+    "teachings": "教法",
+    "masters": "上师",
+    "menuOpen": "菜单",
+    "menuClose": "关闭"
+  },
+  "notFound": {
+    "body": "找不到此页面，可能已经移动。请尝试搜索，或从典籍开始。",
+    "toLibrary": "浏览典籍",
+    "toHome": "返回首页"
+  },
+  "pagination": {
+    "label": "分页",
+    "previous": "上一页",
+    "next": "下一页",
+    "pageOf": "第 {current} 页，共 {total} 页",
+    "goToPage": "前往第 {page} 页"
+  },
+  "seriesDetail": {
+    "untitled": "无标题系列",
+    "eyebrow": "系列",
+    "partN": "第 {number} 讲"
+  },
+  "site": {
+    "name": "菩提禅院",
+    "descriptor": "多伦多格鲁派藏传佛教道场",
+    "dedication": "愿一切有情皆得安乐。",
+    "dedicationBo": "སེམས་ཅན་ཐམས་ཅད་བདེ་བ་དང་ལྡན་པར་གྱུར་ཅིག"
+  },
+  "teacherDetail": {
+    "teachingsHeading": "这位上师的教法"
+  },
+  "videoDetail": {
+    "playLabel": "播放：{title}",
+    "embedBlocked": "您的网络无法显示此影片，您可以改在 YouTube 观看。",
+    "watchOnYouTube": "在 YouTube 观看"
   }
 }

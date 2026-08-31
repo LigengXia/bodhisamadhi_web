@@ -1,0 +1,9 @@
+.page {
+  padding-block: var(--sp-4) var(--sp-7);
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding-block: var(--sp-3) var(--sp-5);
+  }
+}
