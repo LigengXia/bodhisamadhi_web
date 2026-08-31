@@ -337,7 +337,11 @@ Recorded here because they are easy to hit and hard to diagnose, and because the
 
 ## 12. Environment variables
 
-Names only — values live in Vercel's environment settings and in a local `.env.local` that is git-ignored. Never commit a value.
+Names only — values live in Vercel's environment settings and in git-ignored local files. Never commit a value. Templates: `.env.example`, `.env.hosted.example`.
+
+### The app — `.env.local` (repo root)
+
+Loaded by Next.js. **Also auto-loaded by the Supabase CLI**, so it must not contain the hosted project's ref or DB password (see below).
 
 | Variable | Where used |
 |---|---|
@@ -350,9 +354,21 @@ Names only — values live in Vercel's environment settings and in a local `.env
 | `NEXT_PUBLIC_PAYPAL_CLIENT_ID` | Client |
 | `PAYPAL_CLIENT_SECRET` | Server only |
 | `RESEND_API_KEY` | Server only |
-| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Server only |
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_ENDPOINT` | Server only |
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL for emails, Open Graph and Stripe redirects |
 | `SENTRY_DSN` | Server, if Sentry is adopted |
+
+### The Supabase CLI, hosted project only — `.env.hosted` (repo root)
+
+**Not** auto-loaded. Passed explicitly by the `db:push` / `db:pull` npm scripts (`dotenv -e .env.hosted -- …`). If these lived in `.env.local` the CLI would auto-load them and run local `db reset` / `db test` / `gen types --local` against the hosted database.
+
+| Variable | Where used |
+|---|---|
+| `SUPABASE_PROJECT_ID` | `supabase link` / `db push` — the hosted project ref |
+| `SUPABASE_DB_PASSWORD` | `db push` — the hosted database password |
+| `SUPABASE_DB_URL` | Full transaction-pooler connection string, for `db push --db-url` in CI |
+
+Local development needs none of these — `supabase start` / `db reset` / `test db` use the container defaults (`config.toml` `project_id`, password `postgres`).
 
 ---
 
