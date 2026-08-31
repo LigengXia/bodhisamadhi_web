@@ -622,7 +622,7 @@ These are unchanged by this document and still block the phase named. From `6-Im
 | 4 | **Real schedule / stats** — the Saturday time(s), whether v4's count-up figures are accurate | Phase 9 (Home). |
 | 5 | **5–10 real lectures + 1–2 practice texts** | Phase 12 (Master review); useful for realistic seed data earlier. |
 | 6 | **Hosting: AWS vs Vercel** · **Domain** | Not blocking the MVP build; Vercel URL until decided. |
-| 7 | **R2 bucket name** | Phase 7 (`R2_BUCKET` currently a guess). |
+| ~~7~~ | ~~**R2 bucket name**~~ | **Resolved.** `R2_BUCKET=bodhisamadhi`, confirmed against the Cloudflare dashboard; set in `.env.local` and the Vercel project. |
 
 ---
 
