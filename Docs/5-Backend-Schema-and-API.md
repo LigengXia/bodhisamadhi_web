@@ -288,6 +288,8 @@ create table public.content_items (
   published_at     timestamptz,
 
   live_session_id  uuid references public.live_sessions(id) on delete set null,
+  -- ^ Phase 2 omits this column and FK — `live_sessions` does not exist
+  --   until Phase 16, which adds it back with `alter table`.
 
   created_by       uuid references public.profiles(id) on delete set null,
   deleted_at       timestamptz,
@@ -337,8 +339,10 @@ alter table public.content_items
     ) stored;
 
 create index content_search_en_idx  on public.content_items using gin (search_en);
-create index content_search_cjk_idx on public.content_items using gin (search_cjk gin_trgm_ops);
+create index content_search_cjk_idx on public.content_items using gin (search_cjk extensions.gin_trgm_ops);
 ```
+
+> **As-built (Phase 2):** extensions are installed into the `extensions` schema (Supabase convention), so `pg_trgm`'s operator class and `similarity()` are qualified — `extensions.gin_trgm_ops`, `extensions.similarity(…)` — because `search_content` runs with `search_path = ''`.
 
 Search is executed by a single function so the app never assembles the query itself:
 
@@ -360,7 +364,7 @@ as $$
   order by
     case when _locale = 'en'
       then ts_rank(c.search_en, websearch_to_tsquery('english', _q))
-      else similarity(c.search_cjk, _q)
+      else extensions.similarity(c.search_cjk, _q)
     end desc,
     c.published_at desc
   limit 100;
@@ -744,19 +748,24 @@ create trigger touch_updated_at before update on public.content_items
 
 ### 12.2 Audit
 
+> **Corrected during Phase 2.** `coalesce(new.id, old.id)` raises *"record new has no field id"* on `user_roles`, whose key is the composite `(user_id, role)`. The id is read from the row's `jsonb` instead — a composite-key table simply gets a null `entity_id`, with the full row in `before` / `after`. As-built migration: `supabase/migrations/0005_audit.sql`.
+
 ```sql
 create or replace function public.write_audit()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
+declare
+  _before jsonb := case when tg_op in ('UPDATE','DELETE') then to_jsonb(old) end;
+  _after  jsonb := case when tg_op in ('INSERT','UPDATE') then to_jsonb(new) end;
 begin
   insert into public.audit_log (actor_id, action, entity_type, entity_id, before, after)
   values (
     (select auth.uid()),
     lower(tg_op),
     tg_table_name,
-    coalesce(new.id, old.id),
-    case when tg_op in ('UPDATE','DELETE') then to_jsonb(old) end,
-    case when tg_op in ('INSERT','UPDATE') then to_jsonb(new) end
+    nullif(coalesce(_after ->> 'id', _before ->> 'id'), '')::uuid,
+    _before,
+    _after
   );
   return coalesce(new, old);
 end;

@@ -169,6 +169,15 @@ Items 1–4 should be done before Phase 1 starts. Each returns a set of secrets;
 
 **Stop condition:** any policy that cannot be written without weakening it. Report rather than loosen.
 
+**As-built notes** (deviations from this plan, all recorded in the migrations or `Docs/5`):
+
+- **Migration count is 6, not the tables listed per file.** `content_tags` moved from `0003` to `0004` — its FK to `content_items` forbids the earlier ordering. `content_items.live_session_id` is omitted (no `live_sessions` until Phase 16).
+- **Extensions live in the `extensions` schema** (Supabase convention). `search_content` therefore qualifies `extensions.similarity()` / `extensions.gin_trgm_ops` — see `Docs/5` §7.2.
+- **`write_audit()` corrected** — `coalesce(new.id, old.id)` fails on `user_roles` (composite key). Fixed to read the id from the row's jsonb; `Docs/5` §12.2 updated.
+- **`stamp_published_at` extended to `INSERT`** so seed / direct inserts satisfy `published_has_date`. `audit_log` gets its §13.9 admin-read policy in `0006` (Docs/6 said "§13.1–13.4 only", but an RLS-on table with no policy is a footgun).
+- **15 pgTAP assertions, not 12** — the 12 plus two `list_library_cards` payload checks and one locked-card check. Green locally and against the hosted `us-west-2` project.
+- Seed split: `supabase/seed.sql` (teachers + tags, deterministic, runs on `db reset`) and `scripts/seed-content.ts` → `npm run seed:content` (faker content, opt-in). Env-file split documented in `Docs/3` §12.
+
 **Branch:** `feat/database-foundation`
 
 ---

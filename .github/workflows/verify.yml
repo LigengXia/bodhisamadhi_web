@@ -27,6 +27,30 @@ jobs:
       # typecheck + lint + build + test — the gate on every phase (Docs/6 §1).
       - run: npm run verify
         env:
-          # The build reads env only for names; Phase 1 has no server calls.
+          # The build reads env only for names; there are no server calls yet.
           # Real values are set in Vercel and in .env.local, never in CI.
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # Local Supabase stack (Docker is preinstalled on ubuntu runners).
+      - run: npx supabase start
+
+      # `db reset` proves the migrations rebuild cleanly from scratch;
+      # `db test` runs the pgTAP RLS suite — the security boundary (Docs/6 §Phase 2).
+      - run: npx supabase db reset
+      - run: npx supabase test db
+
+      # The generated types must be in sync with the migrations.
+      - run: npm run db:types
+      - run: git diff --exit-code src/types/database.ts

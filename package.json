@@ -16,7 +16,12 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "verify": "npm run typecheck && npm run lint && npm run build && npm run test",
+    "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local > src/types/database.ts",
+    "db:test": "supabase test db",
+    "db:push": "dotenv -e .env.hosted -- supabase db push",
+    "db:pull": "dotenv -e .env.hosted -- supabase db pull",
+    "seed:content": "tsx scripts/seed-content.ts",
     "prepare": "husky"
   },
   "lint-staged": {
