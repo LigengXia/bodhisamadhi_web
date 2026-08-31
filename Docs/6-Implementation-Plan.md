@@ -200,6 +200,16 @@ Items 1–4 should be done before Phase 1 starts. Each returns a set of secrets;
 
 **Acceptance:** a signed-out visitor hitting `/en/admin` lands on sign-in and returns to `/en/admin` after; a non-staff account is refused; admin chrome matches §3.23 and uses no display serif; sign-in works in all three locales.
 
+**As-built notes:**
+
+- **`.env.local` now points at LOCAL Supabase**, not hosted — the CLI auto-loads it, and the app must talk to the same DB the migrations/tests run against. Hosted values moved to Vercel + `.env.hosted`. `Docs/3` §12 rewritten. This was the single biggest snag: the earlier `.env.local` had hosted credentials, so local sign-in authenticated against the wrong database.
+- **Auth config** (`disable_signup`, `site_url`, `uri_allow_list`, `password_min_length = 12` + lower/upper/digit) is set on hosted via the Management API (needs `SUPABASE_ACCESS_TOKEN`) and mirrored in `config.toml`. `config.toml` changes need `supabase stop && start` to take effect.
+- **Sign-in and reset use client-side navigation after the Server Action**, not `redirect()` inside it — `redirect()` inside a `useActionState` action did not propagate. The action returns `{ redirectTo }` and the form `router.replace()`s.
+- **Password reset is two routes** — `/{locale}/auth/confirm` (Route Handler, server-side PKCE code exchange) → `/{locale}/auth/new-password` (form). `Docs/7` §7.3 updated.
+- **`admin_queue_counts()`** added as migration `0007` (reduced to drafts / published). The counters are non-links in Phase 3; Phase 4 links them to `/admin/content`.
+- **`seed:admins`** script creates admins with a random password (printed once) + `admin` role. The two hosted accounts (`xiacumt@gmail.com`, `bodhisamadhi.admin@gmail.com`) are created; passwords handed over out-of-band to reset on first sign-in.
+- pgTAP test made **hermetic** (`session_replication_role = replica` + wipe at the top) so it passes regardless of dev seed data.
+
 **Branch:** `feat/auth-admin-shell`
 
 ---

@@ -1,0 +1,61 @@
+/* Docs/4 §3.3 */
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--sp-3);
+}
+
+.label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  margin-bottom: var(--sp-x);
+}
+
+.required {
+  color: var(--cr-600);
+}
+
+.control {
+  min-height: var(--field-h);
+  padding: 0 var(--field-px);
+  font-family: var(--ff-text);
+  font-size: var(--fs-body);
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--r-sm);
+  transition: border-color var(--t-fast);
+}
+
+.control::placeholder {
+  color: var(--text-soft);
+}
+.control:hover:not(:disabled) {
+  border-color: var(--field-border-hov);
+}
+.control:focus-visible {
+  border-color: var(--field-border-foc);
+}
+.control:disabled {
+  background: var(--field-disabled-bg);
+  color: var(--text-soft);
+  cursor: not-allowed;
+}
+.control[aria-invalid='true'] {
+  border-color: var(--error);
+}
+.control[aria-invalid='true']:focus-visible {
+  outline-color: var(--error);
+}
+
+.help {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+  margin-top: var(--sp-x);
+}
+.error {
+  font-size: var(--fs-sm);
+  color: var(--error);
+  margin-top: var(--sp-x);
+}

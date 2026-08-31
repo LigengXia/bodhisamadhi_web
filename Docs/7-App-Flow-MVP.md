@@ -396,15 +396,17 @@ Admin chrome per design system §3.23 and route rules per §4.2. All admin copy 
 | **Exits** | Confirmation panel with a link back to `/{locale}/admin/signin`. |
 | **Loading / Error** | Button loading state; a generic §7.8 *500* alert on transport failure. |
 
-### 7.3 Password-reset / token landing — `/{locale}/auth/confirm`
+### 7.3 Password-reset / token landing
+
+> **As-built (Phase 3):** split into two routes. `resetPasswordForEmail` points the e-mail link at **`/{locale}/auth/confirm`**, a **Route Handler** (not a page) that exchanges the PKCE `code` server-side — a browser client cannot read the `code_verifier` cookie the server client wrote. It then redirects to **`/{locale}/auth/new-password`**, a page that shows the "set a new password" form (success) or the expired / already-used notice.
 
 | | |
 |---|---|
 | **Purpose** | Where an e-mailed link lands. Must handle three outcomes distinctly (backend §16.1). |
 | **Who** | Public — reached before a session exists. |
-| **Key elements** | The page exchanges the token on load and then shows one of: **success** (a "set a new password" form: new password, confirm, submit → on success, redirect to `/{locale}/admin`), **expired** (*"This link has expired."* + a button to request a new one → `/{locale}/admin/reset`), **already used** (*"This link has already been used."* + a link to `/{locale}/admin/signin`). |
-| **Loading** | A brief "Confirming…" state while the token is exchanged. |
-| **Error** | A malformed or missing token is treated as **expired**. A server failure during the exchange → §7.8 *500* with a retry. |
+| **`/{locale}/auth/confirm`** (Route Handler) | Exchanges `?code` for a recovery session, or reads `?error` / `?error_code` from Supabase's `/auth/v1/verify`. Always redirects to `/{locale}/auth/new-password`, with `?error=expired` or `?error=used` on failure. |
+| **`/{locale}/auth/new-password`** (page) | **Success:** a form — new password · confirm · submit → `updateUser({password})` → redirect to `/{locale}/admin`. **`?error=expired`:** *"This link has expired."* + a button → `/{locale}/admin/reset`. **`?error=used`:** *"This link has already been used."* + a link → `/{locale}/admin/signin`. |
+| **Error** | A malformed or missing token is treated as **expired**. Passwords below the policy (12 chars, lower+upper+digit) are rejected with the hint text. |
 
 ### 7.4 Work queue — `/{locale}/admin` (admin landing)
 
@@ -622,7 +624,7 @@ These are unchanged by this document and still block the phase named. From `6-Im
 | 4 | **Real schedule / stats** — the Saturday time(s), whether v4's count-up figures are accurate | Phase 9 (Home). |
 | 5 | **5–10 real lectures + 1–2 practice texts** | Phase 12 (Master review); useful for realistic seed data earlier. |
 | 6 | **Hosting: AWS vs Vercel** · **Domain** | Not blocking the MVP build; Vercel URL until decided. |
-| 7 | **R2 bucket name** | Phase 7 (`R2_BUCKET` currently a guess). |
+| ~~7~~ | ~~**R2 bucket name**~~ | **Resolved** — `R2_BUCKET=bodhisamadhi`, confirmed against the Cloudflare dashboard; in `.env.local`, `.env.hosted` and Vercel. |
 
 ---
 

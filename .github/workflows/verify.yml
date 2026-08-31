@@ -27,9 +27,11 @@ jobs:
       # typecheck + lint + build + test — the gate on every phase (Docs/6 §1).
       - run: npm run verify
         env:
-          # The build reads env only for names; there are no server calls yet.
-          # Real values are set in Vercel and in .env.local, never in CI.
+          # Placeholders — the build only needs these present, not real. Real
+          # values live in Vercel and in .env.local, never in CI.
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
 
   database:
     runs-on: ubuntu-latest

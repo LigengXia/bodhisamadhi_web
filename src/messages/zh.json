@@ -18,5 +18,65 @@
     "en": "EN",
     "zh": "中文",
     "bo": "བོད"
+  },
+  "admin": {
+    "signIn": {
+      "title": "登入",
+      "emailLabel": "电子邮件",
+      "passwordLabel": "密码",
+      "submit": "登入",
+      "submitBusy": "登入中…",
+      "forgotPassword": "忘记密码？",
+      "errorBadCredentials": "电子邮件或密码不正确。",
+      "errorNotStaff": "此账户没有管理后台的访问权限。",
+      "errorUnverified": "请先确认您的电子邮件地址，查看信箱中的确认连结。",
+      "errorGeneric": "我方发生了一些问题，请稍后再试。"
+    },
+    "reset": {
+      "title": "重设密码",
+      "intro": "输入您账户的电子邮件地址，我们会寄出重设连结。",
+      "emailLabel": "电子邮件",
+      "submit": "寄出重设连结",
+      "submitBusy": "寄送中…",
+      "sent": "若该地址有账户，重设连结即将寄达。",
+      "backToSignIn": "返回登入"
+    },
+    "confirm": {
+      "checking": "确认中…",
+      "setTitle": "设定新密码",
+      "newPasswordLabel": "新密码",
+      "confirmPasswordLabel": "确认新密码",
+      "passwordHint": "至少 12 个字符，须包含小写字母、大写字母与数字。",
+      "passwordMismatch": "两次输入的密码不一致。",
+      "submit": "储存新密码",
+      "submitBusy": "储存中…",
+      "expiredTitle": "此连结已失效",
+      "expiredBody": "重设密码连结的有效期很短，请重新申请。",
+      "expiredAction": "重新申请连结",
+      "usedTitle": "此连结已被使用",
+      "usedAction": "前往登入"
+    },
+    "shell": {
+      "skipToContent": "跳至主要内容",
+      "dashboard": "工作台",
+      "content": "内容",
+      "signOut": "登出",
+      "localeLabel": "后台语言",
+      "menuOpen": "开启选单",
+      "menuClose": "关闭选单"
+    },
+    "queue": {
+      "title": "待处理事项",
+      "drafts": "草稿",
+      "published": "已发布",
+      "allClearHeading": "没有待处理的事项",
+      "allClearBody": "目前没有待处理的内容，新增一则法教即可开始。",
+      "allClearAction": "新增内容",
+      "errorBody": "我方发生了一些问题，请稍后再试。",
+      "retry": "重试"
+    },
+    "session": {
+      "expired": "您已被登出。重新登入后将回到原本的位置。"
+    }
   }
 }

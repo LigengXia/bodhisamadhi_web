@@ -1,0 +1,15 @@
+.form {
+  width: 100%;
+}
+
+.intro {
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+  margin-bottom: var(--sp-3);
+}
+
+.back {
+  margin-top: var(--sp-3);
+  text-align: center;
+  font-size: var(--fs-sm);
+}

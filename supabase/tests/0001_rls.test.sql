@@ -16,6 +16,19 @@ create extension if not exists pgtap with schema extensions;
 select plan(15);
 
 -- ── Fixtures (as the test superuser) ────────────────────────────────
+-- Start from an empty world so the assertions are exact regardless of any
+-- seed / dev data already in the local database. All of this rolls back.
+set local session_replication_role = replica;  -- suspend triggers + FK checks
+delete from public.content_tags;
+delete from public.content_items;
+delete from public.series;
+delete from public.tags;
+delete from public.user_roles;
+delete from public.teachers;
+delete from public.profiles;
+delete from auth.users;
+set local session_replication_role = origin;
+
 -- Inserting into auth.users fires handle_new_user(), which creates the
 -- matching public.profiles row.
 insert into auth.users (id, aud, role, email, created_at, updated_at) values

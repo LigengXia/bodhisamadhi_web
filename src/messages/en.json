@@ -18,5 +18,65 @@
     "en": "EN",
     "zh": "中文",
     "bo": "བོད"
+  },
+  "admin": {
+    "signIn": {
+      "title": "Sign in",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Sign in",
+      "submitBusy": "Signing in…",
+      "forgotPassword": "Forgot your password?",
+      "errorBadCredentials": "That email or password is not correct.",
+      "errorNotStaff": "This account does not have access to the admin area.",
+      "errorUnverified": "Please confirm your email address first. Check your inbox for the confirmation link.",
+      "errorGeneric": "Something went wrong on our side. Please try again in a moment."
+    },
+    "reset": {
+      "title": "Reset your password",
+      "intro": "Enter the email address for your account and we will send a reset link.",
+      "emailLabel": "Email",
+      "submit": "Send reset link",
+      "submitBusy": "Sending…",
+      "sent": "If that address has an account, a reset link is on its way.",
+      "backToSignIn": "Back to sign in"
+    },
+    "confirm": {
+      "checking": "Confirming…",
+      "setTitle": "Set a new password",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm new password",
+      "passwordHint": "At least 12 characters, with a lowercase letter, an uppercase letter and a digit.",
+      "passwordMismatch": "The two passwords do not match.",
+      "submit": "Save new password",
+      "submitBusy": "Saving…",
+      "expiredTitle": "This link has expired",
+      "expiredBody": "Password-reset links are valid for a short time. Request a new one.",
+      "expiredAction": "Request a new link",
+      "usedTitle": "This link has already been used",
+      "usedAction": "Go to sign in"
+    },
+    "shell": {
+      "skipToContent": "Skip to content",
+      "dashboard": "Dashboard",
+      "content": "Content",
+      "signOut": "Sign out",
+      "localeLabel": "Admin language",
+      "menuOpen": "Open menu",
+      "menuClose": "Close menu"
+    },
+    "queue": {
+      "title": "What needs your attention",
+      "drafts": "Drafts",
+      "published": "Published",
+      "allClearHeading": "Nothing needs your attention",
+      "allClearBody": "There is no content waiting. Add a teaching to get started.",
+      "allClearAction": "Add content",
+      "errorBody": "Something went wrong on our side. Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "session": {
+      "expired": "You have been signed out. Sign in again and you will return to where you were."
+    }
   }
 }
