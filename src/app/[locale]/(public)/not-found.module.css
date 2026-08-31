@@ -18,6 +18,13 @@
   color: var(--text-mid);
 }
 
+.search {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--sp-4);
+  text-align: start;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

@@ -445,3 +445,58 @@ export async function getSeries(slug: string): Promise<SeriesDetail | null> {
     parts: (parts ?? []) as SeriesDetail['parts'],
   };
 }
+
+// ── Search (Phase 6) ─────────────────────────────────────────────────
+
+export type SearchResults = {
+  groups: Record<ContentType, LibraryCard[]>;
+  total: number;
+};
+
+/**
+ * Wraps `search_content(_q, _locale)` (Docs/5 §7.2): English full-text with
+ * stemming, `zh`/`bo` trigram substring. The function itself filters to
+ * published + not-deleted and RLS keeps drafts out; we still pin visibility to
+ * `public` for the MVP (Docs/7 §3.5). Rank order from the function is
+ * preserved, then results are grouped by type (Docs/7 §5.9).
+ */
+export async function searchContent(
+  q: string,
+  locale: Database['public']['Enums']['locale'],
+): Promise<SearchResults> {
+  const empty: SearchResults = {
+    groups: { video: [], audio: [], script: [] },
+    total: 0,
+  };
+  const query = q.trim();
+  if (!query) return empty;
+
+  const sb = await createClient();
+  const { data: hits, error } = await sb.rpc('search_content', {
+    _q: query,
+    _locale: locale,
+  });
+  if (error) throw error;
+
+  const rows = (hits ?? []).filter((r) => r.visibility === 'public');
+  if (rows.length === 0) return empty;
+
+  const rank = new Map(rows.map((r, i) => [r.id, i]));
+  const { data: cards } = await publicItems(sb).in(
+    'id',
+    rows.map((r) => r.id),
+  );
+
+  const sorted = ((cards ?? []) as unknown as LibraryCard[]).sort(
+    (a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0),
+  );
+
+  const groups: Record<ContentType, LibraryCard[]> = {
+    video: [],
+    audio: [],
+    script: [],
+  };
+  for (const card of sorted) groups[card.type].push(card);
+
+  return { groups, total: sorted.length };
+}
