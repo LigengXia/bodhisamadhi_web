@@ -5,8 +5,12 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   // Portable build — no Vercel-only APIs. AWS-vs-Vercel hosting is unresolved
-  // (CLAUDE.md § Known unresolved); `standalone` keeps the door open.
-  output: 'standalone',
+  // (CLAUDE.md § Known unresolved). `standalone` produces a self-contained
+  // server for a container / AWS, but it breaks Vercel's own build adapter
+  // (missing `.next/next-server.js.nft.json`), so it is disabled when building
+  // on Vercel. The portability guarantee that matters — no Vercel-only APIs —
+  // holds regardless of this flag.
+  output: process.env.VERCEL ? undefined : 'standalone',
 
   // Cache Components stays opt-in / off for the MVP (Docs/3 §11).
   reactStrictMode: true,
