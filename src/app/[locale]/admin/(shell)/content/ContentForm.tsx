@@ -15,6 +15,7 @@ import { contentTypes } from '@/lib/schemas/content';
 
 import { saveContentAction, type ContentFormState } from './actions';
 import { YouTubeField } from './YouTubeField';
+import { ScriptUploadField } from './ScriptUploadField';
 import styles from './content.module.css';
 
 type Option = { id: string; label: string };
@@ -29,6 +30,9 @@ type Defaults = {
   recorded_at: string | null;
   status: 'draft' | 'published' | 'archived';
   youtube_id: string | null;
+  pdf_url: string | null;
+  pdf_pages: number | null;
+  allow_download: boolean;
 };
 
 const initial: ContentFormState = {};
@@ -90,7 +94,7 @@ export function ContentForm({
       <div className={styles.typePicker}>
         <h2 className={styles.pickerHeading}>{t('chooseType')}</h2>
         {contentTypes.map((ct) => {
-          const enabled = ct === 'video';
+          const enabled = ct === 'video' || ct === 'script';
           const name =
             ct === 'video'
               ? tc('typeVideo')
@@ -150,6 +154,21 @@ export function ContentForm({
         <YouTubeField
           defaultValue={String(dv('youtube', defaults?.youtube_id))}
           error={err['youtube'] ? t('errYoutube') : undefined}
+        />
+      )}
+
+      {type === 'script' && (
+        <ScriptUploadField
+          defaultKey={v?.pdf_key ?? defaults?.pdf_url ?? ''}
+          defaultPages={
+            v?.pdf_pages ? Number(v.pdf_pages) : (defaults?.pdf_pages ?? null)
+          }
+          defaultAllowDownload={
+            v?.allow_download !== undefined
+              ? v.allow_download === 'true' || v.allow_download === 'on'
+              : (defaults?.allow_download ?? true)
+          }
+          error={err['pdf_key'] ? t('errPdfRequired') : undefined}
         />
       )}
 

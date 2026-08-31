@@ -245,3 +245,58 @@
 .ytChannel {
   color: var(--text-soft);
 }
+
+/* ── Script upload (Phase 7) ──────────────────────────────────────── */
+.fileInput {
+  display: block;
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+}
+
+.uploadStatus {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-x);
+  margin-top: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+}
+
+.progressTrack {
+  height: 6px;
+  background: var(--n-200);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: var(--cr-600);
+  transition: width var(--t-fast);
+}
+
+.uploadDone {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+}
+
+.linkButton {
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  color: var(--cr-600);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+}

@@ -83,6 +83,7 @@ Every version verified on the npm registry, 2026-08-30.
 | `resend` | `6.25.0` | Transactional email — verification, reminders, booking confirmations, receipts. |
 | `@react-email/components` | `1.0.12` | Email templates as React components, so the trilingual email copy lives beside the site copy. |
 | `@aws-sdk/client-s3` | `3.1121.0` | Signed uploads and downloads against Cloudflare R2, which exposes an S3-compatible API. |
+| `@aws-sdk/s3-request-presigner` | `3.1121.0` | **As-built (Phase 7):** presigning `GetObject` / `PutObject` was split out of `client-s3` in AWS SDK v3 — there is no first-party way to sign an R2 URL without it. Pinned in lockstep with `client-s3`; bump the two together. |
 | `react-pdf` | `10.5.0` | In-browser PDF viewer for practice texts (App Flow B13). |
 | `lite-youtube-embed` | `0.3.4` | Renders a YouTube thumbnail and only loads the iframe on click. Saves roughly 500 KB per embed on a library page — the difference between a fast and a slow page on a phone. |
 | `date-fns` | `4.4.0` | Date formatting and the Saturday-schedule maths, with per-locale formatting for all three languages. |
@@ -267,6 +268,7 @@ npm view next@16.3.3 dist.tarball   # confirm the exact pin still resolves
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1121.0",
+    "@aws-sdk/s3-request-presigner": "3.1121.0",
     "@hookform/resolvers": "5.9.1",
     "@paypal/react-paypal-js": "10.4.0",
     "@react-email/components": "1.0.12",

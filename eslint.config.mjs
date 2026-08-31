@@ -24,6 +24,8 @@ const config = [
       'coverage/**',
       'next-env.d.ts',
       'node_modules/**',
+      // Vendored, minified, build-copied from pdfjs-dist at the pinned version.
+      'public/pdf.worker.min.mjs',
     ],
   },
 ];

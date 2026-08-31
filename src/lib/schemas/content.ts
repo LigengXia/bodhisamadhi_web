@@ -63,6 +63,17 @@ export const contentFormSchema = z
     status: z.enum(['draft', 'published']),
     // video
     youtube: z.string().default(''),
+    // script — the R2 object key from a completed upload, plus its metadata
+    pdf_key: z.string().trim().default(''),
+    pdf_pages: z
+      .string()
+      .transform((s) => s.trim())
+      .refine((s) => s === '' || /^[1-9]\d*$/.test(s), { message: 'invalid' })
+      .default(''),
+    allow_download: z
+      .string()
+      .optional()
+      .transform((s) => s === 'on' || s === 'true'),
   })
   .superRefine((v, ctx) => {
     if (v.title.en.length < 1 || v.title.en.length > 200) {
@@ -89,6 +100,13 @@ export const contentFormSchema = z
         });
       }
     }
+    if (v.type === 'script' && !/^scripts\/[0-9a-f-]+\.pdf$/i.test(v.pdf_key)) {
+      ctx.addIssue({
+        path: ['pdf_key'],
+        code: 'custom',
+        message: 'pdfRequired',
+      });
+    }
   });
 
 export type ContentFormValues = z.input<typeof contentFormSchema>;
@@ -108,5 +126,8 @@ export function toContentRow(v: z.output<typeof contentFormSchema>) {
     visibility: v.visibility,
     status: v.status,
     youtube_id: v.type === 'video' ? parseYouTubeId(v.youtube) : null,
+    pdf_url: v.type === 'script' ? v.pdf_key : null,
+    pdf_pages: v.type === 'script' && v.pdf_pages ? Number(v.pdf_pages) : null,
+    allow_download: v.type === 'script' ? v.allow_download : true,
   };
 }
