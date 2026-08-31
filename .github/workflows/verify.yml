@@ -1,0 +1,32 @@
+name: verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      # `npm ci`, never `npm install` — fails loudly if the lockfile and
+      # package.json disagree (Docs/3 §1).
+      - run: npm ci
+
+      # typecheck + lint + build + test — the gate on every phase (Docs/6 §1).
+      - run: npm run verify
+        env:
+          # The build reads env only for names; Phase 1 has no server calls.
+          # Real values are set in Vercel and in .env.local, never in CI.
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000

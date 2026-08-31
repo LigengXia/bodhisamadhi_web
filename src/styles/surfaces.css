@@ -1,0 +1,113 @@
+/* ══════════════════════════════════════════════════════════════════════
+   SURFACES & LAYOUT HELPERS — Docs/4 §2.3 / §2.7
+
+   The only global class names in the app (Docs/4 §9). Every other style is
+   a CSS Module scoped to its component.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Surface system (Docs/4 §2.3) ──────────────────────────────────────
+   Every section sits on exactly one of these. Never invent a background. */
+
+.surfaceParchment {
+  --surface-accent: var(--cr-600);
+  --surface-muted: var(--text-soft);
+  background: var(--n-50);
+  color: var(--text);
+}
+
+.surfaceParchmentRaised {
+  --surface-accent: var(--cr-600);
+  --surface-muted: var(--text-soft);
+  background: #ffffff;
+  color: var(--text);
+}
+
+.surfaceParchmentSunken {
+  --surface-accent: var(--cr-600);
+  --surface-muted: var(--text-soft);
+  background: var(--n-100);
+  color: var(--text);
+}
+
+.surfaceCrimsonDark {
+  --surface-accent: var(--go-400);
+  --surface-muted: rgba(250, 243, 232, 0.72);
+  background: var(--g-hero);
+  color: var(--text-inv);
+}
+
+.surfaceCrimsonDark :is(h1, h2, h3, h4) {
+  color: var(--text-inv);
+}
+
+.surfaceLibraryDark {
+  --surface-accent: var(--go-400);
+  --surface-muted: rgba(250, 243, 232, 0.72);
+  background: var(--g-library);
+  color: var(--text-inv);
+}
+
+.surfaceLibraryDark :is(h1, h2, h3, h4) {
+  color: var(--text-inv);
+}
+
+/* Dark surfaces switch the focus ring to gold (Docs/4 §2.9). */
+.surfaceCrimsonDark :focus-visible,
+.surfaceLibraryDark :focus-visible {
+  outline-color: var(--focus-dark);
+}
+
+/* ── Layout container (Docs/4 §2.7) ──────────────────────────────────── */
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--sp-3);
+}
+
+.wrapText {
+  max-width: var(--wrap-text);
+}
+
+@media (max-width: 700px) {
+  .wrap {
+    padding-inline: var(--sp-2);
+  }
+}
+
+/* ── Grids (Docs/4 §2.7) — collapse per the breakpoint table ──────────── */
+
+.g2,
+.g3,
+.g4 {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.g2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.g3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.g4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 960px) {
+  .g3,
+  .g4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .g2,
+  .g3,
+  .g4 {
+    grid-template-columns: 1fr;
+  }
+}

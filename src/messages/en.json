@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "title": "Bodhisamadhi Center · A Gelug Tibetan Buddhist dharma centre in Toronto",
+    "description": "Bodhisamadhi Center is a Gelug Tibetan Buddhist dharma centre in Toronto, founded in 2016 by Venerable Geshe Sonam Topgyal of Sera Mey Monastery."
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "siteLogoAlt": "Bodhisamadhi Center"
+  },
+  "site": {
+    "name": "Bodhisamadhi Center",
+    "descriptor": "A Gelug Tibetan Buddhist dharma centre in Toronto",
+    "dedication": "May all sentient beings be happy.",
+    "dedicationBo": "སེམས་ཅན་ཐམས་ཅད་བདེ་བ་དང་ལྡན་པར་གྱུར་ཅིག"
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "en": "EN",
+    "zh": "中文",
+    "bo": "བོད"
+  }
+}
