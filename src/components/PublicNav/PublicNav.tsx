@@ -10,6 +10,27 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher/LanguageSwitcher
 
 import styles from './PublicNav.module.css';
 
+// §2.8 keeps icons to the approved emoji set, which has no magnifying glass;
+// §2.8's own migration path is "a custom SVG set at one stroke weight". This
+// single mark uses currentColor, so it stays a token colour.
+function SearchIcon() {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="9" cy="9" r="6" />
+      <line x1="14" y1="14" x2="18" y2="18" />
+    </svg>
+  );
+}
+
 // Docs/4 §3.20 + Docs/7 §3.2. Phase 5 build: a solid, functional nav —
 // the hero-transparency / glass-on-scroll behaviour and the Schedule /
 // Support / Visit anchor links arrive with the marketing Home in Phase 9.
@@ -94,6 +115,15 @@ export function PublicNav() {
         </nav>
 
         <div className={styles.trailing}>
+          {/* Docs/7 §3.2 — the search icon stays visible on mobile and routes
+              straight to /search rather than expanding inline. */}
+          <Link
+            href="/search"
+            className={styles.searchLink}
+            aria-label={t('search')}
+          >
+            <SearchIcon />
+          </Link>
           <div className={styles.switcherDesktop}>
             <LanguageSwitcher />
           </div>
@@ -132,6 +162,14 @@ export function PublicNav() {
               {t(l.key)}
             </Link>
           ))}
+          <Link
+            href="/search"
+            className={styles.drawerLink}
+            aria-current={isActive('/search') ? 'page' : undefined}
+            onClick={close}
+          >
+            {t('search')}
+          </Link>
         </nav>
         <div className={styles.drawerSwitcher}>
           <LanguageSwitcher />

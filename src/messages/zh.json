@@ -247,7 +247,8 @@
     "teachings": "教法",
     "masters": "上师",
     "menuOpen": "菜单",
-    "menuClose": "关闭"
+    "menuClose": "关闭",
+    "search": "搜寻"
   },
   "notFound": {
     "body": "找不到此页面，可能已经移动。请尝试搜索，或从典籍开始。",
@@ -260,6 +261,25 @@
     "next": "下一页",
     "pageOf": "第 {current} 页，共 {total} 页",
     "goToPage": "前往第 {page} 页"
+  },
+  "search": {
+    "heading": "搜寻",
+    "inputLabel": "搜寻教法",
+    "inputPlaceholder": "标题、上师或主题",
+    "submit": "搜寻",
+    "metaTitle": "搜寻",
+    "metaWithQuery": "搜寻：{query}",
+    "resultCount": "{count} 项结果",
+    "group_video": "影片",
+    "group_audio": "音频",
+    "group_script": "经文",
+    "noQueryHeading": "搜寻典籍",
+    "noQueryBody": "以标题、上师或主题寻找教法。",
+    "browseLibrary": "浏览典籍",
+    "noResultsHeading": "找不到「{query}」的结果",
+    "noResultsBody": "请换个词，或按主题浏览典籍。",
+    "loadError": "我们这边出了点问题，请稍后再试。若持续发生，请来信 bodhisamadhicenter@gmail.com 告知我们。",
+    "retry": "重试"
   },
   "seriesDetail": {
     "untitled": "无标题系列",

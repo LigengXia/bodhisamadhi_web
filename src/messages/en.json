@@ -247,7 +247,8 @@
     "teachings": "Teachings",
     "masters": "Masters",
     "menuOpen": "Menu",
-    "menuClose": "Close"
+    "menuClose": "Close",
+    "search": "Search"
   },
   "notFound": {
     "body": "This page could not be found. It may have moved. Try searching, or start from the library.",
@@ -260,6 +261,25 @@
     "next": "Next",
     "pageOf": "Page {current} of {total}",
     "goToPage": "Go to page {page}"
+  },
+  "search": {
+    "heading": "Search",
+    "inputLabel": "Search teachings",
+    "inputPlaceholder": "Title, teacher or topic",
+    "submit": "Search",
+    "metaTitle": "Search",
+    "metaWithQuery": "Search: {query}",
+    "resultCount": "{count, plural, one {# result} other {# results}}",
+    "group_video": "Video",
+    "group_audio": "Audio",
+    "group_script": "Scripts",
+    "noQueryHeading": "Search the library",
+    "noQueryBody": "Find a teaching by title, teacher or topic.",
+    "browseLibrary": "Browse the library",
+    "noResultsHeading": "No results for “{query}”",
+    "noResultsBody": "Try a different word, or browse the library by topic.",
+    "loadError": "Something went wrong on our side. Please try again in a moment. If it keeps happening, please let us know at bodhisamadhicenter@gmail.com.",
+    "retry": "Try again"
   },
   "seriesDetail": {
     "untitled": "Untitled series",
