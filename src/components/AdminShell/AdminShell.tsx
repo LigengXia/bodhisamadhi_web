@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Toaster } from 'sonner';
 
 import { Link, usePathname } from '@/i18n/navigation';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher/LanguageSwitcher';
@@ -12,7 +13,7 @@ type NavItem = { href: string; labelKey: 'dashboard' | 'content' };
 
 const NAV: NavItem[] = [
   { href: '/admin', labelKey: 'dashboard' },
-  // `content` arrives in Phase 4.
+  { href: '/admin/content', labelKey: 'content' },
 ];
 
 export function AdminShell({
@@ -86,6 +87,12 @@ export function AdminShell({
       <main id="admin-main" className={styles.main}>
         {children}
       </main>
+
+      <Toaster
+        position="bottom-right"
+        toastOptions={{ duration: 5000 }}
+        // Docs/4 §3.12 — full sonner restyling is deferred; defaults for now.
+      />
     </div>
   );
 }
