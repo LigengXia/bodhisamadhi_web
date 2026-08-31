@@ -1,0 +1,49 @@
+/* ══════════════════════════════════════════════════════════════════════
+   FONTS — Docs/4 §2.5 / §2.6
+
+   The families themselves are loaded in the root layout through
+   next/font/google (never a <link> tag, never @import). This file maps the
+   generated CSS variables onto the design-system tokens and switches the
+   active family per locale via the <html lang> attribute.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --ff-display: var(--font-cormorant), Georgia, 'Times New Roman', serif;
+  --ff-body:
+    var(--font-inter), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ff-zh-display: var(--font-noto-serif-sc), 'Songti SC', 'SimSun', serif;
+  --ff-zh-body:
+    var(--font-noto-sans-sc), 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --ff-bo: var(--font-tibetan), 'Jomolhari', serif;
+
+  --ff-emoji:
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+
+  /* Default (Latin) mapping; overridden per locale below. */
+  --ff-heading: var(--ff-display);
+  --ff-text: var(--ff-body);
+}
+
+html[lang='en'] {
+  --ff-heading: var(--ff-display);
+  --ff-text: var(--ff-body);
+}
+
+html[lang='zh-Hans'] {
+  --ff-heading: var(--ff-zh-display);
+  --ff-text: var(--ff-zh-body);
+}
+
+html[lang='bo'] {
+  --ff-heading: var(--ff-bo);
+  --ff-text: var(--ff-bo);
+}
+
+/* Tibetan stacked glyphs are clipped at normal leading and need far more
+   space (Docs/4 §2.6). Applied wherever Tibetan may appear, including an
+   inline <span lang="bo"> inside otherwise-English copy. */
+:lang(bo) {
+  font-family: var(--ff-bo);
+  line-height: var(--lh-tibetan);
+  word-break: keep-all;
+}

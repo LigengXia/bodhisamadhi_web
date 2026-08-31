@@ -1,0 +1,22 @@
+.next/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+package-lock.json
+next-env.d.ts
+Media/
+*.html
+
+# All Markdown in this repo is hand-authored (Docs/ specs, CLAUDE.md, README).
+*.md
+Docs/
+
+# Verbatim copy of Docs/4 §2.1 — must not drift from the design system.
+src/styles/tokens.css
+
+# Next.js rewrites this on every build (jsx, .next/*/types include paths).
+tsconfig.json
+
+# Managed on its own branch (Supabase MCP scope).
+.mcp.json

@@ -1,0 +1,141 @@
+/* ══════════════════════════════════════════════════════════════════════
+   BASE — reset · base typography · focus (Docs/4 §2.9) · reduced motion
+   (Docs/4 §2.2). Values reference tokens.css only.
+   ══════════════════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--ff-text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-mid);
+  background: var(--n-50);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--cr-600);
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--ff-heading);
+  color: var(--text);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-tight);
+}
+
+h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-tight);
+}
+
+h3 {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-heading);
+}
+
+h4 {
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-tight);
+}
+
+p {
+  line-height: var(--lh-body);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ── Focus — mandatory on every interactive element (Docs/4 §2.9) ────── */
+
+:focus {
+  outline: none; /* only ever paired with the rule below */
+}
+
+:focus-visible {
+  outline: var(--focus-width) solid var(--focus-light);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--r-xs);
+}
+
+.surfaceDark :focus-visible {
+  outline-color: var(--focus-dark);
+}
+
+/* ── Skip to content — first focusable element on every page (Docs/4 §6) */
+
+.skipLink {
+  position: absolute;
+  inset-inline-start: var(--sp-2);
+  inset-block-start: var(--sp-2);
+  z-index: var(--z-toast);
+  padding: var(--sp-1) var(--sp-2);
+  background: var(--n-50);
+  color: var(--text);
+  border-radius: var(--r-xs);
+  box-shadow: var(--sh-card);
+  transform: translateY(-200%);
+  transition: transform var(--t-fast);
+}
+
+.skipLink:focus-visible {
+  transform: translateY(0);
+}
+
+/* ── Reduced motion — required, verbatim (Docs/4 §2.2) ──────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

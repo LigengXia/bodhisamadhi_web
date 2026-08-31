@@ -27,7 +27,7 @@ Every version here is an exact pin. No `^`, no `~`, no ranges. The point is that
 
 | Layer | Locked to | Why this and not the newest |
 |---|---|---|
-| **Node.js** | **24.13.3** (Active LTS) | Node 26 is Current, not LTS until October 2026, and Vercel currently offers it only on Sandboxes — not on builds and functions. Node 24 LTS is generally available on Vercel for both. Node 20 is deprecated on Vercel from October 1, 2026, so 22 and below are dead ends. Revisit in November 2026, once 26 is LTS and GA on Vercel. |
+| **Node.js** | **24.16.0** (Active LTS "Krypton") | Node 26 is Current, not LTS until October 2026, and Vercel currently offers it only on Sandboxes — not on builds and functions. Node 24 LTS is generally available on Vercel for both. Node 20 is deprecated on Vercel from October 1, 2026, so 22 and below are dead ends. Revisit in November 2026, once 26 is LTS and GA on Vercel. *(Corrected from `24.13.3` — that version was never released; the `24.13` line stopped at `.1`. `24.16.0` is the minimum that also satisfies `jsdom@30.0.1`'s `^24.15.0` engine range. Local dev + CI pin this exact patch via `.nvmrc`; Vercel selects the `24.x` major and floats to its latest patch at build time.)* |
 | **Package manager** | **npm 11.x** (bundled with Node 24) | Ships with Node — nothing extra for a future maintainer to install before they can build. `npm ci` gives exact reproducible installs. |
 | **Hosting** | **Vercel** | First-party Next.js hosting: Turbopack builds, image optimization, Cache Components and ISR work with zero configuration. PRD §7.4 budgets $0–20/mo. No DevOps person exists on this project. |
 | **Database / Auth / Storage** | **Supabase** (managed Postgres) | Decided in the tech note. Free tier to start, Pro (~$25/mo) as content grows. |
@@ -37,7 +37,7 @@ Every version here is an exact pin. No `^`, no `~`, no ranges. The point is that
 Create `.nvmrc` in the repo root containing exactly:
 
 ```
-24.13.3
+24.16.0
 ```
 
 ---
@@ -105,7 +105,7 @@ Every version verified on the npm registry, 2026-08-30.
 | Package | Version | Purpose |
 |---|---|---|
 | `typescript` | `6.0.3` | See §6.1 — this is deliberately not the newest. |
-| `@types/node` | `24.13.3` | Must track the Node major (24), not the newest published (26.x). |
+| `@types/node` | `24.13.3` | Must track the Node major (24), not the newest published (26.x). This is a real npm version (DefinitelyTyped versioning is independent of Node releases) and is kept as written even though the Node runtime moved to `24.16.0`. |
 | `@types/react` | `19.2.18` | Matches React 19.2. |
 | `@types/react-dom` | `19.2.5` | Matches React DOM 19.2. |
 | `eslint` | `10.9.1` | Linting. Note that `next lint` was **removed** in Next 16 — ESLint is invoked directly. |
@@ -180,7 +180,8 @@ Every peer constraint below was read from the registry on 2026-08-30 and is sati
 
 | Package | Declares | Our pin | OK |
 |---|---|---|---|
-| `next@16.3.3` | `node >=20.9.0`, `react ^19.0.0` | Node 24.13.3, React 19.2.8 | ✅ |
+| `next@16.3.3` | `node >=20.9.0`, `react ^19.0.0` | Node 24.16.0, React 19.2.8 | ✅ |
+| `jsdom@30.0.1` | `node ^22.22.2 \|\| ^24.15.0 \|\| >=26.0.0` | Node 24.16.0 | ✅ (this is why the Node pin is ≥ 24.15) |
 | `next-intl@4.14.1` | `next ^16.0.0`, `react ^19.0.0` | Next 16.3.3, React 19.2.8 | ✅ |
 | `@supabase/ssr@0.12.5` | `@supabase/supabase-js ^2.112.4` | 2.112.4 | ✅ |
 | `typescript-eslint@8.68.0` | `eslint ^10.0.0`, `typescript >=4.8.4 <6.1.0` | ESLint 10.9.1, TS 6.0.3 | ✅ |
@@ -218,7 +219,7 @@ Pinning is not the same as never upgrading. It means upgrades are visible and in
 Anyone can confirm this document matches reality:
 
 ```bash
-node --version                 # must print v24.13.3
+node --version                 # must print v24.16.0
 npm ci                         # fails if package.json and the lockfile disagree
 npm ls --depth=0               # every version must match §4 and §5 exactly
 npx tsc --noEmit               # type check
@@ -246,7 +247,7 @@ npm view next@16.3.3 dist.tarball   # confirm the exact pin still resolves
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "24.13.3",
+    "node": "24.16.0",
     "npm": ">=11.0.0"
   },
   "scripts": {
@@ -258,6 +259,7 @@ npm view next@16.3.3 dist.tarball   # confirm the exact pin still resolves
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "verify": "npm run typecheck && npm run lint && npm run build && npm run test",
     "db:types": "supabase gen types typescript --local > src/types/database.ts",
     "prepare": "husky"
   },
@@ -325,6 +327,9 @@ Recorded here because they are easy to hit and hard to diagnose, and because the
 - **Parallel routes require an explicit `default.js`** in every slot or the build fails.
 - **`next/image` defaults changed:** `qualities` is now `[75]`, `minimumCacheTTL` is 4 hours, and `16` was dropped from `imageSizes`. Relevant when the master portraits and gallery photographs replace the current placeholders.
 - **Cache Components** (`cacheComponents: true`) is opt-in. Recommended off for MVP; the caching model is new enough that debugging it is not where this project's time should go.
+- **`next dev` rewrites `CLAUDE.md` / `AGENTS.md`.** Next 16 injects a managed "agent rules" block on every dev run (`node_modules/next/dist/server/lib/generate-agent-files.js`). `CLAUDE.md` here is the project's own hand-authored spec, so `next.config.ts` sets **`agentRules: false`**. The Next 16 breaking-change guide it points at lives in `node_modules/next/dist/docs/` and is worth a read.
+- **ESLint 10 + `eslint-config-next@16.3.3` needs a React version pin.** The bundled `eslint-plugin-react@7.37.5` calls the removed `context.getFilename()` during version auto-detection and throws (`contextOrFilename.getFilename is not a function`) the moment any React rule runs. Fix: `settings: { react: { version: '19.2.8' } }` in `eslint.config.mjs` — skips detection entirely. Not a version change; a config line.
+- **`vitest.config` must be `.mts`** (or the package must be `"type": "module"`). A `.ts` Vitest config triggers a "ESM syntax in a file loaded as CommonJS" warning under Vite's native config loader.
 
 ---
 

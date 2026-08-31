@@ -1,0 +1,154 @@
+/* ══════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — Docs/4 §2.1
+
+   This is the ONLY file in which a raw hex value may appear. Every colour,
+   size, space, radius, shadow, duration and font weight used anywhere in
+   the application references a custom property defined here.
+
+   Copied verbatim from Docs/4-Design-System-and-Content-Guidelines.md §2.1.
+   Do not edit a value here without changing that document in the same commit.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Type scale ───────────────────────────────── */
+  --fs-h1:    clamp(40px, 6vw, 66px);
+  --fs-h2:    clamp(30px, 3.5vw, 42px);
+  --fs-h3:    22px;
+  --fs-h4:    17px;
+  --fs-body:  15px;
+  --fs-sm:    13px;
+  --fs-label: 11px;
+
+  /* ── Line heights ─────────────────────────────── */
+  --lh-display: 1.12;
+  --lh-heading: 1.25;
+  --lh-body:    1.65;
+  --lh-tight:   1.4;
+  --lh-tibetan: 2.0;   /* Tibetan needs far more leading — see §3.2 */
+
+  /* ── Font weights ─────────────────────────────── */
+  --fw-light:  300;
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semi:   600;
+  --fw-bold:   700;
+
+  /* ── Letter spacing ───────────────────────────── */
+  --ls-label:  0.14em;   /* uppercase eyebrows only */
+  --ls-tight: -0.01em;
+  --ls-normal: 0;
+
+  /* ── Spacing (8px base) ───────────────────────── */
+  --sp-0:  0;
+  --sp-x:  4px;
+  --sp-1:  8px;
+  --sp-2:  16px;
+  --sp-3:  24px;
+  --sp-4:  32px;
+  --sp-5:  48px;
+  --sp-6:  64px;
+  --sp-7:  96px;
+  --sp-8:  128px;
+
+  /* ── Crimson / Claret ─────────────────────────── */
+  --cr-950: #1C0008;
+  --cr-900: #3A0010;
+  --cr-800: #5C0019;
+  --cr-700: #7B0D1E;
+  --cr-600: #9B1B30;
+  --cr-500: #B52035;
+
+  /* ── Gold ─────────────────────────────────────── */
+  --go-300: #F5DC88;
+  --go-400: #E8C96A;
+  --go-500: #C8A040;
+  --go-600: #A07828;
+
+  /* ── Warm neutrals (surfaces) ─────────────────── */
+  --n-50:  #FDFAF5;
+  --n-100: #F6F1E9;
+  --n-200: #EDE7D9;
+  --n-300: #DDD5C2;
+
+  /* ── Text ─────────────────────────────────────── */
+  --text:      #1A100A;
+  --text-mid:  #5A4232;
+  --text-soft: #786249;   /* CORRECTED from #8A7258 — see §1 */
+  --text-inv:  #FAF3E8;
+
+  /* ── Semantic (NEW — measured in §2.4) ────────── */
+  --success:      #1F6B47;
+  --success-bg:   #EAF3EE;
+  --warning:      #7D5200;
+  --warning-bg:   #FBF1DE;
+  --error:        #B3261E;
+  --error-bg:     #FBEBEA;
+  --info:         #1F5673;
+  --info-bg:      #E9F1F5;
+
+  /* ── Focus (NEW — mandatory, see §2.9) ────────── */
+  --focus-light:  #9B1B30;   /* on light surfaces */
+  --focus-dark:   #E8C96A;   /* on dark surfaces */
+  --focus-width:  3px;
+  --focus-offset: 2px;
+
+  /* ── Form controls (NEW) ──────────────────────── */
+  --field-bg:          #FFFFFF;
+  --field-border:      #DDD5C2;
+  --field-border-hov:  #B8AC94;
+  --field-border-foc:  #9B1B30;
+  --field-disabled-bg: #F6F1E9;
+  --field-h:           44px;   /* minimum touch target */
+  --field-px:          14px;
+
+  /* ── Gradients ────────────────────────────────── */
+  --g-crimson: linear-gradient(135deg, #C83A52 0%, #6B0D1E 100%);
+  --g-gold:    linear-gradient(135deg, #F0D070 0%, #A07828 100%);
+  --g-hero:    linear-gradient(150deg, #0C0203 0%, #1C0508 42%, #110309 78%, #0A0612 100%);
+  --g-cta:     linear-gradient(140deg, #7B0D1E 0%, #3A0010 55%, #260012 100%);
+  --g-library: linear-gradient(150deg, #0E0304 0%, #1C0609 60%, #0C0210 100%);
+  --g-footer:  linear-gradient(170deg, #0E0605 0%, #1A0A08 100%);
+  --g-divider: linear-gradient(90deg, transparent 0%, rgba(155,27,48,.35) 20%, rgba(200,160,64,.60) 50%, rgba(155,27,48,.35) 80%, transparent 100%);
+
+  /* ── Glass ────────────────────────────────────── */
+  --glass:          rgba(255,255,255,0.62);
+  --glass-border:   rgba(255,255,255,0.50);
+  --glass-d:        rgba(255,255,255,0.07);
+  --glass-d-border: rgba(255,255,255,0.13);
+
+  /* ── Shadows ──────────────────────────────────── */
+  --sh-card:  0 4px 24px rgba(0,0,0,0.055), inset 0 1px 0 rgba(255,255,255,0.72);
+  --sh-hover: 0 16px 48px rgba(155,27,48,0.18), 0 4px 12px rgba(0,0,0,0.08);
+  --sh-btn:   0 4px 18px rgba(155,27,48,0.42);
+  --sh-gold:  0 4px 18px rgba(200,160,64,0.38);
+  --sh-dark:  0 8px 36px rgba(0,0,0,0.40);
+  --sh-modal: 0 24px 64px rgba(0,0,0,0.30);
+
+  /* ── Radii ────────────────────────────────────── */
+  --r-xs:   6px;
+  --r-sm:   10px;
+  --r-md:   16px;
+  --r-lg:   24px;
+  --r-full: 999px;
+
+  /* ── Layout ───────────────────────────────────── */
+  --wrap:       1180px;   /* standard content container */
+  --wrap-text:  720px;    /* long-form reading measure */
+  --wrap-admin: 1440px;
+  --nav-h:      72px;
+  --nav-h-sm:   60px;
+
+  /* ── Z-index scale (NEW — never write a raw z) ── */
+  --z-base:      0;
+  --z-sticky:    100;
+  --z-nav:       200;
+  --z-drawer:    300;
+  --z-modal:     400;
+  --z-toast:     500;
+
+  /* ── Motion ───────────────────────────────────── */
+  --ease:     cubic-bezier(.25,.46,.45,.94);
+  --t-fast:   .15s var(--ease);
+  --t:        .28s var(--ease);
+  --t-slow:   .5s var(--ease);
+}

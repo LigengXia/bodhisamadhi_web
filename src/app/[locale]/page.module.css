@@ -1,0 +1,44 @@
+.page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  background: var(--n-50);
+  padding-block: var(--sp-7);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-3);
+  max-width: var(--wrap-text);
+  margin-inline: auto;
+}
+
+.logo {
+  width: 96px;
+  height: auto;
+}
+
+.name {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+}
+
+.descriptor {
+  font-size: var(--fs-h4);
+  color: var(--text-mid);
+}
+
+.dedication {
+  margin-block-start: var(--sp-4);
+  font-size: var(--fs-body);
+  color: var(--text-soft);
+  /* Tibetan line-height + word-break come from the :lang(bo) rule in
+     fonts.css; min-height so a stacked glyph is never clipped (Docs/4 §2.6). */
+  min-height: calc(var(--fs-body) * var(--lh-tibetan));
+}

@@ -1,0 +1,53 @@
+.group {
+  display: inline-flex;
+  gap: var(--sp-x);
+  padding: var(--sp-x);
+  border: 1px solid var(--field-border);
+  border-radius: var(--r-full);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding-inline: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  color: var(--text-mid);
+  border-radius: var(--r-full);
+  text-decoration: none;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+}
+
+.option:hover {
+  color: var(--text);
+  background: var(--n-100);
+}
+
+.active {
+  color: var(--text-inv);
+  background: var(--cr-600);
+}
+
+.active:hover {
+  color: var(--text-inv);
+  background: var(--cr-600);
+}
+
+/* Each option in its own typeface (Docs/4 §3.20). */
+.optEn {
+  font-family: var(--ff-body);
+}
+
+.optZh {
+  font-family: var(--ff-zh-body);
+}
+
+.optBo {
+  font-family: var(--ff-bo);
+  line-height: var(--lh-tibetan);
+}
