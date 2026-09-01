@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 
 import { PublicNav } from '@/components/PublicNav/PublicNav';
 import { PublicFooter } from '@/components/PublicFooter/PublicFooter';
+import { LiveBannerSlot } from '@/components/LiveBanner/LiveBannerSlot';
 import { AudioProvider } from '@/components/AudioPlayer/AudioProvider';
 
 // Docs/7 §3.2 — the chrome present on every public screen: skip link, nav,
@@ -27,6 +28,7 @@ export default async function PublicLayout({
       <a href="#main" className="skipLink">
         {t('skipToContent')}
       </a>
+      <LiveBannerSlot />
       <PublicNav />
       <main id="main">{children}</main>
       <PublicFooter />
