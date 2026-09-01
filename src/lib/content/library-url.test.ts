@@ -30,6 +30,14 @@ describe('parseLibraryParams', () => {
       expect(parseLibraryParams({ page: page as string }).page).toBe(1);
     }
   });
+
+  it('merges repeated params and comma lists, de-duped', () => {
+    expect(
+      parseLibraryParams({ topic: ['lamrim,tantra', 'lamrim', 'refuge'] })
+        .topic,
+    ).toEqual(['lamrim', 'tantra', 'refuge']);
+    expect(parseLibraryParams({ lineage: 'gelug' }).lineage).toEqual(['gelug']);
+  });
 });
 
 describe('toggleFacet', () => {

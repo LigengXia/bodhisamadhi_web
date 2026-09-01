@@ -63,3 +63,6 @@ yarn-error.log*
 # Sample media for admin uploads — not site assets, they go to R2
 /Media/PDFs/
 /Media/Audio/
+
+# Local-only throwaway test-data scripts
+/scripts/dev-*.ts

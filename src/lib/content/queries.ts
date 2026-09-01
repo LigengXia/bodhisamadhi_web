@@ -67,7 +67,7 @@ async function idForSlug(
   return data?.id ?? null;
 }
 
-/** Item ids carrying at least one of the given tag slugs. */
+/** Item ids carrying at least one of the given tag slugs (OR within a group). */
 async function itemIdsForTags(
   sb: Awaited<ReturnType<typeof createClient>>,
   tagSlugs: string[],
@@ -83,6 +83,31 @@ async function itemIdsForTags(
     .select('content_item_id')
     .in('tag_id', tagIds);
   return [...new Set((links ?? []).map((l) => l.content_item_id))];
+}
+
+/**
+ * The item ids a tag facet selection resolves to: OR within a dimension
+ * (topic, lineage), AND between dimensions — an item must match at least one
+ * of the chosen topics AND at least one of the chosen lineages. Returns
+ * `null` when no tag facet is active. An empty array means "no matches".
+ */
+async function itemIdsForTagFacets(
+  sb: Awaited<ReturnType<typeof createClient>>,
+  topic: string[],
+  lineage: string[],
+): Promise<string[] | null> {
+  const groups = [topic, lineage].filter((g) => g.length > 0);
+  if (groups.length === 0) return null;
+
+  const idSets = await Promise.all(
+    groups.map((slugs) => itemIdsForTags(sb, slugs)),
+  );
+  let allowed = idSets[0] ?? [];
+  for (const next of idSets.slice(1)) {
+    const set = new Set(next);
+    allowed = allowed.filter((id) => set.has(id));
+  }
+  return allowed;
 }
 
 /** The N most recent published, public items — for the Home library teaser. */
@@ -101,43 +126,66 @@ export async function listLibraryCards(
   filters: LibraryFilters = {},
 ): Promise<LibraryPage> {
   const sb = await createClient();
-  const page = Math.max(1, filters.page ?? 1);
+  const requestedPage = Math.max(1, filters.page ?? 1);
+
+  // Resolve the facet slugs to ids up front. A slug that matches nothing (a
+  // stale or hand-typed URL) means an empty result, not an error.
+  let teacherId: string | undefined;
+  if (filters.teacher) {
+    const id = await idForSlug(sb, 'teachers', filters.teacher);
+    if (!id) return empty(requestedPage);
+    teacherId = id;
+  }
+  let seriesId: string | undefined;
+  if (filters.series) {
+    const id = await idForSlug(sb, 'series', filters.series);
+    if (!id) return empty(requestedPage);
+    seriesId = id;
+  }
+  const tagIds = await itemIdsForTagFacets(
+    sb,
+    filters.topic ?? [],
+    filters.lineage ?? [],
+  );
+  if (tagIds !== null && tagIds.length === 0) return empty(requestedPage);
+
+  // Count first so an out-of-range `?page=` clamps to the last page instead of
+  // asking PostgREST for a range it rejects with a 416.
+  let countQ = sb
+    .from('content_items')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'published')
+    .eq('visibility', 'public')
+    .is('deleted_at', null);
+  if (filters.type) countQ = countQ.eq('type', filters.type);
+  if (teacherId) countQ = countQ.eq('teacher_id', teacherId);
+  if (seriesId) countQ = countQ.eq('series_id', seriesId);
+  if (tagIds !== null) countQ = countQ.in('id', tagIds);
+  const { count } = await countQ;
+
+  const total = count ?? 0;
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(requestedPage, pageCount);
   const from = (page - 1) * PAGE_SIZE;
+
+  if (total === 0) return { cards: [], total: 0, page, pageCount };
 
   let query = publicItems(sb)
     .order('published_at', { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
-
   if (filters.type) query = query.eq('type', filters.type);
+  if (teacherId) query = query.eq('teacher_id', teacherId);
+  if (seriesId) query = query.eq('series_id', seriesId);
+  if (tagIds !== null) query = query.in('id', tagIds);
 
-  if (filters.teacher) {
-    const id = await idForSlug(sb, 'teachers', filters.teacher);
-    if (!id) return empty(page);
-    query = query.eq('teacher_id', id);
-  }
-
-  if (filters.series) {
-    const id = await idForSlug(sb, 'series', filters.series);
-    if (!id) return empty(page);
-    query = query.eq('series_id', id);
-  }
-
-  const tagSlugs = [...(filters.topic ?? []), ...(filters.lineage ?? [])];
-  if (tagSlugs.length > 0) {
-    const ids = await itemIdsForTags(sb, tagSlugs);
-    if (ids.length === 0) return empty(page);
-    query = query.in('id', ids);
-  }
-
-  const { data, count, error } = await query;
+  const { data, error } = await query;
   if (error) throw error;
 
-  const total = count ?? 0;
   return {
     cards: (data ?? []) as unknown as LibraryCard[],
     total,
     page,
-    pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    pageCount,
   };
 }
 
