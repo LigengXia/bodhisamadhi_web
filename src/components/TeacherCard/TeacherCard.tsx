@@ -33,7 +33,9 @@ export function TeacherCard({
             unoptimized
           />
         ) : (
-          <span className={styles.portraitFallback} aria-hidden="true" />
+          <span className={styles.portraitFallback} aria-hidden="true">
+            🪷
+          </span>
         )}
       </div>
       <h2 className={styles.name}>
