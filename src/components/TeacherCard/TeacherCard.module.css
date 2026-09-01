@@ -32,10 +32,19 @@
   object-fit: cover;
 }
 
+/* No portrait yet: the centre's mark on the parchment ground, not a bare
+   grey rectangle. Reads as "photo to come". */
 .portraitFallback {
   position: absolute;
   inset: 0;
-  background: var(--n-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--n-200);
+  font-family: var(--ff-emoji);
+  font-size: 40px;
+  line-height: 1;
+  opacity: 0.4;
 }
 
 .name {
