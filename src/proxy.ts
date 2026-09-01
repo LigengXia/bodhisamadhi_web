@@ -77,7 +77,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except Next internals, Vercel internals and files with an
-  // extension (static assets).
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)'],
+  // Everything except Next internals, Vercel internals, the Sentry tunnel
+  // (`/monitoring` — locale-prefixing it would 404 the event beacon) and
+  // files with an extension (static assets).
+  matcher: ['/((?!api|_next|_vercel|monitoring|.*\\..*).*)'],
 };
