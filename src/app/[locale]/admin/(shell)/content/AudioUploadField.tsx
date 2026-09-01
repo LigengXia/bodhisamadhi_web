@@ -117,6 +117,7 @@ export function AudioUploadField({
         ref={inputRef}
         type="file"
         accept="audio/mpeg,audio/mp3,.mp3"
+        aria-label={t('audioLabel')}
         className={styles.fileInput}
         onChange={(e) => {
           const f = e.currentTarget.files?.[0];

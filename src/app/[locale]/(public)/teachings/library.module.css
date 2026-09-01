@@ -28,9 +28,13 @@
   min-width: 0;
 }
 
+/* An <h2> for heading order (§6), but a quiet results label visually. */
 .count {
   margin-bottom: var(--sp-3);
+  font-family: var(--ff-body);
   font-size: var(--fs-sm);
+  font-weight: var(--fw-normal);
+  letter-spacing: normal;
   color: var(--text-soft);
 }
 

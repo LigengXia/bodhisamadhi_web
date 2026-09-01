@@ -122,6 +122,7 @@ export function ScriptUploadField({
         ref={inputRef}
         type="file"
         accept="application/pdf"
+        aria-label={t('pdfLabel')}
         className={styles.fileInput}
         onChange={(e) => {
           const f = e.currentTarget.files?.[0];

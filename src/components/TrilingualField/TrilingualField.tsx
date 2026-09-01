@@ -60,11 +60,17 @@ export function TrilingualField({
 
       {LOCALES.map((loc) => {
         const id = `${baseId}-${loc}`;
+        // One visible <span> label can't be a <label for> three inputs, so each
+        // input names itself: "Title, 中文" (§6 — every control has a name).
+        const tabLabel = t(
+          loc === 'en' ? 'tabEn' : loc === 'zh' ? 'tabZh' : 'tabBo',
+        );
         const shared = {
           id,
           name: `${name}_${loc}`,
           defaultValue: defaultValues?.[loc] ?? '',
           lang: loc === 'zh' ? 'zh-Hans' : loc,
+          'aria-label': `${label}, ${tabLabel}${loc === 'en' ? ' *' : ''}`,
           'aria-invalid': loc === 'en' && error ? true : undefined,
           'aria-describedby': loc === 'en' ? errorId : undefined,
           hidden: active !== loc,
