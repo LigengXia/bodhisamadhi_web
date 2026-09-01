@@ -22,13 +22,6 @@ export async function GET(
   const { id } = await params;
   const download = new URL(request.url).searchParams.get('download') === '1';
 
-  if (!isR2Configured()) {
-    return NextResponse.json(
-      { error: 'storage_unconfigured' },
-      { status: 503 },
-    );
-  }
-
   const supabase = await createClient();
   const { data: item } = await supabase
     .from('content_items')
@@ -52,6 +45,16 @@ export async function GET(
   }
   if (download && !item.allow_download) {
     return NextResponse.json({ error: 'download_not_allowed' }, { status: 403 });
+  }
+
+  // The request is valid; we just can't produce a URL without storage. This
+  // check comes last so an unknown item, a wrong type or a locked download
+  // still get their real status (404 / 400 / 403).
+  if (!isR2Configured()) {
+    return NextResponse.json(
+      { error: 'storage_unconfigured' },
+      { status: 503 },
+    );
   }
 
   const ext = item.type === 'script' ? 'pdf' : 'mp3';

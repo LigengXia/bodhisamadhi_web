@@ -1,5 +1,7 @@
 'use client';
 
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import clsx from 'clsx';
 
@@ -19,9 +21,8 @@ const LOCALE_CLASS: Record<Locale, string> = {
   bo: styles.optBo,
 };
 
-export function LanguageSwitcher() {
+function Options({ href }: { href: string }) {
   const activeLocale = useLocale();
-  const pathname = usePathname();
   const t = useTranslations('languageSwitcher');
 
   return (
@@ -31,7 +32,7 @@ export function LanguageSwitcher() {
         return (
           <Link
             key={locale}
-            href={pathname}
+            href={href}
             locale={locale}
             hrefLang={locale}
             aria-current={isActive ? 'true' : undefined}
@@ -46,5 +47,26 @@ export function LanguageSwitcher() {
         );
       })}
     </nav>
+  );
+}
+
+// Keeps the query string (library facets, `?page=`, a search `?q=`) so the
+// switch lands on the same view, not just the same route (Docs/7 §6.3).
+function WithQuery() {
+  const pathname = usePathname();
+  const qs = useSearchParams().toString();
+  return <Options href={qs ? `${pathname}?${qs}` : pathname} />;
+}
+
+export function LanguageSwitcher() {
+  const pathname = usePathname();
+  // `useSearchParams` needs a Suspense boundary or it opts every page that
+  // renders the nav out of static rendering. The fallback is the same switcher
+  // pointing at the bare path — correct for the static pages that have no
+  // meaningful query, and it stays functional without JS.
+  return (
+    <Suspense fallback={<Options href={pathname} />}>
+      <WithQuery />
+    </Suspense>
   );
 }

@@ -26,6 +26,7 @@ test-results/
 blob-report/
 .playwright/
 .playwright-mcp/
+e2e/.auth/
 
 # ── Supabase ────────────────────────────────
 supabase/.branches/
