@@ -8,7 +8,8 @@ import { getSignedUpload, putWithProgress } from '@/lib/upload';
 import styles from './content.module.css';
 import fieldStyles from '@/components/Field/Field.module.css';
 
-const MAX_BYTES = 25 * 1024 * 1024;
+const MAX_BYTES = 120 * 1024 * 1024;
+const MAX_LABEL = '120 MB';
 
 type UploadState =
   | { phase: 'idle' }
@@ -47,7 +48,7 @@ export function ScriptUploadField({
     if (file.size > MAX_BYTES) {
       setState({
         phase: 'error',
-        message: t('errPdfTooLarge', { limit: '25 MB' }),
+        message: t('errPdfTooLarge', { limit: MAX_LABEL }),
       });
       return;
     }
