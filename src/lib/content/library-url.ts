@@ -14,8 +14,17 @@ function first(v: string | string[] | undefined): string | undefined {
 }
 
 function list(v: string | string[] | undefined): string[] {
-  const raw = first(v);
-  return raw ? raw.split(',').filter(Boolean) : [];
+  // Accept both the app's own comma form (`?topic=a,b`) and repeated params
+  // (`?topic=a&topic=b`) from a hand-edited or externally built URL.
+  const parts = Array.isArray(v) ? v : v ? [v] : [];
+  return [
+    ...new Set(
+      parts
+        .flatMap((s) => s.split(','))
+        .map((s) => s.trim())
+        .filter(Boolean),
+    ),
+  ];
 }
 
 /** Parse `?teacher=&series=&topic=a,b&lineage=&page=` for a Server Component. */

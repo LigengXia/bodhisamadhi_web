@@ -108,6 +108,11 @@
 }
 
 .sheetBody {
+  /* Scroll within the sheet; never grow past it and push the footer (with
+     Apply / Clear) off-screen. `min-height: 0` lets a flex child shrink
+     below its content size. */
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: var(--sp-3);
   display: flex;
@@ -116,6 +121,7 @@
 }
 
 .sheetFooter {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -151,7 +157,8 @@
   }
 
   .sheet {
-    display: block;
+    display: flex;
+    flex-direction: column;
   }
 
   .sheet[hidden],
