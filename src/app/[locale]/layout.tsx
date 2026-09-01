@@ -12,6 +12,9 @@ import {
 } from 'next/font/google';
 import clsx from 'clsx';
 
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
 import { routing, type Locale } from '@/i18n/routing';
 import { siteIsIndexable } from '@/lib/seo';
 
@@ -120,6 +123,10 @@ export default async function LocaleLayout({
     <html lang={HTML_LANG[locale as Locale]} className={fontVars}>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        {/* Vercel Web Analytics + Speed Insights — privacy-friendly, no
+            cookies; inert until enabled in the Vercel project (Docs/6 §11.4). */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
