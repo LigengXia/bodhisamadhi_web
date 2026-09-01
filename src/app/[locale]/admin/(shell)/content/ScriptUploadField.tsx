@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 import { getSignedUpload, putWithProgress } from '@/lib/upload';
 
+import { useThumbUpload } from './useThumbUpload';
 import styles from './content.module.css';
 import fieldStyles from '@/components/Field/Field.module.css';
 
@@ -43,20 +44,12 @@ export function ScriptUploadField({
   const inputRef = useRef<HTMLInputElement>(null);
   const [key, setKey] = useState(defaultKey);
   const [pages, setPages] = useState<number | null>(defaultPages);
-  const [thumbKey, setThumbKey] = useState(defaultThumbKey);
-  const [thumbPreview, setThumbPreview] = useState<string | null>(null);
+  const thumb = useThumbUpload(defaultThumbKey);
   const [state, setState] = useState<UploadState>(
     defaultKey
       ? { phase: 'done', name: t('pdfOnFile'), pages: defaultPages }
       : { phase: 'idle' },
   );
-
-  // A freshly rendered cover is previewed from an object URL; revoke it when it
-  // is replaced or the field unmounts.
-  useEffect(() => {
-    if (!thumbPreview) return;
-    return () => URL.revokeObjectURL(thumbPreview);
-  }, [thumbPreview]);
 
   async function onPick(file: File) {
     if (file.type !== 'application/pdf') {
@@ -113,24 +106,8 @@ export function ScriptUploadField({
       setState({ phase: 'done', name: file.name, pages: rendered.pages });
     }
     if (rendered.thumb) {
-      await uploadThumb(rendered.thumb);
+      await thumb.store(rendered.thumb);
     }
-  }
-
-  async function uploadThumb(blob: Blob) {
-    const thumbFile = new File([blob], 'cover.jpg', { type: 'image/jpeg' });
-    const signed = await getSignedUpload('thumb', thumbFile);
-    if (!signed.ok) return;
-    try {
-      await putWithProgress(signed.uploadUrl, thumbFile, () => {});
-    } catch {
-      return;
-    }
-    setThumbKey(signed.key);
-    setThumbPreview((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(blob);
-    });
   }
 
   return (
@@ -139,7 +116,7 @@ export function ScriptUploadField({
 
       <input type="hidden" name="pdf_key" value={key} />
       <input type="hidden" name="pdf_pages" value={pages ?? ''} />
-      <input type="hidden" name="thumb_key" value={thumbKey} />
+      <input type="hidden" name="thumb_key" value={thumb.key} />
 
       <input
         ref={inputRef}
@@ -193,9 +170,9 @@ export function ScriptUploadField({
         </p>
       )}
 
-      {thumbPreview && (
+      {thumb.preview && (
         <Image
-          src={thumbPreview}
+          src={thumb.preview}
           alt=""
           width={96}
           height={124}

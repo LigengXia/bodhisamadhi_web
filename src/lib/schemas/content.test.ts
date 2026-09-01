@@ -253,4 +253,22 @@ describe('contentFormSchema — audio branch', () => {
     );
     expect(row.duration_seconds).toBeNull();
   });
+
+  it('maps a valid album-art key into thumbnail_url', () => {
+    const row = toContentRow(
+      contentFormSchema.parse({
+        ...audioBase,
+        thumb_key: 'thumbs/3f2504e0-4f89-11d3-9a0c-0305e82c3301.jpg',
+      }),
+    );
+    expect(row.thumbnail_url).toBe(
+      'thumbs/3f2504e0-4f89-11d3-9a0c-0305e82c3301.jpg',
+    );
+  });
+
+  it('ignores a missing album-art key', () => {
+    expect(
+      toContentRow(contentFormSchema.parse(audioBase)).thumbnail_url,
+    ).toBeNull();
+  });
 });

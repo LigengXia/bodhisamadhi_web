@@ -144,7 +144,8 @@ export function toContentRow(v: z.output<typeof contentFormSchema>) {
     status: v.status,
     youtube_id: v.type === 'video' ? parseYouTubeId(v.youtube) : null,
     thumbnail_url:
-      v.type === 'script' && /^thumbs\/[0-9a-f-]+\.jpg$/i.test(v.thumb_key)
+      (v.type === 'script' || v.type === 'audio') &&
+      /^thumbs\/[0-9a-f-]+\.jpg$/i.test(v.thumb_key)
         ? v.thumb_key
         : null,
     pdf_url: v.type === 'script' ? v.pdf_key : null,
