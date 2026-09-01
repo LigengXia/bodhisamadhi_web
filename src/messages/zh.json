@@ -151,7 +151,7 @@
       "errPartNeedsSeries": "设定集数前请先选择系列。",
       "errSaveBody": "我方发生了一些问题，尚未保存。请重试。",
       "pdfLabel": "修持文本（PDF）",
-      "pdfHelp": "不超过 25 MB。文件私密存储，通过签名链接提供。",
+      "pdfHelp": "不超过 120 MB。文件私密存储，通过签名链接提供。",
       "pdfOnFile": "当前文件",
       "pdfUploading": "正在上传 {name}…",
       "pdfReady": "已上传 {name}，共 {pages} 页。",

@@ -21,12 +21,13 @@ export const GET_URL_TTL_SECONDS = 900; // 15 minutes (Docs/5 §14)
 export const PUT_URL_TTL_SECONDS = 300;
 
 /**
- * Per-kind upload limits (owner decisions): PDF 25 MB, MP3 200 MB — a two-hour
+ * Per-kind upload limits (owner decisions): PDF 120 MB (accommodates scanned
+ * practice texts; a typed sadhana is a few MB), MP3 200 MB — a two-hour
  * teaching at a reasonable bitrate.
  */
 export const UPLOAD_LIMITS = {
   script: {
-    maxBytes: 25 * 1024 * 1024,
+    maxBytes: 120 * 1024 * 1024,
     contentTypes: ['application/pdf'],
     ext: 'pdf',
   },

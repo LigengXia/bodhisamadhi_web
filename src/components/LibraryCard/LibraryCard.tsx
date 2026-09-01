@@ -12,6 +12,17 @@ import styles from './LibraryCard.module.css';
 
 const TYPE_EMOJI = { video: '🎬', audio: '🎵', script: '📄' } as const;
 
+// A card's thumbnail: an explicit one if set, otherwise YouTube's own poster
+// for a video. `hqdefault.jpg` exists for every valid video; `object-fit:
+// cover` on the 16:9 frame trims any letterboxing.
+function thumbnailFor(card: CardData): string | null {
+  if (card.thumbnail_url) return card.thumbnail_url;
+  if (card.type === 'video' && card.youtube_id) {
+    return `https://i.ytimg.com/vi/${card.youtube_id}/hqdefault.jpg`;
+  }
+  return null;
+}
+
 // Docs/4 §3.6 — the whole card is one <a>; the title carries the accessible
 // name via ::after covering the card. No nested interactive elements.
 export async function LibraryCard({
@@ -32,13 +43,14 @@ export async function LibraryCard({
   const dateText = formatDate(card.recorded_at ?? card.published_at, locale);
   const duration = formatDuration(card.duration_seconds);
   const typeLabel = t(`type_${card.type}`);
+  const thumbnail = thumbnailFor(card);
 
   return (
     <article className={styles.card}>
       <div className={styles.thumb}>
-        {card.thumbnail_url ? (
+        {thumbnail ? (
           <Image
-            src={card.thumbnail_url}
+            src={thumbnail}
             alt=""
             fill
             sizes="(max-width: 700px) 100vw, (max-width: 960px) 50vw, 360px"

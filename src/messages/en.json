@@ -151,7 +151,7 @@
       "errPartNeedsSeries": "Choose a series before setting a part number.",
       "errSaveBody": "Something went wrong on our side. Nothing was saved. Please try again.",
       "pdfLabel": "Practice text (PDF)",
-      "pdfHelp": "Up to 25 MB. The file is stored privately and served through a signed link.",
+      "pdfHelp": "Up to 120 MB. The file is stored privately and served through a signed link.",
       "pdfOnFile": "the current file",
       "pdfUploading": "Uploading {name}…",
       "pdfReady": "Uploaded {name} · {pages} pages.",

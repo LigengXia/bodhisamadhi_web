@@ -40,6 +40,23 @@ const ECHO_FIELDS = [
   'duration_seconds',
 ] as const;
 
+// Publishing / editing / deleting content changes what every public surface
+// shows — the library index and its tabs, item detail pages, teacher and
+// series pages, the Home teaser — in all three locales. Content changes are
+// rare and traffic is low, so revalidate broadly: the whole localized tree
+// plus the specific list pages (belt and suspenders for the client Router
+// Cache, which is why a freshly published item can be missing on nav).
+function revalidateContentSurfaces() {
+  revalidatePath('/[locale]', 'layout');
+  for (const loc of ['en', 'zh', 'bo']) {
+    revalidatePath(`/${loc}`);
+    revalidatePath(`/${loc}/teachings`);
+    revalidatePath(`/${loc}/teachings/video`);
+    revalidatePath(`/${loc}/teachings/audio`);
+    revalidatePath(`/${loc}/teachings/script`);
+  }
+}
+
 function slugify(s: string) {
   return (
     s
@@ -101,23 +118,35 @@ export async function saveContentAction(
       .eq('id', id)
       .select('id');
     if (error || !data || data.length === 0) {
+      console.error('[saveContentAction] update failed', {
+        id,
+        error,
+        rows: data?.length,
+      });
       return { formError: true, values };
     }
   } else {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return { formError: true, values };
+    if (!user) {
+      console.error('[saveContentAction] no authenticated user on insert');
+      return { formError: true, values };
+    }
     const { error } = await supabase.from('content_items').insert({
       ...row,
       slug: slugify(row.title.en ?? String(Object.values(row.title)[0] ?? '')),
       created_by: user.id,
     });
-    if (error) return { formError: true, values };
+    if (error) {
+      console.error('[saveContentAction] insert failed', { error, row });
+      return { formError: true, values };
+    }
   }
 
   revalidatePath(`/${locale}/admin/content`);
   revalidatePath(`/${locale}/admin`);
+  revalidateContentSurfaces();
   return {
     redirectTo: `/${locale}/admin/content`,
     savedAs: parsed.data.status,
@@ -134,6 +163,7 @@ async function setStatus(id: string, status: 'draft' | 'published') {
     .select('id');
   revalidatePath(`/${locale}/admin/content`);
   revalidatePath(`/${locale}/admin`);
+  revalidateContentSurfaces();
   return !error && !!data && data.length > 0;
 }
 
@@ -155,5 +185,6 @@ export async function deleteContentAction(id: string) {
     .select('id');
   revalidatePath(`/${locale}/admin/content`);
   revalidatePath(`/${locale}/admin`);
+  revalidateContentSurfaces();
   return !error && !!data && data.length > 0;
 }
