@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { LibraryCard } from '@/components/LibraryCard/LibraryCard';
 import { YouTubeEmbed } from '@/components/YouTubeEmbed/YouTubeEmbed';
 import { PdfReader } from '@/components/PdfReader/PdfReader';
+import { AudioDetailPlayer } from '@/components/AudioPlayer/AudioDetailPlayer';
 import { MissingLocaleNote } from '@/components/MissingLocaleNote/MissingLocaleNote';
 import { pickLocale, pickLocaleMeta } from '@/lib/i18n-json';
 import { formatDate, formatDuration } from '@/lib/format';
@@ -63,6 +64,16 @@ export async function ContentDetailView({
             mediaId={detail.id}
             allowDownload={detail.allow_download}
             pageCount={detail.pdf_pages}
+          />
+        ) : detail.type === 'audio' && detail.audio_url ? (
+          <AudioDetailPlayer
+            track={{
+              id: detail.id,
+              slug: detail.slug,
+              title,
+              teacher: teacherName,
+              durationHint: detail.duration_seconds,
+            }}
           />
         ) : (
           <div className={styles.pending}>

@@ -20,10 +20,24 @@ const ENDPOINT =
 export const GET_URL_TTL_SECONDS = 900; // 15 minutes (Docs/5 §14)
 export const PUT_URL_TTL_SECONDS = 300;
 
-/** Per-type upload limits. PDF confirmed at 25 MB (Phase 7 owner decision). */
+/**
+ * Per-kind upload limits (owner decisions): PDF 25 MB, MP3 200 MB — a two-hour
+ * teaching at a reasonable bitrate.
+ */
 export const UPLOAD_LIMITS = {
-  script: { maxBytes: 25 * 1024 * 1024, contentType: 'application/pdf' },
+  script: {
+    maxBytes: 25 * 1024 * 1024,
+    contentTypes: ['application/pdf'],
+    ext: 'pdf',
+  },
+  audio: {
+    maxBytes: 200 * 1024 * 1024,
+    contentTypes: ['audio/mpeg', 'audio/mp3'],
+    ext: 'mp3',
+  },
 } as const;
+
+export type UploadKind = keyof typeof UPLOAD_LIMITS;
 
 export function isR2Configured(): boolean {
   return Boolean(ACCESS_KEY_ID && SECRET_ACCESS_KEY && BUCKET && ENDPOINT);

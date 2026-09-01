@@ -12,7 +12,7 @@ import {
 // Docs/5 §15.5 — a signed R2 upload URL for staff. Content type and size are
 // validated here; the browser then PUTs the file straight to R2.
 const schema = z.object({
-  kind: z.literal('script'),
+  kind: z.enum(['script', 'audio']),
   contentType: z.string(),
   size: z.number().int().positive(),
 });
@@ -43,7 +43,9 @@ export async function POST(request: Request) {
   }
 
   const limit = UPLOAD_LIMITS[parsed.data.kind];
-  if (parsed.data.contentType !== limit.contentType) {
+  if (
+    !(limit.contentTypes as readonly string[]).includes(parsed.data.contentType)
+  ) {
     return NextResponse.json({ error: 'bad_content_type' }, { status: 415 });
   }
   if (parsed.data.size > limit.maxBytes) {
@@ -53,9 +55,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const key = newObjectKey('script', 'pdf');
+  const key = newObjectKey(parsed.data.kind, limit.ext);
   try {
-    const uploadUrl = await presignPut(key, limit.contentType);
+    const uploadUrl = await presignPut(key, parsed.data.contentType);
     return NextResponse.json(
       { uploadUrl, key },
       { headers: { 'cache-control': 'no-store' } },

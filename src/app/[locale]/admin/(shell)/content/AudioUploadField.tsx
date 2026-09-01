@@ -3,58 +3,61 @@
 import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { getSignedUpload, putWithProgress } from '@/lib/upload';
+import {
+  getSignedUpload,
+  putWithProgress,
+  readAudioDuration,
+} from '@/lib/upload';
+import { formatDuration } from '@/lib/format';
 
 import styles from './content.module.css';
 import fieldStyles from '@/components/Field/Field.module.css';
 
-const MAX_BYTES = 25 * 1024 * 1024;
+const MAX_BYTES = 200 * 1024 * 1024;
+const MP3_TYPES = ['audio/mpeg', 'audio/mp3'];
 
 type UploadState =
   | { phase: 'idle' }
   | { phase: 'uploading'; percent: number; name: string }
-  | { phase: 'done'; name: string; pages: number | null }
+  | { phase: 'done'; name: string; seconds: number | null }
   | { phase: 'error'; message: string };
 
-// Docs/7 §5.7 · Docs/6 Phase 7. The file goes straight to R2 via a signed PUT
-// from /api/admin/upload-url; only the object key is submitted with the form.
-export function ScriptUploadField({
+// Docs/6 Phase 8 — MP3 to R2 via a signed PUT; duration captured client-side.
+export function AudioUploadField({
   defaultKey,
-  defaultPages,
-  defaultAllowDownload,
+  defaultSeconds,
   error,
 }: {
   defaultKey: string;
-  defaultPages: number | null;
-  defaultAllowDownload: boolean;
+  defaultSeconds: number | null;
   error?: string;
 }) {
   const t = useTranslations('admin.contentForm');
   const inputRef = useRef<HTMLInputElement>(null);
   const [key, setKey] = useState(defaultKey);
-  const [pages, setPages] = useState<number | null>(defaultPages);
+  const [seconds, setSeconds] = useState<number | null>(defaultSeconds);
   const [state, setState] = useState<UploadState>(
     defaultKey
-      ? { phase: 'done', name: t('pdfOnFile'), pages: defaultPages }
+      ? { phase: 'done', name: t('audioOnFile'), seconds: defaultSeconds }
       : { phase: 'idle' },
   );
 
   async function onPick(file: File) {
-    if (file.type !== 'application/pdf') {
-      setState({ phase: 'error', message: t('errPdfType') });
+    if (!MP3_TYPES.includes(file.type)) {
+      setState({ phase: 'error', message: t('errAudioType') });
       return;
     }
     if (file.size > MAX_BYTES) {
       setState({
         phase: 'error',
-        message: t('errPdfTooLarge', { limit: '25 MB' }),
+        message: t('errAudioTooLarge', { limit: '200 MB' }),
       });
       return;
     }
 
     setState({ phase: 'uploading', percent: 0, name: file.name });
 
-    const signed = await getSignedUpload('script', file);
+    const signed = await getSignedUpload('audio', file);
     if (!signed.ok) {
       setState({
         phase: 'error',
@@ -75,29 +78,29 @@ export function ScriptUploadField({
       return;
     }
 
-    let pageCount: number | null = null;
+    let dur: number | null = null;
     try {
-      pageCount = await countPages(file);
+      dur = await readAudioDuration(file);
     } catch {
-      // page count is a nicety — a failed read is not a blocker.
+      // duration is a nicety — a failed read is not a blocker.
     }
 
     setKey(signed.key);
-    setPages(pageCount);
-    setState({ phase: 'done', name: file.name, pages: pageCount });
+    setSeconds(dur);
+    setState({ phase: 'done', name: file.name, seconds: dur });
   }
 
   return (
     <div className={fieldStyles.field}>
-      <span className={fieldStyles.label}>{t('pdfLabel')}</span>
+      <span className={fieldStyles.label}>{t('audioLabel')}</span>
 
-      <input type="hidden" name="pdf_key" value={key} />
-      <input type="hidden" name="pdf_pages" value={pages ?? ''} />
+      <input type="hidden" name="audio_key" value={key} />
+      <input type="hidden" name="duration_seconds" value={seconds ?? ''} />
 
       <input
         ref={inputRef}
         type="file"
-        accept="application/pdf"
+        accept="audio/mpeg,audio/mp3,.mp3"
         className={styles.fileInput}
         onChange={(e) => {
           const f = e.currentTarget.files?.[0];
@@ -119,22 +122,24 @@ export function ScriptUploadField({
               style={{ width: `${state.percent}%` }}
             />
           </div>
-          <span>{t('pdfUploading', { name: state.name })}</span>
+          <span>{t('audioUploading', { name: state.name })}</span>
         </div>
       )}
 
       {state.phase === 'done' && (
         <p className={styles.uploadDone}>
-          {t('pdfReady', {
+          {t('audioReady', {
             name: state.name,
-            pages: state.pages ?? '?',
+            duration: state.seconds
+              ? formatDuration(state.seconds)
+              : t('audioUnknownDuration'),
           })}{' '}
           <button
             type="button"
             className={styles.linkButton}
             onClick={() => inputRef.current?.click()}
           >
-            {t('pdfReplace')}
+            {t('audioReplace')}
           </button>
         </p>
       )}
@@ -146,17 +151,7 @@ export function ScriptUploadField({
         </p>
       )}
 
-      <p className={fieldStyles.help}>{t('pdfHelp')}</p>
-
-      <label className={styles.checkboxRow}>
-        <input
-          type="checkbox"
-          name="allow_download"
-          defaultChecked={defaultAllowDownload}
-        />
-        <span>{t('allowDownloadLabel')}</span>
-      </label>
-      <p className={fieldStyles.help}>{t('allowDownloadHelp')}</p>
+      <p className={fieldStyles.help}>{t('audioHelp')}</p>
 
       {error && (
         <p className={fieldStyles.error}>
@@ -166,14 +161,4 @@ export function ScriptUploadField({
       )}
     </div>
   );
-}
-
-async function countPages(file: File): Promise<number> {
-  const { pdfjs } = await import('react-pdf');
-  pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-  const buf = await file.arrayBuffer();
-  const doc = await pdfjs.getDocument({ data: buf }).promise;
-  const n = doc.numPages;
-  await doc.destroy();
-  return n;
 }

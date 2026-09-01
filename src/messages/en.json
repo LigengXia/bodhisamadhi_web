@@ -162,11 +162,30 @@
       "errPdfType": "That file is not a PDF.",
       "errPdfTooLarge": "This file is larger than the {limit} limit. Please upload a smaller file.",
       "errUploadFailed": "The upload did not complete. Please try again.",
-      "errStorageUnconfigured": "PDF uploads are not available yet — file storage has not been configured."
+      "errStorageUnconfigured": "PDF uploads are not available yet — file storage has not been configured.",
+      "audioLabel": "Recording (MP3)",
+      "audioHelp": "Up to 200 MB. Streamed privately through a signed link.",
+      "audioOnFile": "the current recording",
+      "audioUploading": "Uploading {name}…",
+      "audioReady": "Uploaded {name} · {duration}.",
+      "audioReplace": "Replace",
+      "audioUnknownDuration": "length unknown",
+      "errAudioType": "That file is not an MP3.",
+      "errAudioTooLarge": "This file is larger than the {limit} limit. Please upload a smaller file.",
+      "errAudioRequired": "An MP3 is required for a recording."
     },
     "preview": {
       "draftBanner": "Draft — not published"
     }
+  },
+  "audioPlayer": {
+    "nowPlaying": "Now playing",
+    "playLabel": "Play",
+    "pauseLabel": "Pause",
+    "closeLabel": "Close the player",
+    "seekLabel": "Seek",
+    "loadError": "Something went wrong on our side. Please try again in a moment. If it keeps happening, please let us know at bodhisamadhicenter@gmail.com.",
+    "retry": "Try again"
   },
   "breadcrumb": {
     "label": "Breadcrumb"
