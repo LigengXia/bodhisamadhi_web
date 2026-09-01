@@ -13,6 +13,7 @@ import {
 import clsx from 'clsx';
 
 import { routing, type Locale } from '@/i18n/routing';
+import { siteIsIndexable } from '@/lib/seo';
 
 import '@/styles/tokens.css';
 import '@/styles/fonts.css';
@@ -84,6 +85,9 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
+    // Belt-and-suspenders with robots.txt: a per-page noindex for anything a
+    // crawler reached before launch. Removed by `SITE_INDEXABLE=true`.
+    robots: siteIsIndexable() ? undefined : { index: false, follow: false },
   };
 }
 
