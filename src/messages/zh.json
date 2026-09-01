@@ -94,13 +94,16 @@
       "errorBody": "我方发生了一些问题，请稍后再试。",
       "retry": "重试",
       "deleteTitle": "删除这则法教？",
-      "deleteBody": "「{title}」将被移除。管理员可以恢复。",
+      "deleteBody": "「{title}」将从网站移除。管理员可在「已删除」筛选中还原。",
       "deleteConfirm": "删除",
       "deleteCancel": "保留",
+      "statusDeleted": "已删除",
+      "actionRestore": "还原",
       "toastDraftSaved": "草稿已保存",
       "toastPublished": "已发布",
       "toastUnpublished": "已转为草稿",
-      "toastDeleted": "已删除"
+      "toastDeleted": "已删除",
+      "toastRestored": "已还原"
     },
     "contentForm": {
       "newTitle": "新增内容",

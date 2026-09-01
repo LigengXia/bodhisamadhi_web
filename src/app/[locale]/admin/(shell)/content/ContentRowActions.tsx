@@ -9,7 +9,12 @@ import { Modal } from '@/components/Modal/Modal';
 import { Link } from '@/i18n/navigation';
 import type { Database } from '@/types/database';
 
-import { deleteContentAction, publishAction, unpublishAction } from './actions';
+import {
+  deleteContentAction,
+  publishAction,
+  restoreContentAction,
+  unpublishAction,
+} from './actions';
 import styles from './content.module.css';
 
 export function ContentRowActions({
@@ -18,6 +23,7 @@ export function ContentRowActions({
   titleText,
   canEdit,
   canDelete,
+  deleted = false,
   editHref,
   previewHref,
 }: {
@@ -26,6 +32,7 @@ export function ContentRowActions({
   titleText: string;
   canEdit: boolean;
   canDelete: boolean;
+  deleted?: boolean;
   editHref: string;
   previewHref: string;
 }) {
@@ -38,6 +45,27 @@ export function ContentRowActions({
       const success = await fn();
       toast[success ? 'success' : 'error'](success ? t(ok) : t('errorBody'));
     });
+
+  // A soft-deleted row: the only sensible action is to bring it back. Edit,
+  // preview and publish all point at a row the rest of the app treats as gone.
+  if (deleted) {
+    return (
+      <div className={styles.actions}>
+        {canDelete ? (
+          <button
+            type="button"
+            className={styles.linkBtn}
+            disabled={pending}
+            onClick={() => run(() => restoreContentAction(id), 'toastRestored')}
+          >
+            {t('actionRestore')}
+          </button>
+        ) : (
+          <span className={styles.linkBtnDisabled}>{t('actionRestore')}</span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={styles.actions}>

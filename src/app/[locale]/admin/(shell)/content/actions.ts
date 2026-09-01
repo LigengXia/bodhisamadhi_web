@@ -190,3 +190,29 @@ export async function deleteContentAction(id: string) {
   revalidateContentSurfaces();
   return !error && !!data && data.length > 0;
 }
+
+// Clears the soft-delete flag. RLS already lets an admin read and update
+// soft-deleted rows, so no policy change is needed. The item returns in
+// whatever publish state it held when it was deleted.
+export async function restoreContentAction(id: string) {
+  const locale = await getLocale();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('content_items')
+    .update({ deleted_at: null })
+    .eq('id', id)
+    .not('deleted_at', 'is', null)
+    .select('id');
+  if (error || !data || data.length === 0) {
+    console.error('[restoreContentAction] restore failed', {
+      id,
+      error,
+      rows: data?.length,
+    });
+    return false;
+  }
+  revalidatePath(`/${locale}/admin/content`);
+  revalidatePath(`/${locale}/admin`);
+  revalidateContentSurfaces();
+  return true;
+}

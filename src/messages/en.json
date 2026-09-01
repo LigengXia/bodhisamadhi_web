@@ -94,13 +94,16 @@
       "errorBody": "Something went wrong on our side. Please try again in a moment.",
       "retry": "Try again",
       "deleteTitle": "Delete this teaching?",
-      "deleteBody": "“{title}” will be removed. This can be undone by an administrator.",
+      "deleteBody": "“{title}” will be removed from the site. An administrator can restore it from the Deleted filter.",
       "deleteConfirm": "Delete",
       "deleteCancel": "Keep it",
+      "statusDeleted": "Deleted",
+      "actionRestore": "Restore",
       "toastDraftSaved": "Draft saved",
       "toastPublished": "Published",
       "toastUnpublished": "Moved to draft",
-      "toastDeleted": "Deleted"
+      "toastDeleted": "Deleted",
+      "toastRestored": "Restored"
     },
     "contentForm": {
       "newTitle": "Add content",

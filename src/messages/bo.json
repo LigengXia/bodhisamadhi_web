@@ -94,13 +94,16 @@
       "errorBody": "ང་ཚོའི་ཕྱོགས་ནས་དཀའ་ངལ་ཟིག་བྱུང། ཡང་བསྐྱར་འབད།",
       "retry": "ཡང་བསྐྱར།",
       "deleteTitle": "ཅོས་བཤད་འདི་བསུབ་བའམ།",
-      "deleteBody": "“{title}” ཕྱིར་བསུ། དོ་དམ་གས་སྣོན་ཕུག",
+      "deleteBody": "“{title}” དྲ་ཚིགས་ནས་ཕྱིར་འཐེན་བྱེད། དོ་དམ་པས་ «བསུབ་ཟིན» འདེམས་སྒྲོམ་ནས་སླར་གསོ་ཐུབ།",
       "deleteConfirm": "བསུབ།",
       "deleteCancel": "བཞག",
+      "statusDeleted": "བསུབ་ཟིན།",
+      "actionRestore": "སླར་གསོ།",
       "toastDraftSaved": "ཟིན་བྲིས་ཉར་ཚར།",
       "toastPublished": "སྤེལ་ཟིན།",
       "toastUnpublished": "ཟིན་བྲིས་སུ་བསྒྱུར།",
-      "toastDeleted": "བསུབ་ཟིན།"
+      "toastDeleted": "བསུབ་ཟིན།",
+      "toastRestored": "སླར་གསོ་ཟིན།"
     },
     "contentForm": {
       "newTitle": "ནང་དོན་སྔོན།",
