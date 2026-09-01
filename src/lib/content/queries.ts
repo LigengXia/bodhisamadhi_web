@@ -15,7 +15,7 @@ function publicItems(sb: Awaited<ReturnType<typeof createClient>>) {
   return sb
     .from('content_items')
     .select(
-      'id, type, slug, title, thumbnail_url, duration_seconds, recorded_at, published_at, part_number, teacher:teachers(slug, honorific, name), series:series(slug, title)',
+      'id, type, slug, title, thumbnail_url, youtube_id, duration_seconds, recorded_at, published_at, part_number, teacher:teachers(slug, honorific, name), series:series(slug, title)',
       { count: 'exact' },
     )
     .eq('status', 'published')
@@ -29,6 +29,7 @@ export type LibraryCard = {
   slug: string;
   title: Json;
   thumbnail_url: string | null;
+  youtube_id: string | null;
   duration_seconds: number | null;
   recorded_at: string | null;
   published_at: string | null;
