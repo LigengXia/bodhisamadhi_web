@@ -90,6 +90,9 @@ Every version verified on the npm registry, 2026-08-30.
 | `lucide-react` | `1.37.0` | Icon set. Tree-shaken; only imported icons ship. |
 | `clsx` | `2.1.1` | Conditional class names. 500 bytes. |
 | `sonner` | `2.0.8` | Toast notifications for admin actions ("comment approved", "content published"). |
+| `@sentry/nextjs` | `10.73.0` | **As-built (Phase 11 §4):** error monitoring. Turbopack production builds are supported from `@10.13.0` / `next@15.4.1`. Import `withSentryConfig` from `@sentry/nextjs/config` (the root export is deprecated for v11). The SDK is inert without `NEXT_PUBLIC_SENTRY_DSN`; the `next.config` wrapper is skipped entirely without it. Config: errors only (`tracesSampleRate: 0`), no replay, `sendDefaultPii: false`. |
+| `@vercel/analytics` | `2.0.1` | **As-built (Phase 11 §4):** privacy-friendly page-view counts, no cookies. `<Analytics />` in the root layout; inert until enabled in the Vercel project. |
+| `@vercel/speed-insights` | `2.0.0` | **As-built (Phase 11 §4):** real-user Core Web Vitals. `<SpeedInsights />` in the root layout; inert until enabled in the Vercel project. |
 
 ### Not included, deliberately
 
