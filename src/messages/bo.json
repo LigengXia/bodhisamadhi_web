@@ -162,11 +162,30 @@
       "errPdfType": "ཡིག་ཆ་དེ་ PDF མིན།",
       "errPdfTooLarge": "ཡིག་ཆ་འདི་ {limit} ལས་ཆེ་བ་འདུག ཡིག་ཆ་ཆུང་བ་ཞིག་ཡར་འཇུག་གནང་རོགས།",
       "errUploadFailed": "ཡར་འཇུག་ཚང་མ་སོང་། ཡང་བསྐྱར་ཚོད་ལྟ་རོགས།",
-      "errStorageUnconfigured": "PDF ཡར་འཇུག་ད་དུང་མི་ཐུབ། ཡིག་ཆའི་གནས་ཁང་སྒྲིག་འགོད་མ་བྱས།"
+      "errStorageUnconfigured": "PDF ཡར་འཇུག་ད་དུང་མི་ཐུབ། ཡིག་ཆའི་གནས་ཁང་སྒྲིག་འགོད་མ་བྱས།",
+      "audioLabel": "སྒྲ་ཟིན (MP3)",
+      "audioHelp": "MB 200 ལས་མི་བརྒལ་བ། མཚན་རྟགས་ཅན་གྱི་སྦྲེལ་ཐག་བརྒྱུད་གསང་བར་རྒྱུན་སྐྱོང་བྱེད།",
+      "audioOnFile": "ད་ལྟའི་སྒྲ་ཟིན།",
+      "audioUploading": "{name} ཡར་འཇུག་བྱེད་བཞིན།",
+      "audioReady": "{name} ཡར་བཞག་ཟིན། {duration}",
+      "audioReplace": "བརྗེ།",
+      "audioUnknownDuration": "དུས་ཡུན་མི་གསལ།",
+      "errAudioType": "ཡིག་ཆ་དེ་ MP3 མིན།",
+      "errAudioTooLarge": "ཡིག་ཆ་འདི་ {limit} ལས་ཆེ་བ་འདུག ཡིག་ཆ་ཆུང་བ་ཞིག་ཡར་འཇུག་གནང་རོགས།",
+      "errAudioRequired": "སྒྲ་ཟིན་ལ་ MP3 ཞིག་དགོས།"
     },
     "preview": {
       "draftBanner": "ཟིན་བྲིས་ — མ་སྤེལ།"
     }
+  },
+  "audioPlayer": {
+    "nowPlaying": "ད་ལྟ་སྒྲོག་བཞིན།",
+    "playLabel": "སྒྲོག",
+    "pauseLabel": "མཚམས་འཇོག",
+    "closeLabel": "སྒྲོག་ཆས་སྒོ་རྒྱག",
+    "seekLabel": "གནས་འཚོལ།",
+    "loadError": "ང་ཚོའི་ཕྱོགས་ནས་ནོར་འཁྲུལ་བྱུང་སོང་། སྐར་ཆ་འགའི་རྗེས་སུ་ཡང་བསྐྱར་ཚོད་ལྟ་རོགས། མུ་མཐུད་བྱུང་ན་ bodhisamadhicenter@gmail.com ལ་འབྲེལ་བ་གནང་རོགས།",
+    "retry": "ཡང་བསྐྱར།"
   },
   "breadcrumb": {
     "label": "ལམ་སྟོན་ཕྲེང་བ།"

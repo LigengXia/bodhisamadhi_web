@@ -16,6 +16,7 @@ import { contentTypes } from '@/lib/schemas/content';
 import { saveContentAction, type ContentFormState } from './actions';
 import { YouTubeField } from './YouTubeField';
 import { ScriptUploadField } from './ScriptUploadField';
+import { AudioUploadField } from './AudioUploadField';
 import styles from './content.module.css';
 
 type Option = { id: string; label: string };
@@ -33,6 +34,8 @@ type Defaults = {
   pdf_url: string | null;
   pdf_pages: number | null;
   allow_download: boolean;
+  audio_url: string | null;
+  duration_seconds: number | null;
 };
 
 const initial: ContentFormState = {};
@@ -94,7 +97,6 @@ export function ContentForm({
       <div className={styles.typePicker}>
         <h2 className={styles.pickerHeading}>{t('chooseType')}</h2>
         {contentTypes.map((ct) => {
-          const enabled = ct === 'video' || ct === 'script';
           const name =
             ct === 'video'
               ? tc('typeVideo')
@@ -112,8 +114,7 @@ export function ContentForm({
               key={ct}
               type="button"
               className={styles.typeChoice}
-              disabled={!enabled}
-              onClick={() => enabled && setType(ct)}
+              onClick={() => setType(ct)}
             >
               <strong>{name}</strong>
               <span>{desc}</span>
@@ -169,6 +170,18 @@ export function ContentForm({
               : (defaults?.allow_download ?? true)
           }
           error={err['pdf_key'] ? t('errPdfRequired') : undefined}
+        />
+      )}
+
+      {type === 'audio' && (
+        <AudioUploadField
+          defaultKey={v?.audio_key ?? defaults?.audio_url ?? ''}
+          defaultSeconds={
+            v?.duration_seconds
+              ? Number(v.duration_seconds)
+              : (defaults?.duration_seconds ?? null)
+          }
+          error={err['audio_key'] ? t('errAudioRequired') : undefined}
         />
       )}
 

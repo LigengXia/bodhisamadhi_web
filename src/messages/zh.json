@@ -162,11 +162,30 @@
       "errPdfType": "该文件不是 PDF。",
       "errPdfTooLarge": "此文件超过 {limit} 的上限，请上传较小的文件。",
       "errUploadFailed": "上传未完成，请重试。",
-      "errStorageUnconfigured": "PDF 上传尚不可用——文件存储尚未配置。"
+      "errStorageUnconfigured": "PDF 上传尚不可用——文件存储尚未配置。",
+      "audioLabel": "录音（MP3）",
+      "audioHelp": "不超过 200 MB。通过签名链接私密串流。",
+      "audioOnFile": "当前录音",
+      "audioUploading": "正在上传 {name}…",
+      "audioReady": "已上传 {name}，{duration}。",
+      "audioReplace": "更换",
+      "audioUnknownDuration": "时长未知",
+      "errAudioType": "该文件不是 MP3。",
+      "errAudioTooLarge": "此文件超过 {limit} 的上限，请上传较小的文件。",
+      "errAudioRequired": "录音需要一份 MP3。"
     },
     "preview": {
       "draftBanner": "草稿 — 尚未发布"
     }
+  },
+  "audioPlayer": {
+    "nowPlaying": "正在播放",
+    "playLabel": "播放",
+    "pauseLabel": "暂停",
+    "closeLabel": "关闭播放器",
+    "seekLabel": "定位",
+    "loadError": "我们这边出了点问题，请稍后再试。若持续发生，请来信 bodhisamadhicenter@gmail.com 告知我们。",
+    "retry": "重试"
   },
   "breadcrumb": {
     "label": "面包屑导航"

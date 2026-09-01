@@ -7,11 +7,13 @@ import { pickLocale } from '@/lib/i18n-json';
 /**
  * The signed-URL endpoint (Docs/5 §15.2) — "the single most security-sensitive
  * endpoint in the app". It re-checks visibility and `allow_download`
- * server-side and hands back a 15-minute R2 URL. R2 objects are never
- * addressed from the browser directly (Docs/5 §14).
+ * server-side and hands back a 15-minute R2 URL.
  *
  * MVP: everything is public, so RLS on `content_items` (anon → published +
  * public + not deleted) is the visibility check. Phase 13 adds the member gate.
+ *
+ * `?download=1` applies to scripts only (Docs/7 §10.2 R8 — `allow_download`
+ * does not govern audio; audio is streamed).
  */
 export async function GET(
   request: Request,
@@ -30,7 +32,7 @@ export async function GET(
   const supabase = await createClient();
   const { data: item } = await supabase
     .from('content_items')
-    .select('id, type, slug, title, pdf_url, allow_download')
+    .select('id, type, slug, title, pdf_url, audio_url, allow_download')
     .eq('id', id)
     .is('deleted_at', null)
     .maybeSingle();
@@ -40,21 +42,25 @@ export async function GET(
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
-  // Phase 7 serves scripts only; audio is wired in Phase 8.
-  if (item.type !== 'script' || !item.pdf_url) {
+  const key = item.type === 'script' ? item.pdf_url : item.audio_url;
+  if ((item.type !== 'script' && item.type !== 'audio') || !key) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
+  if (download && item.type !== 'script') {
+    return NextResponse.json({ error: 'not_downloadable' }, { status: 400 });
+  }
   if (download && !item.allow_download) {
     return NextResponse.json({ error: 'download_not_allowed' }, { status: 403 });
   }
 
+  const ext = item.type === 'script' ? 'pdf' : 'mp3';
   const filename = download
-    ? `${slugForFile(pickLocale(item.title, 'en') || item.slug)}.pdf`
+    ? `${slugForFile(pickLocale(item.title, 'en') || item.slug)}.${ext}`
     : undefined;
 
   try {
-    const url = await presignGet(item.pdf_url, filename);
+    const url = await presignGet(key, filename);
     return NextResponse.json(
       {
         url,
@@ -75,6 +81,6 @@ function slugForFile(s: string): string {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
-      .slice(0, 80) || 'practice-text'
+      .slice(0, 80) || 'recording'
   );
 }

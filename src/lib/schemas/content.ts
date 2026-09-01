@@ -74,6 +74,13 @@ export const contentFormSchema = z
       .string()
       .optional()
       .transform((s) => s === 'on' || s === 'true'),
+    // audio — the R2 object key, plus the duration captured at upload
+    audio_key: z.string().trim().default(''),
+    duration_seconds: z
+      .string()
+      .transform((s) => s.trim())
+      .refine((s) => s === '' || /^\d+$/.test(s), { message: 'invalid' })
+      .default(''),
   })
   .superRefine((v, ctx) => {
     if (v.title.en.length < 1 || v.title.en.length > 200) {
@@ -107,6 +114,13 @@ export const contentFormSchema = z
         message: 'pdfRequired',
       });
     }
+    if (v.type === 'audio' && !/^audios\/[0-9a-f-]+\.mp3$/i.test(v.audio_key)) {
+      ctx.addIssue({
+        path: ['audio_key'],
+        code: 'custom',
+        message: 'audioRequired',
+      });
+    }
   });
 
 export type ContentFormValues = z.input<typeof contentFormSchema>;
@@ -129,5 +143,10 @@ export function toContentRow(v: z.output<typeof contentFormSchema>) {
     pdf_url: v.type === 'script' ? v.pdf_key : null,
     pdf_pages: v.type === 'script' && v.pdf_pages ? Number(v.pdf_pages) : null,
     allow_download: v.type === 'script' ? v.allow_download : true,
+    audio_url: v.type === 'audio' ? v.audio_key : null,
+    duration_seconds:
+      v.type === 'audio' && v.duration_seconds
+        ? Number(v.duration_seconds)
+        : null,
   };
 }

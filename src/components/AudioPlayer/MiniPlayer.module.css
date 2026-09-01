@@ -1,0 +1,89 @@
+/* Docs/4 §3.22 — audio mini-player. */
+
+.bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 64px;
+  padding-inline: var(--sp-3);
+  background: var(--cr-900);
+  color: var(--text-inv);
+  box-shadow: var(--sh-dark);
+}
+
+.playButton,
+.closeButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--text-inv);
+  background: none;
+  border: 1px solid var(--glass-d-border);
+  border-radius: var(--r-full);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+}
+
+.playButton:hover,
+.closeButton:hover {
+  border-color: var(--go-400);
+  color: var(--go-300);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex-shrink: 0;
+  width: 220px;
+}
+
+.title {
+  color: var(--text-inv);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.title:hover {
+  color: var(--go-300);
+}
+
+.time {
+  font-size: var(--fs-label);
+  color: rgba(250, 243, 232, 0.72);
+  font-variant-numeric: tabular-nums;
+}
+
+.seek {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--go-400);
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .bar {
+    height: 52px;
+    padding-inline: var(--sp-2);
+  }
+
+  .seek {
+    display: none;
+  }
+
+  .meta {
+    flex: 1;
+    width: auto;
+  }
+}

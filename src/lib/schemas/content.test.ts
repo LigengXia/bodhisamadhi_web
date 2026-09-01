@@ -178,3 +178,43 @@ describe('contentFormSchema — script branch', () => {
     expect(row.pdf_pages).toBeNull();
   });
 });
+
+const audioBase = {
+  ...base,
+  type: 'audio' as const,
+  youtube: '',
+  audio_key: 'audios/3f2504e0-4f89-11d3-9a0c-0305e82c3301.mp3',
+  duration_seconds: '4530',
+};
+
+describe('contentFormSchema — audio branch', () => {
+  it('accepts an audio item with a valid R2 key', () => {
+    expect(contentFormSchema.safeParse(audioBase).success).toBe(true);
+  });
+
+  it('requires an MP3 key for audio', () => {
+    const r = contentFormSchema.safeParse({ ...audioBase, audio_key: '' });
+    expect(r.success).toBe(false);
+    expect(r.error?.issues.some((i) => i.message === 'audioRequired')).toBe(
+      true,
+    );
+  });
+
+  it('maps audio fields into the row and clears youtube_id / pdf_url', () => {
+    const row = toContentRow(contentFormSchema.parse(audioBase));
+    expect(row).toMatchObject({
+      type: 'audio',
+      audio_url: 'audios/3f2504e0-4f89-11d3-9a0c-0305e82c3301.mp3',
+      duration_seconds: 4530,
+      youtube_id: null,
+      pdf_url: null,
+    });
+  });
+
+  it('tolerates a missing duration', () => {
+    const row = toContentRow(
+      contentFormSchema.parse({ ...audioBase, duration_seconds: '' }),
+    );
+    expect(row.duration_seconds).toBeNull();
+  });
+});

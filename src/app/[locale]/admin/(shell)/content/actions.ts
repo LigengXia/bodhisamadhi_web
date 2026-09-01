@@ -36,6 +36,8 @@ const ECHO_FIELDS = [
   'pdf_key',
   'pdf_pages',
   'allow_download',
+  'audio_key',
+  'duration_seconds',
 ] as const;
 
 function slugify(s: string) {
@@ -74,6 +76,8 @@ export async function saveContentAction(
     pdf_key: g('pdf_key'),
     pdf_pages: g('pdf_pages'),
     allow_download: g('allow_download'),
+    audio_key: g('audio_key'),
+    duration_seconds: g('duration_seconds'),
   });
 
   if (!parsed.success) {

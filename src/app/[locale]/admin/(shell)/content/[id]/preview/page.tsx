@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { Badge } from '@/components/Badge/Badge';
 import { Link } from '@/i18n/navigation';
 import { ContentDetailView } from '@/components/ContentDetailView/ContentDetailView';
+import { AudioProvider } from '@/components/AudioPlayer/AudioProvider';
 import { getContentForPreview } from '@/lib/content/queries';
 import type { Locale } from '@/i18n/routing';
 
@@ -40,7 +41,10 @@ export default async function ContentPreviewPage({
         <Link href="/admin/content">← {tc('title')}</Link>
       </p>
 
-      <ContentDetailView detail={detail} locale={locale as Locale} />
+      {/* Own provider — the admin shell is outside the public AudioProvider. */}
+      <AudioProvider>
+        <ContentDetailView detail={detail} locale={locale as Locale} />
+      </AudioProvider>
     </div>
   );
 }
