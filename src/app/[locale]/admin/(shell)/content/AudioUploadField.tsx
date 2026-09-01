@@ -1,15 +1,18 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 import {
   getSignedUpload,
   putWithProgress,
   readAudioDuration,
+  readEmbeddedCover,
 } from '@/lib/upload';
 import { formatDuration } from '@/lib/format';
 
+import { useThumbUpload } from './useThumbUpload';
 import styles from './content.module.css';
 import fieldStyles from '@/components/Field/Field.module.css';
 
@@ -23,19 +26,24 @@ type UploadState =
   | { phase: 'error'; message: string };
 
 // Docs/6 Phase 8 — MP3 to R2 via a signed PUT; duration captured client-side.
+// The embedded album art, when present, is lifted for the library card — a
+// nicety, never a blocker.
 export function AudioUploadField({
   defaultKey,
   defaultSeconds,
+  defaultThumbKey,
   error,
 }: {
   defaultKey: string;
   defaultSeconds: number | null;
+  defaultThumbKey: string;
   error?: string;
 }) {
   const t = useTranslations('admin.contentForm');
   const inputRef = useRef<HTMLInputElement>(null);
   const [key, setKey] = useState(defaultKey);
   const [seconds, setSeconds] = useState<number | null>(defaultSeconds);
+  const thumb = useThumbUpload(defaultThumbKey);
   const [state, setState] = useState<UploadState>(
     defaultKey
       ? { phase: 'done', name: t('audioOnFile'), seconds: defaultSeconds }
@@ -88,6 +96,13 @@ export function AudioUploadField({
     setKey(signed.key);
     setSeconds(dur);
     setState({ phase: 'done', name: file.name, seconds: dur });
+
+    try {
+      const cover = await readEmbeddedCover(file);
+      if (cover) await thumb.store(cover);
+    } catch {
+      // no album art, or an unparseable tag — the card shows a glyph.
+    }
   }
 
   return (
@@ -96,6 +111,7 @@ export function AudioUploadField({
 
       <input type="hidden" name="audio_key" value={key} />
       <input type="hidden" name="duration_seconds" value={seconds ?? ''} />
+      <input type="hidden" name="thumb_key" value={thumb.key} />
 
       <input
         ref={inputRef}
@@ -149,6 +165,17 @@ export function AudioUploadField({
           <span aria-hidden="true">⚠ </span>
           {state.message}
         </p>
+      )}
+
+      {thumb.preview && (
+        <Image
+          src={thumb.preview}
+          alt=""
+          width={96}
+          height={96}
+          unoptimized
+          className={styles.thumbPreview}
+        />
       )}
 
       <p className={fieldStyles.help}>{t('audioHelp')}</p>

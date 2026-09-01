@@ -183,6 +183,7 @@ export function ContentForm({
               ? Number(v.duration_seconds)
               : (defaults?.duration_seconds ?? null)
           }
+          defaultThumbKey={v?.thumb_key ?? defaults?.thumbnail_url ?? ''}
           error={err['audio_key'] ? t('errAudioRequired') : undefined}
         />
       )}

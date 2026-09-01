@@ -62,3 +62,4 @@ yarn-error.log*
 
 # Real practice-text PDFs are large scans — keep them out of git
 /Media/PDFs/
+/Media/Audio/

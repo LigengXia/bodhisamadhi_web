@@ -4,10 +4,10 @@ import { createClient } from '@/lib/supabase/server';
 import { isR2Configured, presignGet } from '@/lib/r2';
 
 /**
- * The cover image for a practice text — page 1, rendered in the browser at
- * upload time and stored in the private R2 bucket. Served same-origin so the
- * library card can point a plain <img> at it without a signed URL leaking into
- * a cached page or tripping R2's CORS rules.
+ * The library-card cover image: page 1 of a practice text, or an MP3's embedded
+ * album art. Prepared in the browser at upload time and stored in the private
+ * R2 bucket. Served same-origin so the card can point a plain <img> at it
+ * without a signed URL leaking into a cached page or tripping R2's CORS rules.
  *
  * Visibility follows the same rule as /api/media/[id]/url: RLS on
  * `content_items` (anon → published + public + not deleted).
@@ -30,7 +30,11 @@ export async function GET(
     .is('deleted_at', null)
     .maybeSingle();
 
-  if (!item || item.type !== 'script' || !item.thumbnail_url) {
+  if (
+    !item ||
+    (item.type !== 'script' && item.type !== 'audio') ||
+    !item.thumbnail_url
+  ) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
