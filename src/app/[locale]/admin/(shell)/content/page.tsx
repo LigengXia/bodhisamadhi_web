@@ -24,6 +24,9 @@ type Row = {
 
 const TYPES = ['video', 'audio', 'script'] as const;
 const STATUSES = ['draft', 'published'] as const;
+// `deleted` is not a `content_status` — it is the soft-delete flag surfaced as
+// a filter so an admin can find and restore an item they removed.
+const STATUS_FILTERS = [...STATUSES, 'deleted'] as const;
 
 export default async function AdminContentListPage({
   params,
@@ -43,13 +46,18 @@ export default async function AdminContentListPage({
   } = await supabase.auth.getUser();
   const { data: isAdmin } = await supabase.rpc('is_admin');
 
+  const showDeleted = status === 'deleted';
+
   let query = supabase
     .from('content_items')
     .select(
       'id, type, status, slug, title, recorded_at, created_by, teacher:teachers(name)',
     )
-    .is('deleted_at', null)
     .order('created_at', { ascending: false });
+
+  query = showDeleted
+    ? query.not('deleted_at', 'is', null)
+    : query.is('deleted_at', null);
 
   if (type && (TYPES as readonly string[]).includes(type)) {
     query = query.eq('type', type as (typeof TYPES)[number]);
@@ -94,7 +102,7 @@ export default async function AdminContentListPage({
           <option value="">
             {t('filterStatus')}: {t('filterAll')}
           </option>
-          {STATUSES.map((st) => (
+          {STATUS_FILTERS.map((st) => (
             <option key={st} value={st}>
               {t(`status${st[0].toUpperCase()}${st.slice(1)}` as 'statusDraft')}
             </option>
@@ -134,7 +142,7 @@ export default async function AdminContentListPage({
                     )}
                   </td>
                   <td data-label={t('colStatus')}>
-                    <StatusBadge status={r.status} />
+                    <StatusBadge status={r.status} deleted={showDeleted} />
                   </td>
                   <td data-label={t('colTeacher')}>
                     {pick(r.teacher?.name) || t('noTeacher')}
@@ -149,6 +157,7 @@ export default async function AdminContentListPage({
                       titleText={pick(r.title)}
                       canEdit={Boolean(isAdmin) || r.created_by === user?.id}
                       canDelete={Boolean(isAdmin)}
+                      deleted={showDeleted}
                       editHref={`/admin/content/${r.id}/edit`}
                       previewHref={`/admin/content/${r.id}/preview`}
                     />
