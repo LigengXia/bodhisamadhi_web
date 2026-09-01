@@ -300,3 +300,12 @@
   font-size: var(--fs-sm);
   color: var(--text-mid);
 }
+
+.thumbPreview {
+  display: block;
+  width: 96px;
+  height: auto;
+  margin-top: var(--sp-1);
+  border: 1px solid var(--n-200);
+  border-radius: var(--r-sm);
+}

@@ -12,13 +12,19 @@ import styles from './LibraryCard.module.css';
 
 const TYPE_EMOJI = { video: '🎬', audio: '🎵', script: '📄' } as const;
 
-// A card's thumbnail: an explicit one if set, otherwise YouTube's own poster
-// for a video. `hqdefault.jpg` exists for every valid video; `object-fit:
-// cover` on the 16:9 frame trims any letterboxing.
+// A card's thumbnail. For a video: YouTube's own poster — `hqdefault.jpg`
+// exists for every valid video. For a script: the page-1 cover, served
+// same-origin from the private bucket (`thumbnail_url` holds its R2 key).
+// `object-fit: cover` on the 16:9 frame trims any letterboxing.
 function thumbnailFor(card: CardData): string | null {
-  if (card.thumbnail_url) return card.thumbnail_url;
   if (card.type === 'video' && card.youtube_id) {
     return `https://i.ytimg.com/vi/${card.youtube_id}/hqdefault.jpg`;
+  }
+  if (card.type === 'script' && card.thumbnail_url) {
+    return `/api/media/${card.id}/thumb`;
+  }
+  if (card.thumbnail_url && /^https?:\/\//.test(card.thumbnail_url)) {
+    return card.thumbnail_url;
   }
   return null;
 }
@@ -54,7 +60,11 @@ export async function LibraryCard({
             alt=""
             fill
             sizes="(max-width: 700px) 100vw, (max-width: 960px) 50vw, 360px"
-            className={styles.thumbImg}
+            className={
+              card.type === 'script'
+                ? `${styles.thumbImg} ${styles.thumbImgDoc}`
+                : styles.thumbImg
+            }
             unoptimized
           />
         ) : (

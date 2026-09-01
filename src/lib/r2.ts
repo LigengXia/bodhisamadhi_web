@@ -36,6 +36,14 @@ export const UPLOAD_LIMITS = {
     contentTypes: ['audio/mpeg', 'audio/mp3'],
     ext: 'mp3',
   },
+  // A cover image rendered from page 1 of a practice text, generated in the
+  // browser at upload time. Small by construction; the cap only guards against
+  // a bug producing something absurd.
+  thumb: {
+    maxBytes: 5 * 1024 * 1024,
+    contentTypes: ['image/jpeg'],
+    ext: 'jpg',
+  },
 } as const;
 
 export type UploadKind = keyof typeof UPLOAD_LIMITS;
@@ -62,7 +70,7 @@ function r2(): S3Client {
 }
 
 /** A random object key for a new upload of the given kind. */
-export function newObjectKey(kind: 'script' | 'audio', ext: string): string {
+export function newObjectKey(kind: UploadKind, ext: string): string {
   return `${kind}s/${crypto.randomUUID()}.${ext}`;
 }
 

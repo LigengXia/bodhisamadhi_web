@@ -2,7 +2,7 @@
 // The file is PUT straight to R2 with a signed URL; only the object key is
 // submitted with the form.
 
-export type UploadKind = 'script' | 'audio';
+export type UploadKind = 'script' | 'audio' | 'thumb';
 
 export async function getSignedUpload(
   kind: UploadKind,

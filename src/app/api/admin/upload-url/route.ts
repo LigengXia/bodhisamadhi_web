@@ -12,7 +12,7 @@ import {
 // Docs/5 §15.5 — a signed R2 upload URL for staff. Content type and size are
 // validated here; the browser then PUTs the file straight to R2.
 const schema = z.object({
-  kind: z.enum(['script', 'audio']),
+  kind: z.enum(['script', 'audio', 'thumb']),
   contentType: z.string(),
   size: z.number().int().positive(),
 });
