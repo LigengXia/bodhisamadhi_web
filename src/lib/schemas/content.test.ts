@@ -122,3 +122,59 @@ describe('toContentRow', () => {
     expect(toContentRow(withSeries).part_number).toBe(2);
   });
 });
+
+const scriptBase = {
+  ...base,
+  type: 'script' as const,
+  youtube: '',
+  pdf_key: 'scripts/3f2504e0-4f89-11d3-9a0c-0305e82c3301.pdf',
+  pdf_pages: '12',
+  allow_download: 'on',
+};
+
+describe('contentFormSchema — script branch', () => {
+  it('accepts a script with a valid R2 key', () => {
+    const r = contentFormSchema.safeParse(scriptBase);
+    expect(r.success).toBe(true);
+  });
+
+  it('requires a PDF key for a script', () => {
+    const r = contentFormSchema.safeParse({ ...scriptBase, pdf_key: '' });
+    expect(r.success).toBe(false);
+    expect(r.error?.issues.some((i) => i.message === 'pdfRequired')).toBe(true);
+  });
+
+  it('rejects a key that is not a scripts/<uuid>.pdf', () => {
+    const r = contentFormSchema.safeParse({
+      ...scriptBase,
+      pdf_key: 'scripts/../secret.pdf',
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it('maps pdf fields into the row and clears youtube_id', () => {
+    const parsed = contentFormSchema.parse(scriptBase);
+    const row = toContentRow(parsed);
+    expect(row).toMatchObject({
+      type: 'script',
+      youtube_id: null,
+      pdf_url: 'scripts/3f2504e0-4f89-11d3-9a0c-0305e82c3301.pdf',
+      pdf_pages: 12,
+      allow_download: true,
+    });
+  });
+
+  it('allow_download is false when the checkbox was unchecked', () => {
+    const parsed = contentFormSchema.parse({
+      ...scriptBase,
+      allow_download: '',
+    });
+    expect(toContentRow(parsed).allow_download).toBe(false);
+  });
+
+  it('a video row never carries pdf fields', () => {
+    const row = toContentRow(contentFormSchema.parse(base));
+    expect(row.pdf_url).toBeNull();
+    expect(row.pdf_pages).toBeNull();
+  });
+});

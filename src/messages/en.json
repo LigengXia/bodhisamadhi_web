@@ -149,7 +149,20 @@
       "errEnglishTitle": "An English title is required.",
       "errYoutube": "This does not look like a YouTube link or video ID.",
       "errPartNeedsSeries": "Choose a series before setting a part number.",
-      "errSaveBody": "Something went wrong on our side. Nothing was saved. Please try again."
+      "errSaveBody": "Something went wrong on our side. Nothing was saved. Please try again.",
+      "pdfLabel": "Practice text (PDF)",
+      "pdfHelp": "Up to 25 MB. The file is stored privately and served through a signed link.",
+      "pdfOnFile": "the current file",
+      "pdfUploading": "Uploading {name}…",
+      "pdfReady": "Uploaded {name} · {pages} pages.",
+      "pdfReplace": "Replace",
+      "allowDownloadLabel": "Allow visitors to download this text",
+      "allowDownloadHelp": "Turn off for empowerment-only material — it can still be read on the site.",
+      "errPdfRequired": "A PDF is required for a practice text.",
+      "errPdfType": "That file is not a PDF.",
+      "errPdfTooLarge": "This file is larger than the {limit} limit. Please upload a smaller file.",
+      "errUploadFailed": "The upload did not complete. Please try again.",
+      "errStorageUnconfigured": "PDF uploads are not available yet — file storage has not been configured."
     },
     "preview": {
       "draftBanner": "Draft — not published"
@@ -261,6 +274,16 @@
     "next": "Next",
     "pageOf": "Page {current} of {total}",
     "goToPage": "Go to page {page}"
+  },
+  "scriptDetail": {
+    "loadFailed": "This text could not be displayed. You can download it instead.",
+    "loadFailedNoDownload": "This text could not be displayed.",
+    "download": "Download PDF",
+    "pageOf": "Page {current} of {total}",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   },
   "search": {
     "heading": "Search",

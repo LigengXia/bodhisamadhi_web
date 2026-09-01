@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { LibraryCard } from '@/components/LibraryCard/LibraryCard';
 import { YouTubeEmbed } from '@/components/YouTubeEmbed/YouTubeEmbed';
+import { PdfReader } from '@/components/PdfReader/PdfReader';
 import { MissingLocaleNote } from '@/components/MissingLocaleNote/MissingLocaleNote';
 import { pickLocale, pickLocaleMeta } from '@/lib/i18n-json';
 import { formatDate, formatDuration } from '@/lib/format';
@@ -12,8 +13,8 @@ import type { Locale } from '@/i18n/routing';
 import styles from './ContentDetailView.module.css';
 
 // Docs/7 §5.5–5.8 · Docs/4 §5 (Detail template). One component for the public
-// page and the admin draft preview. The player is real for video; audio and
-// script show an interim panel until Phases 8 and 7 add their players.
+// page and the admin draft preview. Video and script have real players; audio
+// shows an interim panel until Phase 8.
 export async function ContentDetailView({
   detail,
   locale,
@@ -57,6 +58,12 @@ export async function ContentDetailView({
       <div className={styles.media}>
         {detail.type === 'video' && detail.youtube_id ? (
           <YouTubeEmbed youtubeId={detail.youtube_id} title={title} />
+        ) : detail.type === 'script' && detail.pdf_url ? (
+          <PdfReader
+            mediaId={detail.id}
+            allowDownload={detail.allow_download}
+            pageCount={detail.pdf_pages}
+          />
         ) : (
           <div className={styles.pending}>
             <span aria-hidden="true" className={styles.pendingEmoji}>

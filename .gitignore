@@ -55,3 +55,6 @@ Icon?
 *.log
 npm-debug.log*
 yarn-error.log*
+
+# pdf.js worker — build-copied from node_modules at the pinned version
+/public/pdf.worker.min.mjs

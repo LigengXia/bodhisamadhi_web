@@ -1,0 +1,113 @@
+/* Docs/4 §3.22 (PDF reader) — capped at --wrap-text, controls above. */
+
+.wrap {
+  max-width: var(--wrap-text);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-1);
+  background: var(--n-100);
+  border: 1px solid var(--n-200);
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+}
+
+.pager,
+.zoom {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-x);
+}
+
+.zoom {
+  margin-inline-start: auto;
+}
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  font-size: var(--fs-h4);
+  color: var(--text-mid);
+  background: #ffffff;
+  border: 1px solid var(--n-300);
+  border-radius: var(--r-xs);
+  cursor: pointer;
+}
+
+.control:hover:not(:disabled) {
+  border-color: var(--field-border-hov);
+}
+
+.control:disabled {
+  color: var(--n-300);
+  cursor: default;
+}
+
+.pageInfo,
+.zoomLevel {
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+  font-variant-numeric: tabular-nums;
+  min-width: 4ch;
+  text-align: center;
+}
+
+.downloadButton {
+  min-height: 36px;
+  padding-inline: var(--sp-2);
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  color: var(--text-inv);
+  background: var(--cr-600);
+  border: none;
+  border-radius: var(--r-xs);
+  cursor: pointer;
+}
+
+.downloadButton:hover {
+  background: var(--cr-700);
+}
+
+.reader {
+  display: flex;
+  justify-content: center;
+  padding: var(--sp-3);
+  background: var(--n-200);
+  border: 1px solid var(--n-200);
+  border-top: none;
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
+  min-height: 480px;
+  overflow-x: auto;
+}
+
+.doc,
+.page {
+  max-width: 100%;
+}
+
+.page :global(canvas) {
+  box-shadow: var(--sh-card);
+}
+
+.pageSkeleton {
+  width: 100%;
+  max-width: 620px;
+  aspect-ratio: 8.5 / 11;
+  height: auto;
+}
+
+.failure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-5) var(--sp-3);
+  text-align: center;
+  color: var(--text-soft);
+}
