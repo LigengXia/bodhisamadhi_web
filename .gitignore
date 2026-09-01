@@ -60,5 +60,6 @@ yarn-error.log*
 # pdf.js worker — build-copied from node_modules at the pinned version
 /public/pdf.worker.min.mjs
 
-# Real practice-text PDFs are large scans — keep them out of git
+# Sample media for admin uploads — not site assets, they go to R2
 /Media/PDFs/
+/Media/Audio/
