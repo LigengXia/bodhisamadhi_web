@@ -56,3 +56,43 @@ jobs:
       # The generated types must be in sync with the migrations.
       - run: npm run db:types
       - run: git diff --exit-code src/types/database.ts
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # Local Supabase (no R2 here — the R2-dependent assertions self-skip).
+      - run: npx supabase start
+      - run: npx supabase db reset
+
+      # Expose the local stack's URL + keys the app and the fixtures read.
+      - name: Export Supabase env
+        run: |
+          STATUS="$(npx supabase status -o json)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$(echo "$STATUS" | jq -r .API_URL)"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(echo "$STATUS" | jq -r .ANON_KEY)"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$(echo "$STATUS" | jq -r .SERVICE_ROLE_KEY)"
+          } >> "$GITHUB_ENV"
+
+      - run: npx playwright install --with-deps chromium
+
+      # playwright.config builds and starts the app itself (webServer).
+      - run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
