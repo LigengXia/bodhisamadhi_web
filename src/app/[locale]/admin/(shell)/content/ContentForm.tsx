@@ -34,6 +34,7 @@ type Defaults = {
   pdf_url: string | null;
   pdf_pages: number | null;
   allow_download: boolean;
+  thumbnail_url: string | null;
   audio_url: string | null;
   duration_seconds: number | null;
 };
@@ -169,6 +170,7 @@ export function ContentForm({
               ? v.allow_download === 'true' || v.allow_download === 'on'
               : (defaults?.allow_download ?? true)
           }
+          defaultThumbKey={v?.thumb_key ?? defaults?.thumbnail_url ?? ''}
           error={err['pdf_key'] ? t('errPdfRequired') : undefined}
         />
       )}

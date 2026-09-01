@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 import { getSignedUpload, putWithProgress } from '@/lib/upload';
@@ -11,6 +12,10 @@ import fieldStyles from '@/components/Field/Field.module.css';
 const MAX_BYTES = 120 * 1024 * 1024;
 const MAX_LABEL = '120 MB';
 
+// The cover image is rendered from page 1 at this pixel width — enough for a
+// crisp library card on a high-density display; the height follows the page.
+const THUMB_WIDTH = 520;
+
 type UploadState =
   | { phase: 'idle' }
   | { phase: 'uploading'; percent: number; name: string }
@@ -19,26 +24,39 @@ type UploadState =
 
 // Docs/7 §5.7 · Docs/6 Phase 7. The file goes straight to R2 via a signed PUT
 // from /api/admin/upload-url; only the object key is submitted with the form.
+// A cover image is rendered from page 1 in the browser and uploaded the same
+// way — a nicety, never a blocker.
 export function ScriptUploadField({
   defaultKey,
   defaultPages,
   defaultAllowDownload,
+  defaultThumbKey,
   error,
 }: {
   defaultKey: string;
   defaultPages: number | null;
   defaultAllowDownload: boolean;
+  defaultThumbKey: string;
   error?: string;
 }) {
   const t = useTranslations('admin.contentForm');
   const inputRef = useRef<HTMLInputElement>(null);
   const [key, setKey] = useState(defaultKey);
   const [pages, setPages] = useState<number | null>(defaultPages);
+  const [thumbKey, setThumbKey] = useState(defaultThumbKey);
+  const [thumbPreview, setThumbPreview] = useState<string | null>(null);
   const [state, setState] = useState<UploadState>(
     defaultKey
       ? { phase: 'done', name: t('pdfOnFile'), pages: defaultPages }
       : { phase: 'idle' },
   );
+
+  // A freshly rendered cover is previewed from an object URL; revoke it when it
+  // is replaced or the field unmounts.
+  useEffect(() => {
+    if (!thumbPreview) return;
+    return () => URL.revokeObjectURL(thumbPreview);
+  }, [thumbPreview]);
 
   async function onPick(file: File) {
     if (file.type !== 'application/pdf') {
@@ -76,16 +94,43 @@ export function ScriptUploadField({
       return;
     }
 
-    let pageCount: number | null = null;
-    try {
-      pageCount = await countPages(file);
-    } catch {
-      // page count is a nicety — a failed read is not a blocker.
-    }
-
     setKey(signed.key);
-    setPages(pageCount);
-    setState({ phase: 'done', name: file.name, pages: pageCount });
+    setState({ phase: 'done', name: file.name, pages });
+
+    // Page count + cover image — both derived from one parse of the file. A
+    // failure here leaves the upload intact; the card just shows a glyph.
+    let rendered: { pages: number; thumb: Blob | null } = {
+      pages: pages ?? 0,
+      thumb: null,
+    };
+    try {
+      rendered = await readPdf(file);
+    } catch {
+      // reading the PDF client-side is a nicety, not a blocker.
+    }
+    if (rendered.pages > 0) {
+      setPages(rendered.pages);
+      setState({ phase: 'done', name: file.name, pages: rendered.pages });
+    }
+    if (rendered.thumb) {
+      await uploadThumb(rendered.thumb);
+    }
+  }
+
+  async function uploadThumb(blob: Blob) {
+    const thumbFile = new File([blob], 'cover.jpg', { type: 'image/jpeg' });
+    const signed = await getSignedUpload('thumb', thumbFile);
+    if (!signed.ok) return;
+    try {
+      await putWithProgress(signed.uploadUrl, thumbFile, () => {});
+    } catch {
+      return;
+    }
+    setThumbKey(signed.key);
+    setThumbPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(blob);
+    });
   }
 
   return (
@@ -94,6 +139,7 @@ export function ScriptUploadField({
 
       <input type="hidden" name="pdf_key" value={key} />
       <input type="hidden" name="pdf_pages" value={pages ?? ''} />
+      <input type="hidden" name="thumb_key" value={thumbKey} />
 
       <input
         ref={inputRef}
@@ -147,6 +193,17 @@ export function ScriptUploadField({
         </p>
       )}
 
+      {thumbPreview && (
+        <Image
+          src={thumbPreview}
+          alt=""
+          width={96}
+          height={124}
+          unoptimized
+          className={styles.thumbPreview}
+        />
+      )}
+
       <p className={fieldStyles.help}>{t('pdfHelp')}</p>
 
       <label className={styles.checkboxRow}>
@@ -169,12 +226,34 @@ export function ScriptUploadField({
   );
 }
 
-async function countPages(file: File): Promise<number> {
+/** Parse the PDF once: page count, plus a JPEG of page 1 for the library card. */
+async function readPdf(
+  file: File,
+): Promise<{ pages: number; thumb: Blob | null }> {
   const { pdfjs } = await import('react-pdf');
   pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
   const buf = await file.arrayBuffer();
   const doc = await pdfjs.getDocument({ data: buf }).promise;
-  const n = doc.numPages;
+  const pages = doc.numPages;
+
+  let thumb: Blob | null = null;
+  try {
+    const page = await doc.getPage(1);
+    const unscaled = page.getViewport({ scale: 1 });
+    const viewport = page.getViewport({ scale: THUMB_WIDTH / unscaled.width });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(viewport.width);
+    canvas.height = Math.ceil(viewport.height);
+    // Paper is white; without this a page with transparent regions encodes
+    // black once flattened into a JPEG. Not a UI colour — the page substrate.
+    await page.render({ canvas, viewport, background: '#ffffff' }).promise;
+    thumb = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/jpeg', 0.82),
+    );
+  } catch {
+    // cover image is optional.
+  }
+
   await doc.destroy();
-  return n;
+  return { pages, thumb };
 }

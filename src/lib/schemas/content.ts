@@ -74,6 +74,9 @@ export const contentFormSchema = z
       .string()
       .optional()
       .transform((s) => s === 'on' || s === 'true'),
+    // script — an optional cover image (page 1), rendered and uploaded by the
+    // browser. Its absence is not an error; the card falls back to a glyph.
+    thumb_key: z.string().trim().default(''),
     // audio — the R2 object key, plus the duration captured at upload
     audio_key: z.string().trim().default(''),
     duration_seconds: z
@@ -140,6 +143,10 @@ export function toContentRow(v: z.output<typeof contentFormSchema>) {
     visibility: v.visibility,
     status: v.status,
     youtube_id: v.type === 'video' ? parseYouTubeId(v.youtube) : null,
+    thumbnail_url:
+      v.type === 'script' && /^thumbs\/[0-9a-f-]+\.jpg$/i.test(v.thumb_key)
+        ? v.thumb_key
+        : null,
     pdf_url: v.type === 'script' ? v.pdf_key : null,
     pdf_pages: v.type === 'script' && v.pdf_pages ? Number(v.pdf_pages) : null,
     allow_download: v.type === 'script' ? v.allow_download : true,

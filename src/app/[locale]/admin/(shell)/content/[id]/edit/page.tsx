@@ -20,7 +20,7 @@ export default async function EditContentPage({
   const { data } = await supabase
     .from('content_items')
     .select(
-      'id, type, title, description, teacher_id, series_id, part_number, recorded_at, status, youtube_id, pdf_url, pdf_pages, allow_download, audio_url, duration_seconds, created_by',
+      'id, type, title, description, teacher_id, series_id, part_number, recorded_at, status, youtube_id, pdf_url, pdf_pages, allow_download, thumbnail_url, audio_url, duration_seconds, created_by',
     )
     .eq('id', id)
     .is('deleted_at', null)
@@ -60,6 +60,7 @@ export default async function EditContentPage({
           pdf_url: data.pdf_url,
           pdf_pages: data.pdf_pages,
           allow_download: data.allow_download,
+          thumbnail_url: data.thumbnail_url,
           audio_url: data.audio_url,
           duration_seconds: data.duration_seconds,
         }}

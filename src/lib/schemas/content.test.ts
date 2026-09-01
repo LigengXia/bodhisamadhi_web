@@ -177,6 +177,42 @@ describe('contentFormSchema — script branch', () => {
     expect(row.pdf_url).toBeNull();
     expect(row.pdf_pages).toBeNull();
   });
+
+  it('maps a valid cover-image key into thumbnail_url', () => {
+    const row = toContentRow(
+      contentFormSchema.parse({
+        ...scriptBase,
+        thumb_key: 'thumbs/3f2504e0-4f89-11d3-9a0c-0305e82c3301.jpg',
+      }),
+    );
+    expect(row.thumbnail_url).toBe(
+      'thumbs/3f2504e0-4f89-11d3-9a0c-0305e82c3301.jpg',
+    );
+  });
+
+  it('ignores a missing or malformed cover-image key', () => {
+    expect(
+      toContentRow(contentFormSchema.parse(scriptBase)).thumbnail_url,
+    ).toBe(null);
+    expect(
+      toContentRow(
+        contentFormSchema.parse({
+          ...scriptBase,
+          thumb_key: 'thumbs/../evil.jpg',
+        }),
+      ).thumbnail_url,
+    ).toBe(null);
+  });
+
+  it('never sets thumbnail_url for a video', () => {
+    const row = toContentRow(
+      contentFormSchema.parse({
+        ...base,
+        thumb_key: 'thumbs/3f2504e0-4f89-11d3-9a0c-0305e82c3301.jpg',
+      }),
+    );
+    expect(row.thumbnail_url).toBeNull();
+  });
 });
 
 const audioBase = {

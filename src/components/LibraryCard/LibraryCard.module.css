@@ -38,6 +38,12 @@
   object-fit: cover;
 }
 
+/* A document cover is portrait; show its head (title block) rather than the
+   vertical centre when it is cropped into the 16:9 frame. */
+.thumbImgDoc {
+  object-position: top center;
+}
+
 /* Missing thumbnail: a dark ground so the type badge, duration pill and the
    centred type emoji all read (Docs/4 §3.6). --g-library is a token. */
 .thumbFallback {
