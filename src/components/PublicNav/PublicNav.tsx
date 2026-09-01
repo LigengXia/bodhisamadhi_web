@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import clsx from 'clsx';
 
 import { Link, usePathname } from '@/i18n/navigation';
@@ -31,17 +31,26 @@ function SearchIcon() {
   );
 }
 
-// Docs/4 §3.20 + Docs/7 §3.2. Phase 5 build: a solid, functional nav —
-// the hero-transparency / glass-on-scroll behaviour and the Schedule /
-// Support / Visit anchor links arrive with the marketing Home in Phase 9.
-const LINKS = [
+// Docs/4 §3.20 + Docs/7 §3.2. `route` items go to their own page; `hash`
+// items are Home sections — an in-page anchor on Home, a cross-page jump
+// elsewhere (R4).
+const ROUTE_LINKS = [
   { href: '/teachings', key: 'teachings' as const },
   { href: '/masters', key: 'masters' as const },
+];
+const HASH_LINKS = [
+  { hash: 'events', key: 'schedule' as const },
+  { hash: 'give', key: 'support' as const },
+  { hash: 'visit', key: 'visit' as const },
 ];
 
 export function PublicNav() {
   const t = useTranslations('nav');
+  const locale = useLocale();
   const pathname = usePathname();
+  const isHome = pathname === '/';
+  const hashHref = (hash: string) =>
+    isHome ? `#${hash}` : `/${locale}#${hash}`;
   const [open, setOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -102,7 +111,7 @@ export function PublicNav() {
         </Link>
 
         <nav className={styles.links} aria-label={t('primary')}>
-          {LINKS.map((l) => (
+          {ROUTE_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
@@ -111,6 +120,11 @@ export function PublicNav() {
             >
               {t(l.key)}
             </Link>
+          ))}
+          {HASH_LINKS.map((l) => (
+            <a key={l.hash} href={hashHref(l.hash)} className={styles.link}>
+              {t(l.key)}
+            </a>
           ))}
         </nav>
 
@@ -151,7 +165,7 @@ export function PublicNav() {
         hidden={!open}
       >
         <nav className={styles.drawerLinks} aria-label={t('primary')}>
-          {LINKS.map((l) => (
+          {ROUTE_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
@@ -161,6 +175,16 @@ export function PublicNav() {
             >
               {t(l.key)}
             </Link>
+          ))}
+          {HASH_LINKS.map((l) => (
+            <a
+              key={l.hash}
+              href={hashHref(l.hash)}
+              className={styles.drawerLink}
+              onClick={close}
+            >
+              {t(l.key)}
+            </a>
           ))}
           <Link
             href="/search"

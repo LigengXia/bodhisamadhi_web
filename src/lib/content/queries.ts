@@ -84,6 +84,18 @@ async function itemIdsForTags(
   return [...new Set((links ?? []).map((l) => l.content_item_id))];
 }
 
+/** The N most recent published, public items — for the Home library teaser. */
+export async function listRecentLibraryCards(
+  limit = 6,
+): Promise<LibraryCard[]> {
+  const sb = await createClient();
+  const { data, error } = await publicItems(sb)
+    .order('published_at', { ascending: false })
+    .range(0, Math.max(0, limit - 1));
+  if (error) throw error;
+  return (data ?? []) as unknown as LibraryCard[];
+}
+
 export async function listLibraryCards(
   filters: LibraryFilters = {},
 ): Promise<LibraryPage> {

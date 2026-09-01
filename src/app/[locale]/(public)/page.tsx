@@ -1,12 +1,29 @@
-import Image from 'next/image';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 
-import { Link } from '@/i18n/navigation';
+import type { Locale } from '@/i18n/routing';
+import { Hero } from '@/components/home/Hero';
+import { Features } from '@/components/home/Features';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { Testimonials } from '@/components/home/Testimonials';
+import { MastersTeaser } from '@/components/home/MastersTeaser';
+import { Events } from '@/components/home/Events';
+import { LibraryTeaser } from '@/components/home/LibraryTeaser';
+import { Give } from '@/components/home/Give';
+import { Cta } from '@/components/home/Cta';
+import { Visit } from '@/components/home/Visit';
 
-import styles from './page.module.css';
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'meta' });
+  return { title: t('title'), description: t('description') };
+}
 
-// Phase 1 walking-skeleton home, now inside the public chrome. The full v4
-// marketing home — hero, sections, the library teaser — arrives in Phase 9.
+// Docs/7 §5.1 — the v4 home, section by section, with the library teaser as
+// the one live data surface.
 export default async function HomePage({
   params,
 }: {
@@ -15,30 +32,18 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations('site');
-  const tn = await getTranslations('nav');
-  const tA11y = await getTranslations('a11y');
-
   return (
-    <div className={styles.page}>
-      <div className="wrap">
-        <div className={styles.inner}>
-          <Image
-            src="/logo.png"
-            alt={tA11y('siteLogoAlt')}
-            width={96}
-            height={96}
-            priority
-            className={styles.logo}
-          />
-          <h1 className={styles.name}>{t('name')}</h1>
-          <p className={styles.descriptor}>{t('descriptor')}</p>
-
-          <Link href="/teachings" className={styles.cta}>
-            {tn('teachings')}
-          </Link>
-        </div>
-      </div>
-    </div>
+    <>
+      <Hero />
+      <Features />
+      <HowItWorks />
+      <Testimonials />
+      <MastersTeaser locale={locale as Locale} />
+      <Events />
+      <LibraryTeaser locale={locale as Locale} />
+      <Give />
+      <Cta />
+      <Visit />
+    </>
   );
 }

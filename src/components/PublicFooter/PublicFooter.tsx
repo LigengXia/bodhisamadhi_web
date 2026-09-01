@@ -1,12 +1,11 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 
 import { Link } from '@/i18n/navigation';
 
 import styles from './PublicFooter.module.css';
 
-// Docs/7 §3.2 + Docs/4 §7.6 (fixed facts — never localised, never
-// paraphrased). Phase 5 build: the Teachings column and the contact block.
-// The Practice / Support columns follow the marketing Home in Phase 9.
+// Docs/7 §3.2 + Docs/4 §7.6 (fixed facts — never localised, never paraphrased).
+// Teachings links are real routes; Practice / Support point at Home sections.
 const TEACHING_LINKS = [
   { href: '/teachings', key: 'linkAll' as const },
   { href: '/teachings/video', key: 'linkVideo' as const },
@@ -14,9 +13,23 @@ const TEACHING_LINKS = [
   { href: '/teachings/script', key: 'linkScripts' as const },
   { href: '/masters', key: 'linkMasters' as const },
 ];
+const PRACTICE_HASHES = [
+  { hash: 'features', key: 'linkPujas' as const },
+  { hash: 'events', key: 'linkSchedule' as const },
+  { hash: 'library', key: 'linkMedia' as const },
+  { hash: 'masters', key: 'linkMasters' as const },
+];
+const SUPPORT_HASHES = [
+  { hash: 'give', key: 'linkOffering' as const },
+  { hash: 'give', key: 'linkSponsor' as const },
+  { hash: 'give', key: 'linkVolunteer' as const },
+  { hash: 'cta', key: 'linkJoin' as const },
+];
 
 export async function PublicFooter() {
   const t = await getTranslations('footer');
+  const locale = await getLocale();
+  const hash = (h: string) => `/${locale}#${h}`;
 
   return (
     <footer className={`${styles.footer} surfaceDark`}>
@@ -25,10 +38,36 @@ export async function PublicFooter() {
           <h2 className={styles.heading}>{t('teachingsHeading')}</h2>
           <ul className={styles.list}>
             {TEACHING_LINKS.map((l) => (
-              <li key={l.href}>
+              <li key={`${l.href}-${l.key}`}>
                 <Link href={l.href} className={styles.link}>
                   {t(l.key)}
                 </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <nav className={styles.col} aria-label={t('practiceHeading')}>
+          <h2 className={styles.heading}>{t('practiceHeading')}</h2>
+          <ul className={styles.list}>
+            {PRACTICE_HASHES.map((l) => (
+              <li key={`${l.hash}-${l.key}`}>
+                <a href={hash(l.hash)} className={styles.link}>
+                  {t(l.key)}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <nav className={styles.col} aria-label={t('supportHeading')}>
+          <h2 className={styles.heading}>{t('supportHeading')}</h2>
+          <ul className={styles.list}>
+            {SUPPORT_HASHES.map((l) => (
+              <li key={`${l.hash}-${l.key}`}>
+                <a href={hash(l.hash)} className={styles.link}>
+                  {t(l.key)}
+                </a>
               </li>
             ))}
           </ul>
