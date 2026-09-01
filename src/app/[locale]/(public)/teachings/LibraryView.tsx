@@ -137,9 +137,11 @@ export async function LibraryView({
                 )
               ) : (
                 <>
-                  <p className={styles.count}>
+                  {/* h2 so the card grid's h3 titles don't skip a level
+                      under the page h1 (§6 — heading order). */}
+                  <h2 className={styles.count}>
                     {t('resultCount', { count: result.total })}
-                  </p>
+                  </h2>
                   <div className={`g3 ${styles.grid}`}>
                     {result.cards.map((card) => (
                       <LibraryCard key={card.id} card={card} locale={locale} />

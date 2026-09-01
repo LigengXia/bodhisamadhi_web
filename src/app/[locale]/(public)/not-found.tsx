@@ -12,8 +12,10 @@ export default async function NotFound() {
 
   return (
     <div className={`wrap ${styles.page}`}>
-      <p className={styles.eyebrow}>404</p>
-      <p className={styles.body}>{t('body')}</p>
+      <p className={styles.eyebrow} aria-hidden="true">
+        404
+      </p>
+      <h1 className={styles.body}>{t('body')}</h1>
 
       <div className={styles.search}>
         <SearchInput />

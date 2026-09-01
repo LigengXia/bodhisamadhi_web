@@ -11,10 +11,16 @@
   color: var(--text-soft);
 }
 
+/* Semantically the page's h1 (§6 — every page has one), but it reads as a
+   plain sentence, so it keeps body type rather than display type. */
 .body {
   margin: var(--sp-3) auto 0;
   max-width: 46ch;
+  font-family: var(--ff-body);
   font-size: var(--fs-h4);
+  font-weight: var(--fw-normal);
+  line-height: var(--lh-body);
+  letter-spacing: normal;
   color: var(--text-mid);
 }
 
