@@ -717,7 +717,7 @@ These are fixed. Never abbreviate, reorder or paraphrase.
 | Tibetan | **བྱང་ཆུབ་བསམ་གཏན་གླིང་།** |
 | Descriptor | "A Gelug Tibetan Buddhist dharma centre in Toronto" |
 
-> **⚠ NEEDS A DECISION — do not resolve this in code.** The Chinese name is inconsistent across existing materials: `front_end/bodhisamadhi-v4.html` and the PRD use **菩提禅院**, while the June project overview uses **菩提三摩地中心**. Both appear in committed documents. The project owner must choose one; until then, use **菩提禅院** (the newer, and the one the Master has seen in v4) and flag any occurrence of the other.
+> **✅ DECIDED 2026-09-02 — 菩提禅院.** The Chinese name was inconsistent across earlier materials (`front_end/bodhisamadhi-v4.html` and the PRD used **菩提禅院**; the June 2026 project overview used **菩提三摩地中心**). The project owner has chosen **菩提禅院** — the form in v4, the PRD, and the message catalogue (`nav.brand`, `meta.siteName`, `site.name`, footer). Treat any occurrence of 菩提三摩地中心 outside the dated June overview as an error to fix.
 
 Note the mixed spelling convention: "Center" in the organisation's name, "centre" in prose. That is deliberate — the legal name is fixed, the surrounding prose follows Canadian usage.
 
@@ -913,7 +913,7 @@ src/
 
 | # | Item | Needs |
 |---|---|---|
-| 1 | **Chinese name of the centre** — 菩提禅院 vs 菩提三摩地中心 (§7.3) | Project owner decides. Both are in committed documents today. |
+| ~~1~~ | ~~**Chinese name of the centre**~~ **Decided 2026-09-02 — 菩提禅院** (§7.3). | — |
 | 2 | **Tibetan review** — all Tibetan across v4 and this document is machine-generated | Geshe-la or a fluent reader, before publication |
 | ~~3~~ | ~~**The App Flow Document does not exist yet.**~~ **Resolved** — `Docs/7-App-Flow-MVP.md` exists; §3/§5 reconciled against it (`Docs/7` §10). Its interim strings (§10.2, C1–C10) are folded into §7.7/§7.8 above. | — |
 | 4 | Real photography for masters and gallery — currently CSS/SVG placeholders | Replace before launch; `next/image` defaults changed in Next 16 (see stack doc §11) |

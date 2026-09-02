@@ -474,9 +474,9 @@ In each case: stop, write down what was found, and ask. **Do not resolve a docum
 
 | # | Item | Blocks |
 |---|---|---|
-| 1 | Chinese name: 菩提禅院 vs 菩提三摩地中心 | Phase 9 — it appears in the nav, footer and metadata |
+| ~~1~~ | ~~Chinese name~~ **Decided 2026-09-02 — 菩提禅院** | — |
 | 2 | Tibetan review by Geshe-la | Phase 12 (gate on any public launch) |
-| 3 | Domain name | Deferred — Vercel URL for the MVP |
+| ~~3~~ | ~~Domain name~~ **Decided 2026-09-02** — launch on `https://bodhisamadhi-web.vercel.app` (`NEXT_PUBLIC_SITE_URL` in Vercel), migrate to a real domain later | — |
 | 4 | Service-request response-time promise | Phase 15 |
 | 5 | Zoom RTMP simulcast capability | Phase 16 |
 | 6 | CRA receipt fields · EMT process and owner | Phase 17 |

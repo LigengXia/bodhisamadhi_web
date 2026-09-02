@@ -226,10 +226,11 @@ Listed so the whole picture is in one place. From `CLAUDE.md` "Known unresolved"
 | 3.1 | **Geshe-la's Tibetan review** | Any public launch | All Tibetan in the repo — v4, the docs, the message catalogue, the C1–C10 interim strings — is machine-generated and unreviewed. Hard launch gate. |
 | 3.2 | **Real content on the deployed admin** | Phase 12 | 5–10 lectures + 1–2 practice texts, so Geshe-la reviews something real. |
 | 3.3 | **Real masters photos + trilingual bios + slugs** | Phase 9 polish / Phase 12 | Currently a lotus placeholder (PR #24). |
-| 3.4 | **Chinese name decision** — 菩提禅院 vs 菩提三摩地中心 | Nav, footer, metadata | Using 菩提禅院 provisionally. Both are in committed docs. |
-| 3.5 | **Domain decision** | 2.2, 2.3, launch | Not registered. Affects sitemap and canonical URLs. |
+| ~~3.4~~ | ~~**Chinese name decision**~~ | — | **Decided 2026-09-02 — 菩提禅院.** Already the value throughout the message catalogue; docs updated. |
+| ~~3.5~~ | ~~**Domain decision**~~ | — | **Decided 2026-09-02** — launch on `https://bodhisamadhi-web.vercel.app`, migrate to a real domain later. Owner still needs to set `NEXT_PUBLIC_SITE_URL` to that value in Vercel (Production + Preview) + redeploy — see 3.10. |
 | 3.6 | **Hosting: AWS vs Vercel** | Launch infra | Build stays portable (`output: 'standalone'`, no Vercel-only APIs) meanwhile. |
 | 3.7 | **Flip `SITE_INDEXABLE=true` in Vercel + redeploy** | Launch | One env var. Drops the `noindex` and the `robots.txt` `Disallow: /`. Do this *after* 3.1. |
+| 3.10 | **Set `NEXT_PUBLIC_SITE_URL=https://bodhisamadhi-web.vercel.app` in Vercel** (Production + Preview) + redeploy | Correct canonical / OG / sitemap URLs | Value decided (3.5); the Vercel env var is still the owner's to set — Claude's token can't reach the SAML team. Inert while the site is `noindex`; must precede 3.7. |
 | 3.8 | **Supabase Pro + PITR** | Before real content persists | Owner has chosen post-launch. Fine while the DB is disposable; do it before real teachings / donor data land. |
 | 3.9 | **R2 bucket CORS** lists the production origin | Media on the live domain | R2 bucket CORS is a dashboard setting the API token cannot make (memory: `r2-token-object-scope-only`). Add the real domain when chosen or PDFs/audio fail silently in production. |
 

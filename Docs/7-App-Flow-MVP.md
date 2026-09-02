@@ -620,12 +620,13 @@ These are unchanged by this document and still block the phase named. From `6-Im
 
 | # | Item | Blocks |
 |---|---|---|
-| 1 | **Chinese name of the centre** — 菩提禅院 vs 菩提三摩地中心 | Phase 9 (nav, footer, metadata). Using 菩提禅院 provisionally. |
+| ~~1~~ | ~~**Chinese name of the centre**~~ | **Resolved 2026-09-02 — 菩提禅院**, already used throughout the message catalogue. |
 | 2 | **Tibetan review by Geshe-la** — all Tibetan in v4 and the docs is machine-generated | Phase 12 — a launch gate. This document adds interim Tibetan needs (§10.2); flag them for the same review. |
 | 3 | **Real masters' content** — bios in three languages, portraits, slugs | Phase 9 (Masters), and the seed for Phase 2. |
 | 4 | **Real schedule / stats** — the Saturday time(s), whether v4's count-up figures are accurate | Phase 9 (Home). |
 | 5 | **5–10 real lectures + 1–2 practice texts** | Phase 12 (Master review); useful for realistic seed data earlier. |
-| 6 | **Hosting: AWS vs Vercel** · **Domain** | Not blocking the MVP build; Vercel URL until decided. |
+| 6 | **Hosting: AWS vs Vercel** | Not blocking the MVP build. Still open. |
+| ~~—~~ | ~~**Domain**~~ | **Decided 2026-09-02** — launch origin is `https://bodhisamadhi-web.vercel.app` (`NEXT_PUBLIC_SITE_URL` in Vercel); real domain is a later migration. Unblocks the §3.1 canonical / hreflang addresses and the sitemap. |
 | ~~7~~ | ~~**R2 bucket name**~~ | **Resolved** — `R2_BUCKET=bodhisamadhi`, confirmed against the Cloudflare dashboard; in `.env.local`, `.env.hosted` and Vercel. |
 
 ---

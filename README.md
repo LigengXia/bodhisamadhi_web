@@ -159,6 +159,7 @@ git.
 | `NEXT_PUBLIC_SUPABASE_URL` / `_ANON_KEY` | local + Vercel | Supabase project. Local values are Supabase's fixed dev keys (from `supabase status`). |
 | `SUPABASE_SERVICE_ROLE_KEY` | local + Vercel | **Server only.** Bypasses every RLS policy — used by route handlers after a processor confirms, and by seed scripts. Never import into a Server Component or log it. |
 | `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` / `R2_ENDPOINT` | local + Vercel | **Server only.** Cloudflare R2 (PDF + audio). Private bucket; files reached through short-lived signed URLs. |
+| `NEXT_PUBLIC_SITE_URL` | local + Vercel | Local: `http://localhost:3000`. Vercel (Production + Preview): `https://bodhisamadhi-web.vercel.app` (a real domain later). Sets the origin for canonical, Open Graph and sitemap URLs — without it they point at localhost. |
 | `SITE_INDEXABLE` | Vercel, at launch | Unset = the whole site is `noindex` + `robots.txt: Disallow: /`. Set to `true` and redeploy to open it to search engines. |
 | `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN` | Vercel | Error monitoring. All optional — with no DSN, Sentry is a no-op and the build skips it. The `SENTRY_*` three are only for readable (de-minified) stack traces. |
 
