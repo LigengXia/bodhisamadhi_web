@@ -8,6 +8,8 @@
 
 **Tech Stack:** Next.js 16.3.3 (App Router, Turbopack, async `params`/`cookies()`/`headers()`), React 19.2.8, next-intl 4.14.1 (`/en /zh /bo`), `@supabase/ssr` 0.12.5 + `@supabase/supabase-js` 2.112.4, Supabase Auth (email+password), Postgres RLS + pgTAP, `zod` 4.5.4, `useActionState` + Server Actions (the codebase's auth-form pattern — not react-hook-form), Vitest 4.1.11 + `@testing-library/react`, Playwright 1.62.1.
 
+**Status (2026-09-02):** PR 1 (Tasks 1–14, "Gating & admin") is **built and merged** — PR #38. Migrations `0008`–`0011` (0011 added per the Task 5 decision-A note). Next: PR 2, Task 15. See `Docs/9` §12 (As-built — PR 1) and memory `phase-13-in-progress`.
+
 **Spec:** `Docs/9-Phase-13-Member-Accounts-and-Gating.md` — read it first, in full. Also read `Docs/2` D24–D29, B13, B16; `Docs/4` §3.11 (modal), §4.1 (form validation), §4.2 (gated content), §7.7 (gated copy); `Docs/5` §5.3 (role helpers — the pattern for `has_empowerment`), §13.1–13.4 (RLS), §16 (auth flows); `Docs/7` §3.5, §10.1.
 
 ## Global Constraints
