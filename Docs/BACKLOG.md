@@ -139,7 +139,16 @@ OG images want real content.
 
 **Cost.** ~2h.
 
-### 2.4 YouTube network-blocked in-player message
+### 2.4 YouTube network-blocked in-player message — DONE (2026-09-02)
+
+**Landed as** a poster probe in `YouTubeEmbed.tsx`: an `Image()` against
+`https://i.ytimg.com/vi/<id>/hqdefault.jpg` (which effectively never 404s), whose
+`onerror` — or a 6 s timeout, for a network that blackholes rather than refuses —
+flips the component to the existing `Docs/4` §7.8 `.blocked` panel (same panel the
+script-blocked case already used). Initial render stays optimistic, so the panel
+appears only when the probe actively fails; no new message keys, no CSS change.
+Covered by `src/components/YouTubeEmbed/YouTubeEmbed.test.tsx` (new — the repo's
+first `.test.tsx`), 4 cases, TDD. **Original intent below.**
 
 **What.** In `src/components/YouTubeEmbed/YouTubeEmbed.tsx`, detect the case where
 the `lite-youtube` script upgrades but the YouTube domains are network-blocked
