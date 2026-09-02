@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { TeacherCard } from '@/components/TeacherCard/TeacherCard';
 import { listActiveTeachers } from '@/lib/content/queries';
 import type { Locale } from '@/i18n/routing';
+import { localeAlternates } from '@/lib/seo';
 
 import styles from './masters.module.css';
 
@@ -15,7 +16,10 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'masters' });
-  return { title: t('title') };
+  return {
+    title: t('title'),
+    alternates: localeAlternates(locale, 'masters'),
+  };
 }
 
 export default async function MastersPage({

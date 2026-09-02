@@ -78,7 +78,14 @@ The full version re-verify against the registry still belongs at launch.
 
 **Cost.** ~30 min full pass; 2 min for the audit alone.
 
-### 2.2 `sitemap.ts`
+### 2.2 `sitemap.ts` — DONE (2026-09-02, PR #34)
+
+**Landed as** `src/app/sitemap.ts` + `listSitemapEntries()` in `queries.ts`.
+Gated on `siteIsIndexable()` like `robots.ts` — returns `[]` until launch. When
+open: the static routes, every published+public content and series detail URL
+(`lastModified` from `updated_at`), and every active teacher, each in all three
+locales with the full hreflang alternate set. `force-dynamic` (reads the
+request-scoped anon client). **Original intent below.**
 
 **What.** `src/app/sitemap.ts` emitting the trilingual route set — home, masters,
 `masters/[slug]`, teachings + type tabs, every published content and series
@@ -95,7 +102,20 @@ repro items is a placeholder you'd rebuild once real teachings are loaded.
 
 **Cost.** ~30–45 min.
 
-### 2.3 OpenGraph / Twitter / canonical / hreflang metadata
+### 2.3 OpenGraph / Twitter / canonical / hreflang metadata — DONE (2026-09-02, PR #34)
+
+**Landed:** `metadataBase` + `title.template` + a default OG/Twitter card in the
+root layout; `alternates` (self-canonical + hreflang) on every public page via
+`localeAlternates()`; per-item OG cards on the content-detail, teacher and series
+pages via `ogFor()` (video → the YouTube thumbnail, audio/script → the
+same-origin `/api/media/[id]/thumb` cover, else the wordmark). `twitter` is just
+`{ card }` — X backfills the rest from the `og:` tags. Search pages carry
+`robots: { index: false, follow: true }`. `src/lib/seo.ts` grew the helpers
+(`siteUrl`, `absoluteUrl`, `hreflangAlternates`, `localeAlternates`, `ogFor`,
+`OG_LOCALE`, `DEFAULT_OG_IMAGE`) with `seo.test.ts`. The two caveats below still
+hold: `NEXT_PUBLIC_SITE_URL` must be the real origin in Vercel, and the default
+card is `public/logo.png` until a purpose-built 1200×630 image exists.
+**Original intent below.**
 
 **What.** In the root `generateMetadata` (`src/app/[locale]/layout.tsx`): add
 `metadataBase` (from `NEXT_PUBLIC_SITE_URL`), `openGraph` + `twitter` card

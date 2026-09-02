@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 
 import type { Locale } from '@/i18n/routing';
+import { localeAlternates } from '@/lib/seo';
 
 import { LibraryView } from './LibraryView';
 import { LibrarySkeleton } from './LibrarySkeleton';
@@ -13,7 +14,10 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'library' });
-  return { title: `${t('title')} · ${t('metaSuffix')}` };
+  return {
+    title: t('title'),
+    alternates: localeAlternates(locale, 'teachings'),
+  };
 }
 
 export default async function TeachingsPage({

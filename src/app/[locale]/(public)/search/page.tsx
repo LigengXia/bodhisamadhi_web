@@ -7,6 +7,7 @@ import { InlineAlert } from '@/components/InlineAlert/InlineAlert';
 import { LibraryCard } from '@/components/LibraryCard/LibraryCard';
 import { searchContent, CONTENT_TYPES } from '@/lib/content/queries';
 import type { Locale } from '@/i18n/routing';
+import { localeAlternates } from '@/lib/seo';
 
 import styles from './search.module.css';
 
@@ -20,7 +21,14 @@ export async function generateMetadata({
   const { locale } = await params;
   const { q } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'search' });
-  return { title: q ? t('metaWithQuery', { query: q }) : t('metaTitle') };
+  return {
+    title: q ? t('metaWithQuery', { query: q }) : t('metaTitle'),
+    alternates: localeAlternates(locale, 'search'),
+    // Search result pages are thin and effectively infinite in number — keep
+    // them out of the index even after the site opens up, but let crawlers
+    // follow through to the real content pages.
+    robots: { index: false, follow: true },
+  };
 }
 
 export default async function SearchPage({

@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 
 import { CONTENT_TYPES, type ContentType } from '@/lib/content/queries';
 import type { Locale } from '@/i18n/routing';
+import { localeAlternates } from '@/lib/seo';
 
 import { LibraryView } from '../LibraryView';
 import { LibrarySkeleton } from '../LibrarySkeleton';
@@ -20,7 +21,10 @@ export async function generateMetadata({
   const { locale, type } = await params;
   if (!isContentType(type)) return {};
   const t = await getTranslations({ locale, namespace: 'library' });
-  return { title: `${t(`type_${type}`)} · ${t('title')} · ${t('metaSuffix')}` };
+  return {
+    title: `${t(`type_${type}`)} · ${t('title')}`,
+    alternates: localeAlternates(locale, `teachings/${type}`),
+  };
 }
 
 export default async function TeachingsTypePage({

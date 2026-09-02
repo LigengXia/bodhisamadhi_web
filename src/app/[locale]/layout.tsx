@@ -16,7 +16,12 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { routing, type Locale } from '@/i18n/routing';
-import { siteIsIndexable } from '@/lib/seo';
+import {
+  DEFAULT_OG_IMAGE,
+  OG_LOCALE,
+  siteIsIndexable,
+  siteUrl,
+} from '@/lib/seo';
 
 import '@/styles/tokens.css';
 import '@/styles/fonts.css';
@@ -85,12 +90,30 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
+  const title = t('title');
+  const description = t('description');
+  const siteName = t('siteName');
   return {
-    title: t('title'),
-    description: t('description'),
+    metadataBase: new URL(siteUrl()),
+    // Child pages set a bare title; the template adds the centre's name. A page
+    // that wants the raw string (the home page) sets `title: { absolute }`.
+    title: { default: title, template: `%s · ${siteName}` },
+    description,
     // Belt-and-suspenders with robots.txt: a per-page noindex for anything a
     // crawler reached before launch. Removed by `SITE_INDEXABLE=true`.
     robots: siteIsIndexable() ? undefined : { index: false, follow: false },
+    openGraph: {
+      type: 'website',
+      siteName,
+      locale: OG_LOCALE[locale as Locale],
+      title,
+      description,
+      url: `/${locale}`,
+      images: [{ url: DEFAULT_OG_IMAGE }],
+    },
+    // X reads the og: tags when twitter: tags are absent, so only the card
+    // type needs stating; per-page og: covers the rest.
+    twitter: { card: 'summary_large_image' },
   };
 }
 

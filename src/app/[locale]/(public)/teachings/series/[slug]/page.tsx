@@ -6,6 +6,7 @@ import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { getSeries } from '@/lib/content/queries';
 import { pickLocale } from '@/lib/i18n-json';
+import { localeAlternates, ogFor } from '@/lib/seo';
 
 import styles from './series.module.css';
 
@@ -17,7 +18,19 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const series = await getSeries(slug);
   if (!series) return {};
-  return { title: pickLocale(series.title, locale) };
+  const tMeta = await getTranslations({ locale, namespace: 'meta' });
+  const title = pickLocale(series.title, locale);
+  const description = pickLocale(series.description, locale) || undefined;
+  return {
+    title,
+    description,
+    alternates: localeAlternates(locale, `teachings/series/${slug}`),
+    openGraph: ogFor(locale, tMeta('siteName'), {
+      title,
+      description,
+      path: `/${locale}/teachings/series/${slug}`,
+    }),
+  };
 }
 
 export default async function SeriesPage({
