@@ -9,6 +9,7 @@ import { MissingLocaleNote } from '@/components/MissingLocaleNote/MissingLocaleN
 import { getTeacher, listTeacherItems } from '@/lib/content/queries';
 import { pickLocale, pickLocaleMeta } from '@/lib/i18n-json';
 import type { Locale } from '@/i18n/routing';
+import { DEFAULT_OG_IMAGE, localeAlternates, ogFor } from '@/lib/seo';
 
 import styles from './teacher.module.css';
 
@@ -20,10 +21,27 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const teacher = await getTeacher(slug);
   if (!teacher) return {};
+  const tMeta = await getTranslations({ locale, namespace: 'meta' });
   const name = [teacher.honorific, pickLocale(teacher.name, locale)]
     .filter(Boolean)
     .join(' ');
-  return { title: name };
+  const bio = pickLocale(teacher.bio, locale) || undefined;
+  const image =
+    teacher.photo_url && /^https?:\/\//.test(teacher.photo_url)
+      ? teacher.photo_url
+      : DEFAULT_OG_IMAGE;
+  return {
+    title: name,
+    description: bio,
+    alternates: localeAlternates(locale, `masters/${slug}`),
+    openGraph: ogFor(locale, tMeta('siteName'), {
+      type: 'profile',
+      title: name,
+      description: bio,
+      path: `/${locale}/masters/${slug}`,
+      images: [image],
+    }),
+  };
 }
 
 export default async function TeacherPage({

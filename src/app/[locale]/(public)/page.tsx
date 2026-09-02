@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 
 import type { Locale } from '@/i18n/routing';
+import { localeAlternates } from '@/lib/seo';
 import { Hero } from '@/components/home/Hero';
 import { Features } from '@/components/home/Features';
 import { HowItWorks } from '@/components/home/HowItWorks';
@@ -19,7 +20,14 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
-  return { title: t('title'), description: t('description') };
+  return {
+    // The home page wants the full site string, not "… · Bodhisamadhi Center".
+    title: { absolute: t('title') },
+    description: t('description'),
+    alternates: localeAlternates(locale, ''),
+    // Open Graph / Twitter: the root layout's default card already describes
+    // the site, which is exactly what the home page is.
+  };
 }
 
 // Docs/7 §5.1 — the v4 home, section by section, with the library teaser as

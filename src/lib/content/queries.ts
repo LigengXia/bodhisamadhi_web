@@ -305,7 +305,7 @@ export async function getFacetOptions(): Promise<FacetOptions> {
 // ── Detail pages ─────────────────────────────────────────────────────
 
 const DETAIL_COLUMNS =
-  'id, type, slug, title, description, youtube_id, audio_url, pdf_url, pdf_pages, allow_download, duration_seconds, recorded_at, published_at, part_number, status, visibility, teacher:teachers(slug, honorific, name, photo_url), series:series(id, slug, title, description)';
+  'id, type, slug, title, description, youtube_id, audio_url, pdf_url, pdf_pages, allow_download, thumbnail_url, duration_seconds, recorded_at, published_at, part_number, status, visibility, teacher:teachers(slug, honorific, name, photo_url), series:series(id, slug, title, description)';
 
 export type ContentDetail = {
   id: string;
@@ -318,6 +318,7 @@ export type ContentDetail = {
   pdf_url: string | null;
   pdf_pages: number | null;
   allow_download: boolean;
+  thumbnail_url: string | null;
   duration_seconds: number | null;
   recorded_at: string | null;
   published_at: string | null;
@@ -581,4 +582,62 @@ export async function searchContent(
   for (const card of sorted) groups[card.type].push(card);
 
   return { groups, total: sorted.length };
+}
+
+// ── Sitemap (Docs/BACKLOG.md §2.2) ───────────────────────────────────
+
+export type SitemapEntries = {
+  items: { type: ContentType; slug: string; lastModified: string | null }[];
+  seriesSlugs: string[];
+  teacherSlugs: string[];
+};
+
+/**
+ * Every public URL the sitemap needs. The anon client means RLS already scopes
+ * `content_items` to published + public + not deleted; the sitemap's series are
+ * exactly those with at least one such part.
+ */
+export async function listSitemapEntries(): Promise<SitemapEntries> {
+  const sb = await createClient();
+
+  const [{ data: rows }, { data: teachers }] = await Promise.all([
+    sb
+      .from('content_items')
+      .select('type, slug, published_at, updated_at, series:series(slug)')
+      .eq('status', 'published')
+      .eq('visibility', 'public')
+      .is('deleted_at', null),
+    sb
+      .from('teachers')
+      .select('slug')
+      .eq('is_active', true)
+      .is('deleted_at', null),
+  ]);
+
+  type Row = {
+    type: ContentType;
+    slug: string;
+    published_at: string | null;
+    updated_at: string | null;
+    series: { slug: string } | null;
+  };
+  const contentRows = (rows ?? []) as unknown as Row[];
+
+  const items = contentRows.map((r) => ({
+    type: r.type,
+    slug: r.slug,
+    lastModified: r.updated_at ?? r.published_at,
+  }));
+
+  const seriesSlugs = [
+    ...new Set(
+      contentRows
+        .map((r) => r.series?.slug)
+        .filter((s): s is string => Boolean(s)),
+    ),
+  ];
+
+  const teacherSlugs = (teachers ?? []).map((t) => t.slug as string);
+
+  return { items, seriesSlugs, teacherSlugs };
 }
