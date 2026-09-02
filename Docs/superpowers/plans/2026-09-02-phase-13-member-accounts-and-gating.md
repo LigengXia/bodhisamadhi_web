@@ -174,7 +174,33 @@ git commit -m "feat: empowerments, per-empowerment qualification, restricted-tie
 
 ---
 
-### Task 5: `queries.ts` — de-pin `visibility='public'`; surface `isLocked`; `getMembersCard`
+> **Execution note (2026-09-02):** `queries.ts` builds the library listing with
+> direct RLS-scoped `content_items` queries, **not** the `list_library_cards`
+> RPC — so a guest's query never returns a `members` row and the "locked card
+> advertising membership" behaviour (Docs/9 §4, §10) had no home. Decision **A**:
+> extend the RPC to be the single filtered-listing function (migration `0011`,
+> Task 5a) and make `queries.ts` a thin wrapper over it. `relatedItems` stays a
+> direct query — a guest never gets a `members` related row and a member sees
+> them unlocked, so `isLocked` there is always `false`.
+
+### Task 5a: Migration `0011` — `list_library_cards` / `count_library_cards` with facets
+
+**Files:**
+- Create: `supabase/migrations/0011_library_cards_facets.sql`
+- Create: `supabase/tests/0011_library_cards.test.sql`
+
+**Interfaces:**
+- Produces `public.list_library_cards(_type content_type default null, _teacher_slug text default null, _series_slug text default null, _topic_slugs text[] default null, _lineage_slugs text[] default null, _limit int default 24, _offset int default 0)` → flat `table(id uuid, type content_type, slug text, title jsonb, youtube_id text, thumbnail_url text, teacher_slug text, teacher_honorific text, teacher_name jsonb, series_slug text, series_title jsonb, part_number integer, recorded_at date, published_at timestamptz, duration_seconds integer, is_locked boolean)`. `security definer`. Facets: OR within `_topic_slugs` / within `_lineage_slugs`, AND between the two; `_teacher_slug` / `_series_slug` resolve to ids inline (an unknown slug → 0 rows). Restricted items excluded unless `has_empowerment` or `is_staff`. **For a locked card (`visibility='members'` and `auth.uid() is null`): `youtube_id` and `thumbnail_url` are returned as `null`** — advertising, never a leak (Docs/5 §13.4).
+- Produces `public.count_library_cards(_type, _teacher_slug, _series_slug, _topic_slugs, _lineage_slugs) returns bigint` — the same WHERE, no limit/offset.
+- Drops the old `list_library_cards(content_type, int, int)`.
+
+- [ ] **Step 1: Write the failing pgTAP test** — `plan(6)`: (1) topic∩lineage AND; (2) a lone topic ORs its slugs; (3) unknown teacher slug → 0; (4) a `members` item to anon has `is_locked=true` **and** `youtube_id is null`; (5) `count_library_cards` equals the `list_library_cards` row count for a filter; (6) restricted item absent for a non-qualified caller. Seed as in `0010_empowerments.test.sql`.
+- [ ] **Step 2: Run — expect FAIL.** `npx supabase db reset && npx supabase test db`
+- [ ] **Step 3: Write the migration** — `drop function` the old signature, `create` both new functions, `grant execute … to anon, authenticated`. Header cites this note.
+- [ ] **Step 4: Run — expect PASS.** Re-run the whole suite (0001 / 0009 / 0010 / 0011) — `list_library_cards()` with no args still works for the older tests.
+- [ ] **Step 5: `npm run db:types` + commit** — `git commit -m "feat: faceted list_library_cards / count_library_cards RPC (Phase 13)"`
+
+### Task 5: `queries.ts` — thin wrapper over the RPC; `isLocked`; `getMembersCard`
 
 **Files:**
 - Modify: `src/lib/content/queries.ts` (re-grep for every `.eq('visibility', 'public')` — the `publicItems()` helper + the search / detail / teaser / sitemap queries)

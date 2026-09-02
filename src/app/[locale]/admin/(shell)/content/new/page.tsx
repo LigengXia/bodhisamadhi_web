@@ -12,12 +12,17 @@ export default async function NewContentPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('admin.contentForm');
-  const { teachers, series } = await loadFormOptions(locale);
+  const { teachers, series, empowerments } = await loadFormOptions(locale);
 
   return (
     <>
       <h1 className={styles.h1}>{t('newTitle')}</h1>
-      <ContentForm mode="new" teachers={teachers} series={series} />
+      <ContentForm
+        mode="new"
+        teachers={teachers}
+        series={series}
+        empowerments={empowerments}
+      />
     </>
   );
 }

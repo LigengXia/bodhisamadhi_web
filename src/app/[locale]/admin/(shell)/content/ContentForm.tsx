@@ -29,6 +29,8 @@ type Defaults = {
   series_id: string | null;
   part_number: number | null;
   recorded_at: string | null;
+  visibility: 'public' | 'members' | 'restricted';
+  required_empowerment: string | null;
   status: 'draft' | 'published' | 'archived';
   youtube_id: string | null;
   pdf_url: string | null;
@@ -45,12 +47,14 @@ export function ContentForm({
   mode,
   teachers,
   series,
+  empowerments,
   defaults,
   previewHref,
 }: {
   mode: 'new' | 'edit';
   teachers: Option[];
   series: Option[];
+  empowerments: Option[];
   defaults?: Defaults;
   previewHref?: string;
 }) {
@@ -60,6 +64,9 @@ export function ContentForm({
   const [type, setType] = useState<(typeof contentTypes)[number] | null>(
     defaults?.type ?? null,
   );
+  const [visibility, setVisibility] = useState<
+    'public' | 'members' | 'restricted'
+  >(defaults?.visibility ?? 'public');
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [state, formAction, pending] = useActionState(
     saveContentAction,
@@ -234,14 +241,44 @@ export function ContentForm({
 
       <Select
         label={t('visibilityLabel')}
-        name="visibility_display"
-        defaultValue="public"
-        help={t('visibilityMembersDisabled')}
-        disabled
+        name="visibility"
+        value={visibility}
+        onChange={(e) =>
+          setVisibility(e.target.value as 'public' | 'members' | 'restricted')
+        }
+        help={
+          visibility === 'restricted'
+            ? t('visibilityRestrictedHelp')
+            : undefined
+        }
       >
         <option value="public">{t('visibilityPublic')}</option>
+        <option value="members">{t('visibilityMembers')}</option>
+        <option value="restricted">{t('visibilityRestricted')}</option>
       </Select>
-      <input type="hidden" name="visibility" value="public" />
+
+      {visibility === 'restricted' && (
+        <Select
+          label={t('empowermentLabel')}
+          name="required_empowerment"
+          required
+          defaultValue={String(
+            dv('required_empowerment', defaults?.required_empowerment),
+          )}
+          error={
+            err['required_empowerment']
+              ? t('errEmpowermentRequired')
+              : undefined
+          }
+        >
+          <option value="">{t('empowermentLabel')}</option>
+          {empowerments.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.label}
+            </option>
+          ))}
+        </Select>
+      )}
 
       <div className={styles.actions}>
         <Button
