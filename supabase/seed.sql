@@ -54,3 +54,13 @@ insert into public.tags (kind, slug, label) values
 ('lineage', 'gelug',       '{"en":"Gelug","zh":"格鲁派"}'::jsonb),
 ('lineage', 'sera-mey',    '{"en":"Sera Mey","zh":"色拉昧"}'::jsonb),
 ('lineage', 'gyuto',       '{"en":"Gyuto","zh":"上密院"}'::jsonb);
+
+-- ── Empowerments (Docs/9 §6.8, D13.7) ───────────────────────────────
+-- ⚠ Starter set only — the docs name just these two (Docs/1 overview:
+--   "Yamantaka puja (weekly), Vajrayogini puja (bi-weekly)"). Geshe-la
+--   confirms the catalogue and the zh/bo names (machine-generated,
+--   unreviewed). Admins add others via /admin/empowerments.
+insert into public.empowerments (slug, name, display_order) values
+  ('yamantaka',   '{"en":"Yamantaka","zh":"大威德金剛","bo":"གཤིན་རྗེ་གཤེད།"}'::jsonb, 1),
+  ('vajrayogini', '{"en":"Vajrayogini","zh":"金剛瑜伽母","bo":"རྡོ་རྗེ་རྣལ་འབྱོར་མ།"}'::jsonb, 2)
+on conflict (slug) do nothing;
