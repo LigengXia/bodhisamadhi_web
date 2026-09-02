@@ -1,4 +1,4 @@
-import { setRequestLocale, getTranslations } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
@@ -15,7 +15,6 @@ export default async function AdminUserDetailPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations('admin.users');
 
   const supabase = await createClient();
   const { data: isAdmin } = await supabase.rpc('is_admin');

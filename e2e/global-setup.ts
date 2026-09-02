@@ -5,7 +5,9 @@ import { ADMIN, seedFixtures } from './support/fixtures';
 export const ADMIN_STATE = 'e2e/.auth/admin.json';
 
 // Seeds the shared dataset and captures an admin session so the admin specs
-// don't each re-authenticate.
+// don't each re-authenticate. Member sessions (for the Phase 13 gating specs
+// that need a signed-in non-staff account) are captured once the member
+// sign-in page exists — see e2e/member-accounts.spec.ts.
 export default async function globalSetup(config: FullConfig) {
   await seedFixtures();
 
@@ -18,8 +20,6 @@ export default async function globalSetup(config: FullConfig) {
   await page.fill('input[name="password"]', ADMIN.password);
   await page.click('button[type="submit"]');
 
-  // Land anywhere in the admin that is not the sign-in page, and confirm the
-  // form is gone — a wrong password re-renders it in place.
   await page.waitForURL((url) => !url.pathname.endsWith('/signin'), {
     timeout: 20_000,
   });
