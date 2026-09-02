@@ -186,7 +186,14 @@ and real network conditions; a pass now would be partial and repeated later.
 
 **Cost.** ~half a day, mostly manual.
 
-### 2.6 Fold the interim strings (C1–C10) into `Docs/4` §7.7/§7.8
+### 2.6 Fold the interim strings (C1–C10) into `Docs/4` §7.7/§7.8 — DONE (2026-09-02)
+
+**Landed as** edits to `Docs/4` §7.7 / §7.8 (English rows for C1–C10, reconciled
+against what actually shipped in `src/messages/*.json` — C1/C2 are heading-only;
+C4 reuses the §7.8 *500* line; C10 is a status-banner note, not an error),
+`Docs/4` §10 item 3 marked resolved, and `Docs/7` §10.2 / §10.3 marked folded.
+Docs only — no code or message-catalogue change. `zh`/`bo` still ride with the
+Phase 12 Tibetan review. **Original intent below.**
 
 **What.** `Docs/7` §10.2 lists ten UI strings the App Flow needed that the design
 system's copy sections do not contain — empty states for "no teachers", "no
