@@ -1,0 +1,152 @@
+/* Admin Members — Docs/9 §5.13. Admin chrome per Docs/4 §3.23. */
+
+.h1 {
+  font-family: var(--ff-body);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semi);
+  color: var(--text);
+}
+.sub {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+  margin-top: var(--sp-x);
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.search {
+  min-height: var(--field-h);
+  padding: 0 var(--field-px);
+  font-size: var(--fs-body);
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--r-sm);
+  min-width: 16rem;
+}
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+.table th {
+  background: var(--n-100);
+  font-weight: var(--fw-semi);
+  color: var(--text-mid);
+  text-align: start;
+  padding: var(--sp-1) var(--sp-2);
+}
+.table td {
+  padding: var(--sp-2);
+  border-bottom: 1px solid var(--n-200);
+  color: var(--text-mid);
+}
+.table td:first-child {
+  color: var(--text);
+  font-weight: var(--fw-medium);
+}
+
+@media (max-width: 700px) {
+  .table thead {
+    display: none;
+  }
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+  }
+  .table tr {
+    border: 1px solid var(--n-200);
+    border-radius: var(--r-sm);
+    margin-bottom: var(--sp-2);
+    padding: var(--sp-1);
+  }
+  .table td {
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    padding: var(--sp-x) var(--sp-1);
+  }
+  .table td::before {
+    content: attr(data-label);
+    font-weight: var(--fw-semi);
+    color: var(--text-soft);
+  }
+}
+
+.empty {
+  padding-block: var(--sp-6);
+  text-align: center;
+}
+.empty h2 {
+  font-family: var(--ff-body);
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-semi);
+  color: var(--text);
+  margin-bottom: var(--sp-1);
+}
+.empty p {
+  font-size: var(--fs-body);
+  color: var(--text-soft);
+  max-width: 42ch;
+  margin: 0 auto;
+}
+
+/* detail */
+.panels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+  max-width: 40rem;
+}
+.panel {
+  border: 1px solid var(--n-200);
+  border-radius: var(--r-sm);
+  padding: var(--sp-3);
+}
+.panelHeading {
+  font-family: var(--ff-body);
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-semi);
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+.qualList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.qualList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+.grantRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}

@@ -8,34 +8,21 @@ export type ContentType = Database['public']['Enums']['content_type'];
 export const PAGE_SIZE = 24;
 export const CONTENT_TYPES: ContentType[] = ['video', 'audio', 'script'];
 
-// Every public listing is pinned to this shape in the MVP (Docs/7 §3.5, §3.6):
-// published, public, not deleted — regardless of who is asking. RLS is the
-// backstop; these filters are the contract.
-function publicItems(sb: Awaited<ReturnType<typeof createClient>>) {
-  return sb
-    .from('content_items')
-    .select(
-      'id, type, slug, title, thumbnail_url, youtube_id, duration_seconds, recorded_at, published_at, part_number, teacher:teachers(slug, honorific, name), series:series(slug, title)',
-      { count: 'exact' },
-    )
-    .eq('status', 'published')
-    .eq('visibility', 'public')
-    .is('deleted_at', null);
-}
-
 export type LibraryCard = {
   id: string;
   type: ContentType;
   slug: string;
   title: Json;
-  thumbnail_url: string | null;
+  // `null` on a locked card — advertising, never a leak (0011, Docs/5 §13.4).
   youtube_id: string | null;
+  thumbnail_url: string | null;
   duration_seconds: number | null;
   recorded_at: string | null;
   published_at: string | null;
   part_number: number | null;
   teacher: { slug: string; honorific: string | null; name: Json } | null;
   series: { slug: string; title: Json } | null;
+  isLocked: boolean;
 };
 
 export type LibraryFilters = {
@@ -54,75 +41,49 @@ export type LibraryPage = {
   pageCount: number;
 };
 
-async function idForSlug(
-  sb: Awaited<ReturnType<typeof createClient>>,
-  table: 'teachers' | 'series',
-  slug: string,
-): Promise<string | null> {
-  const { data } = await sb
-    .from(table)
-    .select('id')
-    .eq('slug', slug)
-    .maybeSingle();
-  return data?.id ?? null;
+// ── Library listing ─────────────────────────────────────────────────
+// The filtered listing goes through list_library_cards / count_library_cards
+// (0011): security-definer, so a guest sees a 'members' item as a locked
+// card (is_locked, youtube_id/thumbnail_url nulled), and 'restricted' items
+// are excluded unless the caller is qualified or staff.
+
+type RpcCardRow =
+  Database['public']['Functions']['list_library_cards']['Returns'][number];
+
+function mapRpcCard(r: RpcCardRow): LibraryCard {
+  return {
+    id: r.id,
+    type: r.type,
+    slug: r.slug,
+    title: r.title,
+    youtube_id: r.youtube_id,
+    thumbnail_url: r.thumbnail_url,
+    duration_seconds: r.duration_seconds,
+    recorded_at: r.recorded_at,
+    published_at: r.published_at,
+    part_number: r.part_number,
+    teacher: r.teacher_slug
+      ? {
+          slug: r.teacher_slug,
+          honorific: r.teacher_honorific,
+          name: r.teacher_name as Json,
+        }
+      : null,
+    series: r.series_slug
+      ? { slug: r.series_slug, title: r.series_title as Json }
+      : null,
+    isLocked: r.is_locked,
+  };
 }
 
-/** Item ids carrying at least one of the given tag slugs (OR within a group). */
-async function itemIdsForTags(
-  sb: Awaited<ReturnType<typeof createClient>>,
-  tagSlugs: string[],
-): Promise<string[]> {
-  const { data: tags } = await sb
-    .from('tags')
-    .select('id')
-    .in('slug', tagSlugs);
-  const tagIds = (tags ?? []).map((t) => t.id);
-  if (tagIds.length === 0) return [];
-  const { data: links } = await sb
-    .from('content_tags')
-    .select('content_item_id')
-    .in('tag_id', tagIds);
-  return [...new Set((links ?? []).map((l) => l.content_item_id))];
-}
-
-/**
- * The item ids a tag facet selection resolves to: OR within a dimension
- * (topic, lineage), AND between dimensions — an item must match at least one
- * of the chosen topics AND at least one of the chosen lineages. Returns
- * `null` when no tag facet is active. An empty array means "no matches".
- *
- * Exported for regression testing (Docs/BACKLOG.md §1.1): PR #25 fixed a bug
- * where the two dimensions were OR'd instead of AND'd.
- */
-export async function itemIdsForTagFacets(
-  sb: Awaited<ReturnType<typeof createClient>>,
-  topic: string[],
-  lineage: string[],
-): Promise<string[] | null> {
-  const groups = [topic, lineage].filter((g) => g.length > 0);
-  if (groups.length === 0) return null;
-
-  const idSets = await Promise.all(
-    groups.map((slugs) => itemIdsForTags(sb, slugs)),
-  );
-  let allowed = idSets[0] ?? [];
-  for (const next of idSets.slice(1)) {
-    const set = new Set(next);
-    allowed = allowed.filter((id) => set.has(id));
-  }
-  return allowed;
-}
-
-/** The N most recent published, public items — for the Home library teaser. */
-export async function listRecentLibraryCards(
-  limit = 6,
-): Promise<LibraryCard[]> {
-  const sb = await createClient();
-  const { data, error } = await publicItems(sb)
-    .order('published_at', { ascending: false })
-    .range(0, Math.max(0, limit - 1));
-  if (error) throw error;
-  return (data ?? []) as unknown as LibraryCard[];
+function facetArgs(filters: LibraryFilters) {
+  return {
+    _type: filters.type ?? undefined,
+    _teacher_slug: filters.teacher ?? undefined,
+    _series_slug: filters.series ?? undefined,
+    _topic_slugs: filters.topic?.length ? filters.topic : undefined,
+    _lineage_slugs: filters.lineage?.length ? filters.lineage : undefined,
+  };
 }
 
 /**
@@ -144,75 +105,49 @@ export function resolvePage(
   return { page, pageCount };
 }
 
+/** The N most recent published items — for the Home library teaser. */
+export async function listRecentLibraryCards(
+  limit = 6,
+): Promise<LibraryCard[]> {
+  const sb = await createClient();
+  const { data, error } = await sb.rpc('list_library_cards', { _limit: limit });
+  if (error) throw error;
+  return (data ?? []).map(mapRpcCard);
+}
+
 export async function listLibraryCards(
   filters: LibraryFilters = {},
 ): Promise<LibraryPage> {
   const sb = await createClient();
   const requestedPage = Math.max(1, filters.page ?? 1);
+  const args = facetArgs(filters);
 
-  // Resolve the facet slugs to ids up front. A slug that matches nothing (a
-  // stale or hand-typed URL) means an empty result, not an error.
-  let teacherId: string | undefined;
-  if (filters.teacher) {
-    const id = await idForSlug(sb, 'teachers', filters.teacher);
-    if (!id) return empty(requestedPage);
-    teacherId = id;
-  }
-  let seriesId: string | undefined;
-  if (filters.series) {
-    const id = await idForSlug(sb, 'series', filters.series);
-    if (!id) return empty(requestedPage);
-    seriesId = id;
-  }
-  const tagIds = await itemIdsForTagFacets(
-    sb,
-    filters.topic ?? [],
-    filters.lineage ?? [],
+  // Count first so an out-of-range `?page=` clamps to the last page.
+  const { data: countData, error: countErr } = await sb.rpc(
+    'count_library_cards',
+    args,
   );
-  if (tagIds !== null && tagIds.length === 0) return empty(requestedPage);
-
-  // Count first so an out-of-range `?page=` clamps to the last page instead of
-  // asking PostgREST for a range it rejects with a 416.
-  let countQ = sb
-    .from('content_items')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'published')
-    .eq('visibility', 'public')
-    .is('deleted_at', null);
-  if (filters.type) countQ = countQ.eq('type', filters.type);
-  if (teacherId) countQ = countQ.eq('teacher_id', teacherId);
-  if (seriesId) countQ = countQ.eq('series_id', seriesId);
-  if (tagIds !== null) countQ = countQ.in('id', tagIds);
-  const { count } = await countQ;
-
-  const total = count ?? 0;
+  if (countErr) throw countErr;
+  const total = Number(countData ?? 0);
   const { page, pageCount } = resolvePage(requestedPage, total);
-  const from = (page - 1) * PAGE_SIZE;
-
   if (total === 0) return { cards: [], total: 0, page, pageCount };
 
-  let query = publicItems(sb)
-    .order('published_at', { ascending: false })
-    .range(from, from + PAGE_SIZE - 1);
-  if (filters.type) query = query.eq('type', filters.type);
-  if (teacherId) query = query.eq('teacher_id', teacherId);
-  if (seriesId) query = query.eq('series_id', seriesId);
-  if (tagIds !== null) query = query.in('id', tagIds);
-
-  const { data, error } = await query;
+  const { data, error } = await sb.rpc('list_library_cards', {
+    ...args,
+    _limit: PAGE_SIZE,
+    _offset: (page - 1) * PAGE_SIZE,
+  });
   if (error) throw error;
 
-  return {
-    cards: (data ?? []) as unknown as LibraryCard[],
-    total,
-    page,
-    pageCount,
-  };
+  return { cards: (data ?? []).map(mapRpcCard), total, page, pageCount };
 }
 
-function empty(page: number): LibraryPage {
-  return { cards: [], total: 0, page, pageCount: 1 };
-}
+// ── Facet options (Docs/7 §5.4) ─────────────────────────────────────
+// RLS scopes this to what the caller may see. For a signed-out visitor that
+// is public items only, so a guest's facet counts do not include the locked
+// 'members' cards the listing shows — a known, dormant gap while nothing is
+// gated (Docs/9 D13.5); revisit as a security-definer count if content is
+// ever marked members-only.
 
 export type FacetOption = { slug: string; label: Json; count: number };
 export type FacetOptions = {
@@ -222,11 +157,6 @@ export type FacetOptions = {
   lineages: FacetOption[];
 };
 
-/**
- * Facet lists with unfiltered published-item counts (Docs/7 §5.4). One pass
- * over a few small columns — fine at MVP scale (Docs/5 §18); revisit as an
- * aggregate view if the catalogue grows into the thousands.
- */
 export async function getFacetOptions(): Promise<FacetOptions> {
   const sb = await createClient();
 
@@ -240,7 +170,6 @@ export async function getFacetOptions(): Promise<FacetOptions> {
       .from('content_items')
       .select('id, teacher_id, series_id')
       .eq('status', 'published')
-      .eq('visibility', 'public')
       .is('deleted_at', null),
     sb
       .from('teachers')
@@ -303,6 +232,9 @@ export async function getFacetOptions(): Promise<FacetOptions> {
 }
 
 // ── Detail pages ─────────────────────────────────────────────────────
+// Still pinned to `visibility = 'public'`. The members / restricted detail
+// behaviour (the "sign in to watch" panel, restricted → 404) lands with the
+// member-auth screens (Docs/9 §5.10).
 
 const DETAIL_COLUMNS =
   'id, type, slug, title, description, youtube_id, audio_url, pdf_url, pdf_pages, allow_download, thumbnail_url, duration_seconds, recorded_at, published_at, part_number, status, visibility, teacher:teachers(slug, honorific, name, photo_url), series:series(id, slug, title, description)';
@@ -386,6 +318,57 @@ export async function getContentForPreview(
   return hydrateDetail(sb, data as never);
 }
 
+// ── Members-only advertising card (Docs/9 §5.10) ────────────────────
+// The deliberately public projection for a 'members' item, so a signed-out
+// visitor on its detail page gets the "sign in to watch" panel instead of a
+// 404 (get_members_card, 0009). Never the playable payload.
+
+export type MembersCard = {
+  id: string;
+  type: ContentType;
+  slug: string;
+  title: Json;
+  description: Json;
+  thumbnail_url: string | null;
+  recorded_at: string | null;
+  published_at: string | null;
+  duration_seconds: number | null;
+  teacher: { slug: string; honorific: string | null; name: Json } | null;
+  series: { slug: string; title: Json } | null;
+  part_number: number | null;
+};
+
+export async function getMembersCard(
+  slug: string,
+): Promise<MembersCard | null> {
+  const sb = await createClient();
+  const { data } = await sb.rpc('get_members_card', { _slug: slug });
+  const row = data?.[0];
+  if (!row) return null;
+  return {
+    id: row.id,
+    type: row.type,
+    slug: row.slug,
+    title: row.title as Json,
+    description: row.description as Json,
+    thumbnail_url: row.thumbnail_url,
+    recorded_at: row.recorded_at,
+    published_at: row.published_at,
+    duration_seconds: row.duration_seconds,
+    teacher: row.teacher_slug
+      ? {
+          slug: row.teacher_slug,
+          honorific: row.teacher_honorific,
+          name: row.teacher_name as Json,
+        }
+      : null,
+    series: row.series_slug
+      ? { slug: row.series_slug, title: row.series_title as Json }
+      : null,
+    part_number: row.part_number,
+  };
+}
+
 type RawDetail = Omit<ContentDetail, 'tags' | 'seriesParts' | 'related'> & {
   series: { id: string; slug: string; title: Json; description: Json } | null;
 };
@@ -415,7 +398,6 @@ async function hydrateDetail(
     seriesParts = (parts ?? []) as ContentDetail['seriesParts'];
   }
 
-  // Related: other published items by the same teacher or in the same series.
   const related = await relatedItems(sb, row);
 
   return { ...row, tags, seriesParts, related };
@@ -426,7 +408,6 @@ async function relatedItems(
   row: RawDetail,
 ): Promise<LibraryCard[]> {
   const orParts: string[] = [];
-  // teacher_id / series_id aren't on `row`; re-read them cheaply.
   const { data: ids } = await sb
     .from('content_items')
     .select('teacher_id, series_id')
@@ -436,12 +417,57 @@ async function relatedItems(
   if (ids?.series_id) orParts.push(`series_id.eq.${ids.series_id}`);
   if (orParts.length === 0) return [];
 
-  const { data } = await publicItems(sb)
+  // RLS scopes this: a guest never gets a 'members' related row, a member
+  // sees them unlocked — so isLocked is always false here.
+  const { data } = await sb
+    .from('content_items')
+    .select(CARD_COLUMNS)
     .or(orParts.join(','))
+    .eq('status', 'published')
+    .is('deleted_at', null)
     .neq('id', row.id)
     .order('published_at', { ascending: false })
     .limit(4);
-  return (data ?? []) as unknown as LibraryCard[];
+  return (data ?? []).map((r) => mapDirectCard(r as never, true));
+}
+
+// A card's columns from a direct content_items query (related items, search).
+const CARD_COLUMNS =
+  'id, type, slug, title, thumbnail_url, youtube_id, visibility, duration_seconds, recorded_at, published_at, part_number, teacher:teachers(slug, honorific, name), series:series(slug, title)';
+
+type DirectCardRow = {
+  id: string;
+  type: ContentType;
+  slug: string;
+  title: Json;
+  thumbnail_url: string | null;
+  youtube_id: string | null;
+  visibility: Database['public']['Enums']['visibility'];
+  duration_seconds: number | null;
+  recorded_at: string | null;
+  published_at: string | null;
+  part_number: number | null;
+  teacher: { slug: string; honorific: string | null; name: Json } | null;
+  series: { slug: string; title: Json } | null;
+};
+
+function mapDirectCard(row: DirectCardRow, signedIn: boolean): LibraryCard {
+  const isLocked = row.visibility === 'members' && !signedIn;
+  return {
+    id: row.id,
+    type: row.type,
+    slug: row.slug,
+    title: row.title,
+    youtube_id: isLocked ? null : row.youtube_id,
+    thumbnail_url: isLocked ? null : row.thumbnail_url,
+    duration_seconds: row.duration_seconds,
+    recorded_at: row.recorded_at,
+    published_at: row.published_at,
+    part_number: row.part_number,
+    teacher: row.teacher ?? null,
+    series: row.series ?? null,
+    isLocked,
+  };
 }
 
 // ── Teachers ─────────────────────────────────────────────────────────
@@ -538,9 +564,10 @@ export type SearchResults = {
 
 /**
  * Wraps `search_content(_q, _locale)` (Docs/5 §7.2): English full-text with
- * stemming, `zh`/`bo` trigram substring. The function itself filters to
- * published + not-deleted and RLS keeps drafts out; we still pin visibility to
- * `public` for the MVP (Docs/7 §3.5). Rank order from the function is
+ * stemming, `zh`/`bo` trigram substring. `search_content` is NOT
+ * security-definer, so RLS scopes the rows it returns — a guest sees public
+ * items only, a member also sees non-restricted 'members' items, a qualified
+ * member also their restricted items. Rank order from the function is
  * preserved, then results are grouped by type (Docs/7 §5.9).
  */
 export async function searchContent(
@@ -561,18 +588,25 @@ export async function searchContent(
   });
   if (error) throw error;
 
-  const rows = (hits ?? []).filter((r) => r.visibility === 'public');
+  const rows = hits ?? [];
   if (rows.length === 0) return empty;
 
-  const rank = new Map(rows.map((r, i) => [r.id, i]));
-  const { data: cards } = await publicItems(sb).in(
-    'id',
-    rows.map((r) => r.id),
-  );
+  const {
+    data: { user },
+  } = await sb.auth.getUser();
 
-  const sorted = ((cards ?? []) as unknown as LibraryCard[]).sort(
-    (a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0),
-  );
+  const rank = new Map(rows.map((r, i) => [r.id, i]));
+  const { data: cards } = await sb
+    .from('content_items')
+    .select(CARD_COLUMNS)
+    .in(
+      'id',
+      rows.map((r) => r.id),
+    );
+
+  const sorted = (cards ?? [])
+    .map((r) => mapDirectCard(r as never, Boolean(user)))
+    .sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0));
 
   const groups: Record<ContentType, LibraryCard[]> = {
     video: [],
@@ -593,9 +627,9 @@ export type SitemapEntries = {
 };
 
 /**
- * Every public URL the sitemap needs. The anon client means RLS already scopes
- * `content_items` to published + public + not deleted; the sitemap's series are
- * exactly those with at least one such part.
+ * Every public URL the sitemap needs — pinned to `visibility = 'public'`: a
+ * sitemap lists public addresses by definition, never a 'members' or
+ * 'restricted' slug.
  */
 export async function listSitemapEntries(): Promise<SitemapEntries> {
   const sb = await createClient();

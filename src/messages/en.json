@@ -47,7 +47,9 @@
       "signOut": "Sign out",
       "localeLabel": "Admin language",
       "menuOpen": "Open menu",
-      "menuClose": "Close menu"
+      "menuClose": "Close menu",
+      "users": "Members",
+      "empowerments": "Empowerments"
     },
     "queue": {
       "title": "What needs your attention",
@@ -175,10 +177,62 @@
       "audioUnknownDuration": "length unknown",
       "errAudioType": "That file is not an MP3.",
       "errAudioTooLarge": "This file is larger than the {limit} limit. Please upload a smaller file.",
-      "errAudioRequired": "An MP3 is required for a recording."
+      "errAudioRequired": "An MP3 is required for a recording.",
+      "visibilityRestricted": "Restricted",
+      "visibilityRestrictedHelp": "Only practitioners the centre has qualified for the chosen empowerment. Not shown publicly.",
+      "empowermentLabel": "Required empowerment",
+      "errEmpowermentRequired": "Choose the empowerment this text requires."
     },
     "preview": {
       "draftBanner": "Draft — not published"
+    },
+    "users": {
+      "title": "Members",
+      "colName": "Name",
+      "colEmail": "Email",
+      "colRoles": "Roles",
+      "colQualifications": "Qualifications",
+      "colJoined": "Joined",
+      "search": "Search by name or email",
+      "filterQualified": "Has a qualification",
+      "emptyHeading": "No members yet",
+      "emptyBody": "Accounts appear here as people sign up.",
+      "detailTitle": "Member",
+      "rolesHeading": "Roles",
+      "qualificationsHeading": "Empowerment qualifications",
+      "grant": "Grant",
+      "revoke": "Revoke",
+      "grantPlaceholder": "Choose an empowerment",
+      "revokeConfirmTitle": "Revoke this qualification?",
+      "revokeConfirmBody": "{name} will lose access to {empowerment} material.",
+      "revokeConfirm": "Revoke",
+      "revokeCancel": "Keep it",
+      "toastGranted": "Qualification granted",
+      "toastRevoked": "Qualification revoked",
+      "errorBody": "Something went wrong on our side. Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "empowerments": {
+      "title": "Empowerments",
+      "colName": "Name",
+      "colSlug": "Identifier",
+      "colActive": "Active",
+      "add": "Add an empowerment",
+      "slugLabel": "Identifier",
+      "slugHelp": "Lower-case letters, numbers and hyphens, e.g. heruka.",
+      "nameLabelEn": "Name (English)",
+      "nameLabelZh": "Name (中文)",
+      "nameLabelBo": "Name (བོད་ཡིག)",
+      "save": "Save",
+      "saveBusy": "Saving…",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "emptyHeading": "No empowerments yet",
+      "emptyBody": "Add the empowerments the centre confers.",
+      "pendingReview": "Names and the catalogue are pending Geshe-la's review.",
+      "errSlug": "Use only lower-case letters, numbers and hyphens.",
+      "errName": "A name is required in all three languages.",
+      "errDuplicate": "An empowerment with this identifier already exists."
     }
   },
   "audioPlayer": {
@@ -222,7 +276,10 @@
     "seriesPreparingHeading": "The parts of this series are being prepared",
     "mastersPreparingHeading": "Teacher profiles are being prepared",
     "masterNoTeachingsHeading": "No teachings from this master yet",
-    "masterNoTeachingsBody": "Recordings will appear here as they are published."
+    "masterNoTeachingsBody": "Recordings will appear here as they are published.",
+    "gatedHeading": "This teaching is for members",
+    "gatedBody": "Sign in to watch. Membership is free — it exists so the center knows who is studying, not to restrict the dharma.",
+    "gatedAction": "Sign in"
   },
   "facets": {
     "label": "Filters",
@@ -415,7 +472,8 @@
     "untitled": "Untitled",
     "durationLabel": "duration",
     "partOfSeries": "Part {number} of {series}",
-    "resultCount": "{count, plural, one {# teaching} other {# teachings}}"
+    "resultCount": "{count, plural, one {# teaching} other {# teachings}}",
+    "lockBadge": "Members-only"
   },
   "masters": {
     "title": "Masters",

@@ -7,6 +7,17 @@ export const ADMIN = {
   password: 'e2e-Admin-Pw-2026x',
 };
 
+// Two confirmed members for the gating specs (Phase 13). One holds the
+// `yamantaka` qualification, one holds nothing.
+export const QUALIFIED_MEMBER = {
+  email: 'e2e-qualified@bodhisamadhi.test',
+  password: 'e2e-Member-Pw-2026x',
+};
+export const PLAIN_MEMBER = {
+  email: 'e2e-plain@bodhisamadhi.test',
+  password: 'e2e-Member-Pw-2026x',
+};
+
 export const FIXTURES = {
   publishedVideo: {
     slug: 'e2e-published-video',
@@ -29,6 +40,15 @@ export const FIXTURES = {
   audio: {
     slug: 'e2e-audio',
     title: 'E2E Chanted Practice',
+  },
+  restrictedVideo: {
+    slug: 'e2e-restricted-video',
+    title: 'E2E Yamantaka Sadhana',
+    youtube_id: 'dQw4w9WgXcQ',
+  },
+  restrictedAudio: {
+    slug: 'e2e-restricted-audio',
+    title: 'E2E Restricted Chant',
   },
 };
 
@@ -55,6 +75,30 @@ export async function seedFixtures() {
     .upsert(
       { user_id: adminId, role: 'admin' },
       { onConflict: 'user_id,role' },
+    );
+
+  // Two confirmed members; the qualified one gets `yamantaka`.
+  async function ensureMember(email: string, password: string) {
+    const found = list.users.find((u) => u.email === email)?.id;
+    if (found) return found;
+    const { data, error } = await db.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    });
+    if (error) throw error;
+    return data.user.id;
+  }
+  const qualifiedId = await ensureMember(
+    QUALIFIED_MEMBER.email,
+    QUALIFIED_MEMBER.password,
+  );
+  await ensureMember(PLAIN_MEMBER.email, PLAIN_MEMBER.password);
+  await db
+    .from('user_qualifications')
+    .upsert(
+      { user_id: qualifiedId, empowerment_slug: 'yamantaka' },
+      { onConflict: 'user_id,empowerment_slug' },
     );
 
   // A teacher to attach (seed.sql always creates this one).
@@ -119,6 +163,27 @@ export async function seedFixtures() {
       audio_url: FAKE_MP3,
       duration_seconds: 600,
     },
+    {
+      ...base,
+      type: 'video',
+      status: 'published',
+      visibility: 'restricted' as const,
+      required_empowerment: 'yamantaka',
+      slug: FIXTURES.restrictedVideo.slug,
+      title: { en: FIXTURES.restrictedVideo.title },
+      youtube_id: FIXTURES.restrictedVideo.youtube_id,
+    },
+    {
+      ...base,
+      type: 'audio',
+      status: 'published',
+      visibility: 'restricted' as const,
+      required_empowerment: 'yamantaka',
+      slug: FIXTURES.restrictedAudio.slug,
+      title: { en: FIXTURES.restrictedAudio.title },
+      audio_url: FAKE_MP3,
+      duration_seconds: 600,
+    },
   ];
 
   const { error } = await db
@@ -127,6 +192,27 @@ export async function seedFixtures() {
   if (error) throw error;
 
   return { adminId };
+}
+
+/** The content_items id for a fixture slug (for endpoints keyed by id). */
+export async function fixtureId(slug: string): Promise<string> {
+  const db = serviceClient();
+  const { data } = await db
+    .from('content_items')
+    .select('id')
+    .eq('slug', slug)
+    .single();
+  if (!data) throw new Error(`fixture not seeded: ${slug}`);
+  return data.id;
+}
+
+/** The member id for a seeded e2e account email. */
+export async function memberId(email: string): Promise<string> {
+  const db = serviceClient();
+  const { data } = await db.auth.admin.listUsers();
+  const id = data.users.find((u) => u.email === email)?.id;
+  if (!id) throw new Error(`member not seeded: ${email}`);
+  return id;
 }
 
 export async function resetFixtures() {

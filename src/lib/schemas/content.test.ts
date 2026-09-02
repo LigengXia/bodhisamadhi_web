@@ -87,6 +87,49 @@ describe('contentFormSchema', () => {
         .success,
     ).toBe(false);
   });
+
+  it('accepts members visibility without an empowerment', () => {
+    expect(
+      contentFormSchema.safeParse({ ...base, visibility: 'members' }).success,
+    ).toBe(true);
+  });
+
+  it('requires an empowerment when visibility is restricted', () => {
+    expect(
+      contentFormSchema.safeParse({ ...base, visibility: 'restricted' })
+        .success,
+    ).toBe(false);
+    expect(
+      contentFormSchema.safeParse({
+        ...base,
+        visibility: 'restricted',
+        required_empowerment: 'yamantaka',
+      }).success,
+    ).toBe(true);
+  });
+
+  it('drops required_empowerment for a non-restricted item', () => {
+    const row = toContentRow(
+      contentFormSchema.parse({
+        ...base,
+        visibility: 'members',
+        required_empowerment: 'yamantaka',
+      }),
+    );
+    expect(row.required_empowerment).toBeNull();
+    expect(row.visibility).toBe('members');
+  });
+
+  it('keeps required_empowerment for a restricted item', () => {
+    const row = toContentRow(
+      contentFormSchema.parse({
+        ...base,
+        visibility: 'restricted',
+        required_empowerment: 'yamantaka',
+      }),
+    );
+    expect(row.required_empowerment).toBe('yamantaka');
+  });
 });
 
 describe('toContentRow', () => {

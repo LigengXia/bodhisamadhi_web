@@ -90,6 +90,7 @@ export type Database = {
           pdf_url: string | null
           published_at: string | null
           recorded_at: string | null
+          required_empowerment: string | null
           search_cjk: string | null
           search_en: unknown
           series_id: string | null
@@ -117,6 +118,7 @@ export type Database = {
           pdf_url?: string | null
           published_at?: string | null
           recorded_at?: string | null
+          required_empowerment?: string | null
           search_cjk?: string | null
           search_en?: unknown
           series_id?: string | null
@@ -144,6 +146,7 @@ export type Database = {
           pdf_url?: string | null
           published_at?: string | null
           recorded_at?: string | null
+          required_empowerment?: string | null
           search_cjk?: string | null
           search_en?: unknown
           series_id?: string | null
@@ -164,6 +167,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_required_empowerment_fkey"
+            columns: ["required_empowerment"]
+            isOneToOne: false
+            referencedRelation: "empowerments"
+            referencedColumns: ["slug"]
           },
           {
             foreignKeyName: "content_items_series_id_fkey"
@@ -210,6 +220,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      empowerments: {
+        Row: {
+          created_at: string
+          description: Json
+          display_order: number
+          is_active: boolean
+          name: Json
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: Json
+          display_order?: number
+          is_active?: boolean
+          name: Json
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: Json
+          display_order?: number
+          is_active?: boolean
+          name?: Json
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -371,6 +411,52 @@ export type Database = {
           },
         ]
       }
+      user_qualifications: {
+        Row: {
+          empowerment_slug: string
+          granted_at: string
+          granted_by: string | null
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          empowerment_slug: string
+          granted_at?: string
+          granted_by?: string | null
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          empowerment_slug?: string
+          granted_at?: string
+          granted_by?: string | null
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_qualifications_empowerment_slug_fkey"
+            columns: ["empowerment_slug"]
+            isOneToOne: false
+            referencedRelation: "empowerments"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "user_qualifications_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_qualifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           granted_at: string
@@ -413,6 +499,37 @@ export type Database = {
     }
     Functions: {
       admin_queue_counts: { Args: never; Returns: Json }
+      count_library_cards: {
+        Args: {
+          _lineage_slugs?: string[]
+          _series_slug?: string
+          _teacher_slug?: string
+          _topic_slugs?: string[]
+          _type?: Database["public"]["Enums"]["content_type"]
+        }
+        Returns: number
+      }
+      get_members_card: {
+        Args: { _slug: string }
+        Returns: {
+          description: Json
+          duration_seconds: number
+          id: string
+          part_number: number
+          published_at: string
+          recorded_at: string
+          series_slug: string
+          series_title: Json
+          slug: string
+          teacher_honorific: string
+          teacher_name: Json
+          teacher_slug: string
+          thumbnail_url: string
+          title: Json
+          type: Database["public"]["Enums"]["content_type"]
+        }[]
+      }
+      has_empowerment: { Args: { _slug: string }; Returns: boolean }
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
@@ -420,22 +537,44 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_master: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      list_admin_users: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          qualifications: string[]
+          roles: string[]
+        }[]
+      }
       list_library_cards: {
         Args: {
           _limit?: number
+          _lineage_slugs?: string[]
           _offset?: number
+          _series_slug?: string
+          _teacher_slug?: string
+          _topic_slugs?: string[]
           _type?: Database["public"]["Enums"]["content_type"]
         }
         Returns: {
           duration_seconds: number
           id: string
           is_locked: boolean
+          part_number: number
           published_at: string
+          recorded_at: string
+          series_slug: string
+          series_title: Json
           slug: string
+          teacher_honorific: string
           teacher_name: Json
+          teacher_slug: string
           thumbnail_url: string
           title: Json
           type: Database["public"]["Enums"]["content_type"]
+          youtube_id: string
         }[]
       }
       search_content: {
@@ -454,6 +593,7 @@ export type Database = {
           pdf_url: string | null
           published_at: string | null
           recorded_at: string | null
+          required_empowerment: string | null
           search_cjk: string | null
           search_en: unknown
           series_id: string | null
@@ -481,7 +621,7 @@ export type Database = {
       content_type: "video" | "audio" | "script"
       locale: "en" | "zh" | "bo"
       tag_kind: "topic" | "lineage"
-      visibility: "public" | "members"
+      visibility: "public" | "members" | "restricted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -617,7 +757,7 @@ export const Constants = {
       content_type: ["video", "audio", "script"],
       locale: ["en", "zh", "bo"],
       tag_kind: ["topic", "lineage"],
-      visibility: ["public", "members"],
+      visibility: ["public", "members", "restricted"],
     },
   },
 } as const

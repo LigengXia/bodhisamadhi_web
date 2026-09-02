@@ -13,7 +13,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(15);
+select plan(16);
 
 -- ── Fixtures (as the test superuser) ────────────────────────────────
 -- Start from an empty world so the assertions are exact regardless of any
@@ -84,15 +84,23 @@ select bag_eq(
   $$ values ('youtube_id'),('audio_url'),('pdf_url') $$,
   '9a. content_items really does carry the payload columns');
 
+-- 9b · The card projection never carries audio_url / pdf_url. It does carry
+--      youtube_id (the poster source for a public video), but NULL for a
+--      locked card — advertising, never a leak (0011, Docs/5 §13.4).
 select ok(
   not exists (
     select key
     from json_object_keys(
       (select row_to_json(c) from public.list_library_cards() c limit 1)
     ) as k(key)
-    where key in ('youtube_id', 'audio_url', 'pdf_url')
+    where key in ('audio_url', 'pdf_url')
   ),
-  '9b. list_library_cards returns none of youtube_id / audio_url / pdf_url');
+  '9b. list_library_cards returns neither audio_url nor pdf_url');
+
+select is(
+  (select youtube_id from public.list_library_cards() where slug = 'members-only'),
+  null,
+  '9c. a locked card''s youtube_id comes back NULL to a guest');
 
 select is(
   (select is_locked from public.list_library_cards() where slug = 'members-only'),

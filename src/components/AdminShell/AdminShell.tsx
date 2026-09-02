@@ -9,11 +9,16 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher/LanguageSwitcher
 
 import styles from './AdminShell.module.css';
 
-type NavItem = { href: string; labelKey: 'dashboard' | 'content' };
+type NavItem = {
+  href: string;
+  labelKey: 'dashboard' | 'content' | 'users' | 'empowerments';
+};
 
 const NAV: NavItem[] = [
   { href: '/admin', labelKey: 'dashboard' },
   { href: '/admin/content', labelKey: 'content' },
+  { href: '/admin/users', labelKey: 'users' },
+  { href: '/admin/empowerments', labelKey: 'empowerments' },
 ];
 
 export function AdminShell({

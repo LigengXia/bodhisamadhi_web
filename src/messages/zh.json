@@ -47,7 +47,9 @@
       "signOut": "登出",
       "localeLabel": "后台语言",
       "menuOpen": "开启选单",
-      "menuClose": "关闭选单"
+      "menuClose": "关闭选单",
+      "users": "会员",
+      "empowerments": "灌顶"
     },
     "queue": {
       "title": "待处理事项",
@@ -175,10 +177,62 @@
       "audioUnknownDuration": "时长未知",
       "errAudioType": "该文件不是 MP3。",
       "errAudioTooLarge": "此文件超过 {limit} 的上限，请上传较小的文件。",
-      "errAudioRequired": "录音需要一份 MP3。"
+      "errAudioRequired": "录音需要一份 MP3。",
+      "visibilityRestricted": "限定",
+      "visibilityRestrictedHelp": "仅限中心认定已获相应灌顶的修行者。不对外公开显示。",
+      "empowermentLabel": "所需灌顶",
+      "errEmpowermentRequired": "请选择此文本所需的灌顶。"
     },
     "preview": {
       "draftBanner": "草稿 — 尚未发布"
+    },
+    "users": {
+      "title": "会员",
+      "colName": "姓名",
+      "colEmail": "电子邮箱",
+      "colRoles": "身份",
+      "colQualifications": "灌顶资格",
+      "colJoined": "加入日期",
+      "search": "按姓名或邮箱搜索",
+      "filterQualified": "已获灌顶资格",
+      "emptyHeading": "尚无会员",
+      "emptyBody": "有人注册后，账户将显示于此。",
+      "detailTitle": "会员",
+      "rolesHeading": "身份",
+      "qualificationsHeading": "灌顶资格",
+      "grant": "授予",
+      "revoke": "撤销",
+      "grantPlaceholder": "选择灌顶",
+      "revokeConfirmTitle": "撤销此资格？",
+      "revokeConfirmBody": "{name} 将无法再访问「{empowerment}」相关内容。",
+      "revokeConfirm": "撤销",
+      "revokeCancel": "保留",
+      "toastGranted": "已授予资格",
+      "toastRevoked": "已撤销资格",
+      "errorBody": "我们这边出了点问题，请稍后再试。",
+      "retry": "重试"
+    },
+    "empowerments": {
+      "title": "灌顶",
+      "colName": "名称",
+      "colSlug": "标识",
+      "colActive": "启用",
+      "add": "新增灌顶",
+      "slugLabel": "标识",
+      "slugHelp": "小写字母、数字和连字符，例如 heruka。",
+      "nameLabelEn": "名称（英文）",
+      "nameLabelZh": "名称（中文）",
+      "nameLabelBo": "名称（藏文）",
+      "save": "保存",
+      "saveBusy": "保存中…",
+      "deactivate": "停用",
+      "reactivate": "重新启用",
+      "emptyHeading": "尚无灌顶",
+      "emptyBody": "请添加中心所授予的灌顶。",
+      "pendingReview": "名称与目录尚待格西审阅。",
+      "errSlug": "只能使用小写字母、数字和连字符。",
+      "errName": "三种语言的名称均为必填。",
+      "errDuplicate": "已存在使用此标识的灌顶。"
     }
   },
   "audioPlayer": {
@@ -222,7 +276,10 @@
     "seriesPreparingHeading": "此系列的各讲正在筹备中",
     "mastersPreparingHeading": "上师简介正在筹备中",
     "masterNoTeachingsHeading": "这位上师尚无教法",
-    "masterNoTeachingsBody": "发布后的录制内容将在此呈现。"
+    "masterNoTeachingsBody": "发布后的录制内容将在此呈现。",
+    "gatedHeading": "此教学面向会员",
+    "gatedBody": "登入即可观看。会员免费——设立会员是为让中心了解谁在学习，而非限制佛法。",
+    "gatedAction": "登入"
   },
   "facets": {
     "label": "筛选",
@@ -415,7 +472,8 @@
     "untitled": "无标题",
     "durationLabel": "时长",
     "partOfSeries": "第 {number} 讲 · {series}",
-    "resultCount": "{count} 项教法"
+    "resultCount": "{count} 项教法",
+    "lockBadge": "会员专属"
   },
   "masters": {
     "title": "上师",

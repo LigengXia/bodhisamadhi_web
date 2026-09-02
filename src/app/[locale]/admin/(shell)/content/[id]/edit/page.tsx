@@ -20,7 +20,7 @@ export default async function EditContentPage({
   const { data } = await supabase
     .from('content_items')
     .select(
-      'id, type, title, description, teacher_id, series_id, part_number, recorded_at, status, youtube_id, pdf_url, pdf_pages, allow_download, thumbnail_url, audio_url, duration_seconds, created_by',
+      'id, type, title, description, teacher_id, series_id, part_number, recorded_at, visibility, required_empowerment, status, youtube_id, pdf_url, pdf_pages, allow_download, thumbnail_url, audio_url, duration_seconds, created_by',
     )
     .eq('id', id)
     .is('deleted_at', null)
@@ -36,7 +36,7 @@ export default async function EditContentPage({
   ]);
   if (!isAdmin && data.created_by !== userData.user?.id) notFound();
 
-  const { teachers, series } = await loadFormOptions(locale);
+  const { teachers, series, empowerments } = await loadFormOptions(locale);
 
   return (
     <>
@@ -45,6 +45,7 @@ export default async function EditContentPage({
         mode="edit"
         teachers={teachers}
         series={series}
+        empowerments={empowerments}
         previewHref={`/admin/content/${id}/preview`}
         defaults={{
           id: data.id,
@@ -55,6 +56,8 @@ export default async function EditContentPage({
           series_id: data.series_id,
           part_number: data.part_number,
           recorded_at: data.recorded_at,
+          visibility: data.visibility,
+          required_empowerment: data.required_empowerment,
           status: data.status,
           youtube_id: data.youtube_id,
           pdf_url: data.pdf_url,

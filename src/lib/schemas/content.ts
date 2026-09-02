@@ -59,7 +59,10 @@ export const contentFormSchema = z
       .refine((s) => s === '' || /^\d{4}-\d{2}-\d{2}$/.test(s), {
         message: 'invalid date',
       }),
-    visibility: z.literal('public'), // MVP: Public only (Docs/7 §3.5, R3)
+    // public / members / restricted (Docs/9 §4). A restricted item must name
+    // the empowerment it requires — enforced below and by a DB CHECK.
+    visibility: z.enum(['public', 'members', 'restricted']),
+    required_empowerment: z.string().trim().default(''),
     status: z.enum(['draft', 'published']),
     // video
     youtube: z.string().default(''),
@@ -98,6 +101,13 @@ export const contentFormSchema = z
         path: ['part_number'],
         code: 'custom',
         message: 'partNeedsSeries',
+      });
+    }
+    if (v.visibility === 'restricted' && v.required_empowerment === '') {
+      ctx.addIssue({
+        path: ['required_empowerment'],
+        code: 'custom',
+        message: 'empowermentRequired',
       });
     }
     if (v.type === 'video') {
@@ -141,6 +151,8 @@ export function toContentRow(v: z.output<typeof contentFormSchema>) {
     part_number: v.series_id && v.part_number ? Number(v.part_number) : null,
     recorded_at: v.recorded_at || null,
     visibility: v.visibility,
+    required_empowerment:
+      v.visibility === 'restricted' ? v.required_empowerment : null,
     status: v.status,
     youtube_id: v.type === 'video' ? parseYouTubeId(v.youtube) : null,
     thumbnail_url:

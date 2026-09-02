@@ -233,6 +233,12 @@ Listed so the whole picture is in one place. From `CLAUDE.md` "Known unresolved"
 | 3.10 | **Set `NEXT_PUBLIC_SITE_URL=https://bodhisamadhi-web.vercel.app` in Vercel** (Production + Preview) + redeploy | Correct canonical / OG / sitemap URLs | Value decided (3.5); the Vercel env var is still the owner's to set — Claude's token can't reach the SAML team. Inert while the site is `noindex`; must precede 3.7. |
 | 3.8 | **Supabase Pro + PITR** | Before real content persists | Owner has chosen post-launch. Fine while the DB is disposable; do it before real teachings / donor data land. |
 | 3.9 | **R2 bucket CORS** lists the production origin | Media on the live domain | R2 bucket CORS is a dashboard setting the API token cannot make (memory: `r2-token-object-scope-only`). Add the real domain when chosen or PDFs/audio fail silently in production. |
+| 3.11 | **Enable signup on the hosted Supabase project** (`[auth] enable_signup` / `enable_confirmations`) | Sign-up on the deployed site | Phase 13 F13.b. Local + CI e2e cover the flow. Set via the Management API (needs a fresh `SUPABASE_ACCESS_TOKEN` — the current one is dead) or the dashboard. |
+| 3.12 | **Geshe-la confirms the empowerments catalogue** (`Docs/9` D13.7) | Restricted content beyond Yamantaka / Vajrayogini | Phase 13 F13.e. Seeded with those two, flagged. Admins add more via `/admin/empowerments`; the zh/bo names ride with the Tibetan review (3.1). |
+
+## Phase 13 follow-ups (post-merge, not blocking)
+
+- **Google OAuth + identity linking** (`Docs/9` D13.1 / F13.d) — deferred from Phase 13; email+password ships first. Add when the owner can configure the Google provider in the Supabase dashboard.
 
 ---
 

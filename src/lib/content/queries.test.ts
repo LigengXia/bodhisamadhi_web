@@ -1,95 +1,21 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { itemIdsForTagFacets, resolvePage } from './queries';
+import { resolvePage, getMembersCard } from './queries';
+import { createClient } from '@/lib/supabase/server';
 
 // `queries.ts` imports the server Supabase client, which pulls in `next/headers`
-// and throws outside a request context. The functions exercised here take their
-// client as an argument and never call `createClient()`, so a stub is enough to
-// keep the import clean. Vitest hoists `vi.mock` above the import above.
+// and throws outside a request context. Mock it; the functions under test here
+// are the pure page-clamp helper and the get_members_card mapper.
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }));
 
-// --- a minimal fake of the PostgREST query builder --------------------------
-// Only the shape these functions use: `sb.from(table).select(cols).in(col, vals)`
-// resolved to `{ data }`.
-type Rows = Record<string, unknown>[];
-type Handler = (column: string, values: unknown[]) => Rows;
-type SbArg = Parameters<typeof itemIdsForTagFacets>[0];
+const mockCreateClient = vi.mocked(createClient);
 
-function fakeSb(handlers: Record<string, Handler>): SbArg {
-  return {
-    from(table: string) {
-      return {
-        select() {
-          return {
-            in(column: string, values: unknown[]) {
-              return Promise.resolve({
-                data: handlers[table]?.(column, values) ?? [],
-                error: null,
-              });
-            },
-          };
-        },
-      };
-    },
-  } as unknown as SbArg;
+function fakeClient(rpc: (name: string, args: unknown) => Promise<unknown>) {
+  return { rpc } as unknown as Awaited<ReturnType<typeof createClient>>;
 }
 
-// tag slug -> tag id
-const TAG_ID: Record<string, string> = {
-  calm: 't-calm',
-  wisdom: 't-wisdom',
-  gelug: 't-gelug',
-  kagyu: 't-kagyu',
-};
-// tag id -> the content items carrying it
-const TAG_ITEMS: Record<string, string[]> = {
-  't-calm': ['i1', 'i2'],
-  't-wisdom': ['i2', 'i3'],
-  't-gelug': ['i2', 'i4'],
-  't-kagyu': ['i5'],
-};
-
-const sb = fakeSb({
-  tags: (_column, slugs) =>
-    (slugs as string[])
-      .filter((slug) => TAG_ID[slug])
-      .map((slug) => ({ id: TAG_ID[slug] })),
-  content_tags: (_column, tagIds) =>
-    (tagIds as string[]).flatMap((tagId) =>
-      (TAG_ITEMS[tagId] ?? []).map((content_item_id) => ({ content_item_id })),
-    ),
-});
-
-describe('itemIdsForTagFacets', () => {
-  it('returns null when no tag facet is active', async () => {
-    expect(await itemIdsForTagFacets(sb, [], [])).toBeNull();
-  });
-
-  it('ORs the slugs within a single dimension', async () => {
-    const ids = await itemIdsForTagFacets(sb, ['calm', 'wisdom'], []);
-    // calm = {i1,i2}, wisdom = {i2,i3}  ->  union {i1,i2,i3}
-    expect(new Set(ids)).toEqual(new Set(['i1', 'i2', 'i3']));
-  });
-
-  // The PR #25 regression: the two dimensions were being OR'd, so a topic +
-  // lineage selection widened the results instead of narrowing them.
-  it('ANDs across dimensions — an item must match a topic AND a lineage', async () => {
-    const ids = await itemIdsForTagFacets(sb, ['calm', 'wisdom'], ['gelug']);
-    // topics {i1,i2,i3}  AND  lineage {i2,i4}  ->  {i2}
-    // (an OR bug would return {i1,i2,i3,i4})
-    expect(ids).toEqual(['i2']);
-  });
-
-  it('returns [] when the two dimensions do not intersect', async () => {
-    // topic {i1,i2}  AND  lineage {i5}  ->  {}
-    expect(await itemIdsForTagFacets(sb, ['calm'], ['kagyu'])).toEqual([]);
-  });
-
-  it('treats a dimension whose slug matches nothing as no matches', async () => {
-    expect(await itemIdsForTagFacets(sb, ['calm'], ['does-not-exist'])).toEqual(
-      [],
-    );
-  });
+beforeEach(() => {
+  mockCreateClient.mockReset();
 });
 
 describe('resolvePage', () => {
@@ -118,5 +44,50 @@ describe('resolvePage', () => {
   it('handles an exact page-size multiple', () => {
     expect(resolvePage(2, 48)).toEqual({ page: 2, pageCount: 2 });
     expect(resolvePage(3, 48).page).toBe(2);
+  });
+});
+
+describe('getMembersCard', () => {
+  const row = {
+    id: 'm1',
+    type: 'video',
+    slug: 'mem',
+    title: { en: 'Mem' },
+    description: {},
+    thumbnail_url: null,
+    recorded_at: null,
+    published_at: '2026-01-02',
+    duration_seconds: null,
+    teacher_name: { en: 'Geshe-la' },
+    teacher_honorific: 'Venerable',
+    teacher_slug: 'geshe',
+    series_slug: null,
+    series_title: null,
+    part_number: null,
+  };
+
+  it('maps the get_members_card row to a nested card', async () => {
+    mockCreateClient.mockResolvedValue(
+      fakeClient(async (name, args) => {
+        expect(name).toBe('get_members_card');
+        expect(args).toEqual({ _slug: 'mem' });
+        return { data: [row] };
+      }),
+    );
+    const card = await getMembersCard('mem');
+    expect(card?.slug).toBe('mem');
+    expect(card?.teacher).toEqual({
+      slug: 'geshe',
+      honorific: 'Venerable',
+      name: { en: 'Geshe-la' },
+    });
+    expect(card?.series).toBeNull();
+    // never any playable payload
+    expect(card).not.toHaveProperty('youtube_id');
+  });
+
+  it('returns null when the function yields no row', async () => {
+    mockCreateClient.mockResolvedValue(fakeClient(async () => ({ data: [] })));
+    expect(await getMembersCard('nope')).toBeNull();
   });
 });
