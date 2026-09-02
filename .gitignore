@@ -67,3 +67,6 @@ yarn-error.log*
 
 # Local-only throwaway test-data scripts
 /scripts/dev-*.ts
+
+# Local execution / session logs
+/dev_log/
