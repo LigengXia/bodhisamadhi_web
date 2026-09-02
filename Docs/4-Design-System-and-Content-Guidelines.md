@@ -794,9 +794,17 @@ English canonical; `zh` and `bo` come from the message catalogue. Warm and plain
 | Account, no donations | You have no offerings recorded | Offerings you make will appear here, with your tax receipts. | — |
 | Account, no comments | You have not commented yet | Comments you post will appear here with their status. | — |
 | Master, no teachings | No teachings from this master yet | Recordings will appear here as they are published. | — |
-| Admin queue empty | Nothing needs your attention | The moderation queue is clear. | — |
+| Masters index, none published | Teacher profiles are being prepared | — | — |
+| Series, no published parts | The parts of this series are being prepared | — | — |
+| Search, no query entered | Search the library | Find a teaching by title, teacher or topic. | Browse the library |
+| Admin queue empty (with comments & bookings) | Nothing needs your attention | The moderation queue is clear. | — |
+| Admin queue empty (MVP — content only) | Nothing needs your attention | There is no content waiting. Add a teaching to get started. | Add content |
+| Admin content list, nothing created | No teachings yet | Add your first teaching to see it here. | Add content |
+| Admin content list, filters match nothing | No teachings match these filters | Try removing a filter. | Clear filters |
 | Gated item, guest | This teaching is for members | Sign in to watch. Membership is free — it exists so the center knows who is studying, not to restrict the dharma. | Sign in |
 | Pending comment (author only) | Pending review — visible to you | Your comment will appear once a moderator has reviewed it. | — |
+
+The *Masters index*, *Series*, *Search — no query*, *Admin queue empty (MVP)* and both *Admin content list* rows were folded in from the App Flow Document's interim strings (`Docs/7` §10.2, items C1–C3, C7, C8) on 2026-09-02. Where a row shows `—` for the body, the shipped empty state is heading-only. Their `zh` and `bo` in the message catalogue are machine-generated and carry the same review gate as §7.5.
 
 ### 7.8 Error copy — use verbatim
 
@@ -818,6 +826,13 @@ State what happened, then what to do. Never blame the user, never expose a stack
 | Required field | This field is required. |
 | Invalid email | Please enter a valid email address. |
 | Booking submitted | Your request has been received. We will reply by email. |
+| Admin sign-in, wrong email or password | That email or password is not correct. |
+| Admin sign-in, account without admin access | This account does not have access to the admin area. |
+| YouTube preview could not be read (admin) | Could not read that video. Check the ID or link. |
+
+**Not in this table, deliberately.** Audio media-fetch failure (App Flow §5.6) reuses the *500* line above — a warmer audio-specific line was considered and set aside. The draft-preview banner (App Flow §3.6) reads **"Draft — not published"**, shown with the `status-off` badge treatment (§3.7), not as an error.
+
+The three *Admin sign-in* / *YouTube preview* rows were folded in from `Docs/7` §10.2 (items C5, C6, C9) on 2026-09-02, together with the C4 and C10 notes above; their `zh` and `bo` carry the §7.5 review gate.
 
 ### 7.9 Trilingual parity — hard rules
 
@@ -900,7 +915,7 @@ src/
 |---|---|---|
 | 1 | **Chinese name of the centre** — 菩提禅院 vs 菩提三摩地中心 (§7.3) | Project owner decides. Both are in committed documents today. |
 | 2 | **Tibetan review** — all Tibetan across v4 and this document is machine-generated | Geshe-la or a fluent reader, before publication |
-| 3 | **The App Flow Document does not exist yet.** This document's component inventory was derived from the answered decisions in `2-App-Flow-Open-Questions.md`, not from an agreed screen list. | Write the App Flow Document, then reconcile §3 and §5 against it |
+| ~~3~~ | ~~**The App Flow Document does not exist yet.**~~ **Resolved** — `Docs/7-App-Flow-MVP.md` exists; §3/§5 reconciled against it (`Docs/7` §10). Its interim strings (§10.2, C1–C10) are folded into §7.7/§7.8 above. | — |
 | 4 | Real photography for masters and gallery — currently CSS/SVG placeholders | Replace before launch; `next/image` defaults changed in Next 16 (see stack doc §11) |
 | 5 | Emoji icon set (§2.8) | Chosen deliberately; revisit if cross-platform rendering proves distracting |
 

@@ -590,6 +590,8 @@ Where this document corrects or extends design system §3/§5 or backend §15, p
 
 ### 10.2 Missing copy — strings this document needs that design system §7.7 / §7.8 do not yet contain
 
+> **Folded in 2026-09-02 (BACKLOG §2.6).** The English for C1–C10 is now in design system §7.7 / §7.8 — C1–C3, C7, C8 as §7.7 rows; C5, C6, C9 as §7.8 rows; C4 and C10 as notes after the §7.8 table. The table below is the record of where each came from. `zh` and `bo` in the message catalogue remain machine-generated and gated on Geshe-la's review.
+
 Each is used with an **interim English string** noted at its screen. All still require `zh` and `bo` before shipping (design system §7.9). **Owner / design-system owner to confirm final wording.**
 
 | # | Where | Needed string (kind) | Interim English |
@@ -608,7 +610,7 @@ Each is used with an **interim English string** noted at its screen. All still r
 ### 10.3 Additions to `4-Design-System-and-Content-Guidelines.md` §10 open items
 
 - The App Flow Document now exists (design system §10 item 3 is closed). §3 (components) and §5 (page templates) are reconciled against it above; the component inventory in §3 stands, with R1–R6 noted.
-- The missing strings in §10.2 should be folded into design system §7.7 / §7.8 during Phase 10 (translation completeness) at the latest, ideally sooner.
+- ~~The missing strings in §10.2 should be folded into design system §7.7 / §7.8~~ **Done 2026-09-02 (BACKLOG §2.6)** — English folded in; `zh`/`bo` ride with the Phase 12 Tibetan review.
 
 ---
 
