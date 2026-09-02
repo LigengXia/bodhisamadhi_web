@@ -74,7 +74,7 @@ Items 1–4 should be done before Phase 1 starts. Each returns a set of secrets;
 
 | # | Phase | Output |
 |---|---|---|
-| 13 | Member accounts & gating | Public signup, members-only content |
+| 13 | Member accounts & gating | Public signup, members-only + restricted content. **In progress** — spec `Docs/9`; PR 1 (gating & admin) built. |
 | 14 | Comments & moderation | Threaded comments, admin queue |
 | 15 | Service requests | Nine services, request form, staff workflow |
 | 16 | Live streaming | Live page, Q&A, archive |

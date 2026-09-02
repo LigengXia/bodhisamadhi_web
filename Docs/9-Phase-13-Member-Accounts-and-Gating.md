@@ -478,4 +478,34 @@ PR 1's `restricted` gate is testable via seeded qualified/non-qualified users be
 
 ---
 
+## 12. As-built — PR 1 (gating & admin)
+
+Deviations from the plan above, all recorded in the migrations or here.
+
+- **Migrations are `0008`–`0011`, not `0008`–`0010`.** `queries.ts` builds the
+  library listing with direct RLS-scoped queries, not the RPC, so a guest never
+  saw a `members` locked card. Decision A: `0011` makes `list_library_cards` the
+  single faceted listing function (`_teacher_slug` / `_series_slug` /
+  `_topic_slugs[]` / `_lineage_slugs[]` params + a companion
+  `count_library_cards`), and for a locked card it returns `youtube_id` /
+  `thumbnail_url` as `null`. `queries.ts` is now a thin wrapper; the hand-rolled
+  facet helpers (`itemIdsForTagFacets` etc.) were deleted and their coverage
+  moved to pgTAP `0011`.
+- **`search_content` was not modified** — it is not `security definer`, so RLS
+  already scopes it (a guest never gets a `members`/`restricted` row through it).
+- **pgTAP lives in `0009_member_auth.test.sql` + `0010_empowerments.test.sql` +
+  `0011_library_cards.test.sql`** (the repo previously had a single
+  `0001_rls.test.sql`); `0001` gained a `9c` assertion (a locked card's
+  `youtube_id` is `null`).
+- **No API-route unit tests** for `/api/admin/users/[id]/*` — the repo has none
+  for any route; covered by `restricted-content.spec.ts` and RLS/pgTAP.
+- **Member-session e2e** (a qualified vs. plain member opening a restricted
+  item) rides with PR 2, where the member sign-in page exists. PR 1's
+  `restricted-content.spec.ts` covers the guest, the media endpoint, and the
+  admin grant flow; the qualified/plain accounts are seeded now for PR 2.
+- **`BACKLOG` items:** F13.b → Tier 3 §3.11; F13.e → §3.12; F13.d → "Phase 13
+  follow-ups".
+
+---
+
 *Prepared for Bodhisamadhi Center. May all sentient beings be happy.*
