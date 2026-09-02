@@ -494,7 +494,9 @@
     "search": "Search",
     "schedule": "Schedule",
     "support": "Support",
-    "visit": "Visit"
+    "visit": "Visit",
+    "signIn": "Sign in",
+    "signedInAs": "Signed in as {name}"
   },
   "notFound": {
     "body": "This page could not be found. It may have moved. Try searching, or start from the library.",
@@ -555,5 +557,80 @@
     "playLabel": "Play: {title}",
     "embedBlocked": "This video cannot be shown on your network. You can watch it on YouTube instead.",
     "watchOnYouTube": "Watch on YouTube"
+  },
+  "auth": {
+    "signUp": {
+      "title": "Create an account",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "passwordHint": "At least 12 characters, with a lowercase letter, an uppercase letter and a digit.",
+      "nameLabel": "Display name",
+      "localeLabel": "Preferred language",
+      "ageLabel": "I am 16 years of age or older",
+      "ageHint": "The minimum age is being confirmed with the centre; this may change.",
+      "submit": "Create account",
+      "submitBusy": "Creating…",
+      "haveAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "errorInvalid": "Please check the fields marked below.",
+      "errorWeakPassword": "This password does not meet the requirements above.",
+      "errorGeneric": "Something went wrong on our side. Please try again in a moment."
+    },
+    "checkInbox": {
+      "title": "Check your inbox",
+      "body": "We've sent a link to {email}. Open it to finish creating your account.",
+      "resend": "Resend the link",
+      "resendCountdown": "Resend in {seconds}s",
+      "resent": "The link has been sent again."
+    },
+    "welcome": {
+      "title": "Welcome",
+      "intro": "Your account is ready. Confirm a couple of things, or skip straight to the library.",
+      "localeLabel": "Preferred language",
+      "reminderLabel": "Email me before the Saturday teaching",
+      "continue": "Save and continue",
+      "skip": "Skip for now"
+    },
+    "signIn": {
+      "title": "Sign in",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Sign in",
+      "submitBusy": "Signing in…",
+      "errorBadCredentials": "That email or password is not correct.",
+      "errorUnverified": "Please confirm your email address first. Check your inbox for the confirmation link.",
+      "errorGeneric": "Something went wrong on our side. Please try again in a moment.",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "New here?",
+      "signUpLink": "Create an account",
+      "modalTitle": "Sign in",
+      "modalClose": "Close"
+    },
+    "signOut": {
+      "label": "Sign out"
+    },
+    "reset": {
+      "title": "Reset your password",
+      "intro": "Enter the email address for your account and we will send a reset link.",
+      "emailLabel": "Email",
+      "submit": "Send reset link",
+      "submitBusy": "Sending…",
+      "sent": "If that address has an account, a reset link is on its way.",
+      "backToSignIn": "Back to sign in"
+    },
+    "newPassword": {
+      "setTitle": "Set a new password",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm new password",
+      "passwordHint": "At least 12 characters, with a lowercase letter, an uppercase letter and a digit.",
+      "passwordMismatch": "The two passwords do not match.",
+      "submit": "Save new password",
+      "submitBusy": "Saving…",
+      "expiredTitle": "This link has expired",
+      "expiredBody": "Password-reset links are valid for a short time. Request a new one.",
+      "expiredAction": "Request a new link",
+      "usedTitle": "This link has already been used",
+      "usedAction": "Go to sign in"
+    }
   }
 }
