@@ -20,7 +20,13 @@ Prior session context: PRs #21–#31 (`git log`), and — if present locally —
 
 ## Tier 1 — worth doing during development
 
-### 1.1 Regression tests for the facet-intersection & pagination-clamp bugs
+### 1.1 Regression tests for the facet-intersection & pagination-clamp bugs — DONE (2026-09-02)
+
+**Landed as** `src/lib/content/queries.test.ts` (10 tests). `itemIdsForTagFacets`
+was exported and the page-clamp arithmetic extracted into a pure exported
+`resolvePage()`; both are covered directly with a small fake Supabase client, so
+the tests run in the plain `npm run test` job with no database. Verified each
+test fails if its bug is reintroduced.
 
 **What.** A new `src/lib/content/queries.test.ts` (Vitest against a seeded local
 Supabase) covering:
@@ -67,7 +73,8 @@ stale in at least a few places.
 
 **Exception — do the audit anytime.** `npm audit --omit=dev` is a 2-minute check.
 If it flags something reachable from shipped code, `Docs/3` §8 policy is
-patch-on-sight regardless of launch timing. Worth running today just for that.
+patch-on-sight regardless of launch timing. *(Ran 2026-09-02: 0 vulnerabilities.)*
+The full version re-verify against the registry still belongs at launch.
 
 **Cost.** ~30 min full pass; 2 min for the audit alone.
 

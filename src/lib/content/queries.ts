@@ -90,8 +90,11 @@ async function itemIdsForTags(
  * (topic, lineage), AND between dimensions — an item must match at least one
  * of the chosen topics AND at least one of the chosen lineages. Returns
  * `null` when no tag facet is active. An empty array means "no matches".
+ *
+ * Exported for regression testing (Docs/BACKLOG.md §1.1): PR #25 fixed a bug
+ * where the two dimensions were OR'd instead of AND'd.
  */
-async function itemIdsForTagFacets(
+export async function itemIdsForTagFacets(
   sb: Awaited<ReturnType<typeof createClient>>,
   topic: string[],
   lineage: string[],
@@ -120,6 +123,25 @@ export async function listRecentLibraryCards(
     .range(0, Math.max(0, limit - 1));
   if (error) throw error;
   return (data ?? []) as unknown as LibraryCard[];
+}
+
+/**
+ * Resolve a requested page number against the actual result count. Clamps the
+ * low end to 1 and the high end to the last page, so an out-of-range `?page=`
+ * (a stale link, a hand-typed number) lands on the last page instead of asking
+ * PostgREST for a range it rejects with a 416. An empty result is page 1 of 1.
+ *
+ * Extracted and exported for regression testing (Docs/BACKLOG.md §1.1): PR #25
+ * fixed a bug where an out-of-range page produced an error state.
+ */
+export function resolvePage(
+  requestedPage: number,
+  total: number,
+  pageSize: number = PAGE_SIZE,
+): { page: number; pageCount: number } {
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(Math.max(1, requestedPage), pageCount);
+  return { page, pageCount };
 }
 
 export async function listLibraryCards(
@@ -164,8 +186,7 @@ export async function listLibraryCards(
   const { count } = await countQ;
 
   const total = count ?? 0;
-  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const page = Math.min(requestedPage, pageCount);
+  const { page, pageCount } = resolvePage(requestedPage, total);
   const from = (page - 1) * PAGE_SIZE;
 
   if (total === 0) return { cards: [], total: 0, page, pageCount };
