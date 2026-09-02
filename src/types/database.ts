@@ -499,6 +499,16 @@ export type Database = {
     }
     Functions: {
       admin_queue_counts: { Args: never; Returns: Json }
+      count_library_cards: {
+        Args: {
+          _lineage_slugs?: string[]
+          _series_slug?: string
+          _teacher_slug?: string
+          _topic_slugs?: string[]
+          _type?: Database["public"]["Enums"]["content_type"]
+        }
+        Returns: number
+      }
       get_members_card: {
         Args: { _slug: string }
         Returns: {
@@ -541,19 +551,30 @@ export type Database = {
       list_library_cards: {
         Args: {
           _limit?: number
+          _lineage_slugs?: string[]
           _offset?: number
+          _series_slug?: string
+          _teacher_slug?: string
+          _topic_slugs?: string[]
           _type?: Database["public"]["Enums"]["content_type"]
         }
         Returns: {
           duration_seconds: number
           id: string
           is_locked: boolean
+          part_number: number
           published_at: string
+          recorded_at: string
+          series_slug: string
+          series_title: Json
           slug: string
+          teacher_honorific: string
           teacher_name: Json
+          teacher_slug: string
           thumbnail_url: string
           title: Json
           type: Database["public"]["Enums"]["content_type"]
+          youtube_id: string
         }[]
       }
       search_content: {
