@@ -78,6 +78,13 @@ export async function LibraryCard({
             {typeLabel}
           </Badge>
         </span>
+        {card.isLocked && (
+          <span className={styles.badgeTR}>
+            <Badge variant="lock" upper={locale === 'en'}>
+              {t('lockBadge')}
+            </Badge>
+          </span>
+        )}
         {duration && (
           <span className={styles.duration}>
             {duration}

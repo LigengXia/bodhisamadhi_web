@@ -65,6 +65,12 @@
   inset-inline-start: var(--sp-1);
 }
 
+.badgeTR {
+  position: absolute;
+  top: var(--sp-1);
+  inset-inline-end: var(--sp-1);
+}
+
 .duration {
   position: absolute;
   bottom: var(--sp-1);
