@@ -11,17 +11,23 @@ import { formatDate, formatDuration } from '@/lib/format';
 import type { ContentDetail } from '@/lib/content/queries';
 import type { Locale } from '@/i18n/routing';
 
+import { GatedPanel } from './GatedPanel';
 import styles from './ContentDetailView.module.css';
 
 // Docs/7 §5.5–5.8 · Docs/4 §5 (Detail template). One component for the public
 // page and the admin draft preview. Video and script have real players; audio
-// shows an interim panel until Phase 8.
+// shows an interim panel until Phase 8. `locked` — a guest on a members-only
+// item: the player area becomes the §4.2 "sign in to watch" panel.
 export async function ContentDetailView({
   detail,
   locale,
+  locked = false,
+  lockedNext,
 }: {
   detail: ContentDetail;
   locale: Locale;
+  locked?: boolean;
+  lockedNext?: string;
 }) {
   const t = await getTranslations('content');
   const tl = await getTranslations('library');
@@ -57,7 +63,15 @@ export async function ContentDetailView({
       </header>
 
       <div className={styles.media}>
-        {detail.type === 'video' && detail.youtube_id ? (
+        {locked ? (
+          <GatedPanel
+            type={detail.type}
+            next={
+              lockedNext ?? `/${locale}/teachings/${detail.type}/${detail.slug}`
+            }
+            locale={locale}
+          />
+        ) : detail.type === 'video' && detail.youtube_id ? (
           <YouTubeEmbed youtubeId={detail.youtube_id} title={title} />
         ) : detail.type === 'script' && detail.pdf_url ? (
           <PdfReader
