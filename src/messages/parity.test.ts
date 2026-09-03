@@ -29,3 +29,23 @@ describe('message catalogue parity', () => {
     expect({ missing, extra }).toEqual({ missing: [], extra: [] });
   });
 });
+
+describe('Phase 14 — comments & moderation namespaces', () => {
+  const load = (loc: 'en' | 'zh' | 'bo') =>
+    ({ en, zh, bo })[loc] as Record<
+      string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      any
+    >;
+
+  it('has the Phase 14 comments namespaces in every locale', () => {
+    for (const loc of ['en', 'zh', 'bo'] as const) {
+      const m = load(loc);
+      expect(m.comments?.heading).toBeTypeOf('string');
+      expect(m.comments?.pendingBadge).toBeTypeOf('string');
+      expect(m.admin?.comments?.title).toBeTypeOf('string');
+      expect(m.admin?.shell?.comments).toBeTypeOf('string');
+      expect(m.admin?.queue?.pendingComments).toBeTypeOf('string');
+    }
+  });
+});
