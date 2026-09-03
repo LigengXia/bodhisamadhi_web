@@ -50,6 +50,15 @@ export const FIXTURES = {
     slug: 'e2e-restricted-audio',
     title: 'E2E Restricted Chant',
   },
+  membersOnlyVideo: {
+    slug: 'e2e-members-video',
+    title: 'E2E Members Only Talk',
+    youtube_id: 'dQw4w9WgXcQ',
+  },
+  membersOnlyAudio: {
+    slug: 'e2e-members-audio',
+    title: 'E2E Members Only Chant',
+  },
 };
 
 const FAKE_PDF = 'scripts/00000000-0000-0000-0000-0000000000ee.pdf';
@@ -184,6 +193,25 @@ export async function seedFixtures() {
       audio_url: FAKE_MP3,
       duration_seconds: 600,
     },
+    {
+      ...base,
+      type: 'video',
+      status: 'published',
+      visibility: 'members' as const,
+      slug: FIXTURES.membersOnlyVideo.slug,
+      title: { en: FIXTURES.membersOnlyVideo.title },
+      youtube_id: FIXTURES.membersOnlyVideo.youtube_id,
+    },
+    {
+      ...base,
+      type: 'audio',
+      status: 'published',
+      visibility: 'members' as const,
+      slug: FIXTURES.membersOnlyAudio.slug,
+      title: { en: FIXTURES.membersOnlyAudio.title },
+      audio_url: FAKE_MP3,
+      duration_seconds: 600,
+    },
   ];
 
   const { error } = await db
@@ -213,6 +241,25 @@ export async function memberId(email: string): Promise<string> {
   const id = data.users.find((u) => u.email === email)?.id;
   if (!id) throw new Error(`member not seeded: ${email}`);
   return id;
+}
+
+/** Confirm a just-signed-up account by email (skips the mail round-trip). */
+export async function confirmUser(email: string): Promise<string> {
+  const db = serviceClient();
+  const { data } = await db.auth.admin.listUsers();
+  const user = data.users.find((u) => u.email === email);
+  if (!user) throw new Error(`user not found: ${email}`);
+  await db.auth.admin.updateUserById(user.id, { email_confirm: true });
+  return user.id;
+}
+
+/** Remove e2e signup accounts created during a run (email prefix match). */
+export async function removeSignupUsers(prefix: string) {
+  const db = serviceClient();
+  const { data } = await db.auth.admin.listUsers();
+  for (const u of data.users) {
+    if (u.email?.startsWith(prefix)) await db.auth.admin.deleteUser(u.id);
+  }
 }
 
 export async function resetFixtures() {
