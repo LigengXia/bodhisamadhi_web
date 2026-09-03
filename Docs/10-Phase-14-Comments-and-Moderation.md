@@ -3,7 +3,7 @@
 **Project:** Bodhisamadhi Center — Dharma Web Platform
 **Related:** [PRD](./PRD-Bodhisamadhi-Center.md) §5.5 · [App flow decisions](./2-App-Flow-Open-Questions.md) E30–E34, C20 · [Design system](./4-Design-System-and-Content-Guidelines.md) §3.18, §7.7 · [Backend schema](./5-Backend-Schema-and-API.md) §3, §7.3, §12.2, §13.5, §15.2, §15.5, §17 · [App Flow MVP](./7-App-Flow-MVP.md) §2 · [Implementation plan](./6-Implementation-Plan.md) §5 Phase 14 · [Phase 13 spec](./9-Phase-13-Member-Accounts-and-Gating.md)
 **Date:** 2026-09-03
-**Status:** Spec — authoritative for the Phase 14 build. The implementation plan lives at `docs/superpowers/plans/2026-09-03-phase-14-comments-and-moderation.md`.
+**Status:** Spec — authoritative for the Phase 14 build. The implementation plan lives at `Docs/superpowers/plans/2026-09-03-phase-14-comments-and-moderation.md`.
 
 ---
 
@@ -412,7 +412,7 @@ New keys, all three locales, `en` canonical, `zh` / `bo` machine-generated and *
 
 ## 11. Branch & PRs
 
-Branch `feat/comments`. **One** squash-merged PR into `main`, after CI is green (verify + database + e2e), per D13.3 / `Docs/6` §7. The plan (`docs/superpowers/plans/2026-09-03-phase-14-comments-and-moderation.md`) splits the work into ~15 tasks: migration + pgTAP, types, the RPC wrappers, messages, the five `Comments/` components + actions, `ContentDetailView` wiring, the admin queue page + table + actions, `AdminShell` + work-queue counters, component tests, e2e, docs.
+Branch `feat/comments`. **One** squash-merged PR into `main`, after CI is green (verify + database + e2e), per D13.3 / `Docs/6` §7. The plan (`Docs/superpowers/plans/2026-09-03-phase-14-comments-and-moderation.md`) splits the work into ~15 tasks: migration + pgTAP, types, the RPC wrappers, messages, the five `Comments/` components + actions, `ContentDetailView` wiring, the admin queue page + table + actions, `AdminShell` + work-queue counters, component tests, e2e, docs.
 
 PR body flags: **F14.b** (zh/bo need Geshe-la), **F14.a** (rate-limit numbers are a guess), **F14.d** (`SignInModal` still unwired).
 
