@@ -16,7 +16,8 @@ describe('signUpSchema', () => {
   });
 
   it('rejects a signup without the age checkbox', () => {
-    const { age_confirmed: _omit, ...rest } = goodSignUp;
+    const rest = { ...goodSignUp };
+    delete (rest as Partial<typeof goodSignUp>).age_confirmed;
     expect(signUpSchema.safeParse(rest).success).toBe(false);
   });
 
