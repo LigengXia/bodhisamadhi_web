@@ -50,11 +50,7 @@ export function Comment({
   return (
     <article
       id={`comment-${node.id}`}
-      className={clsx(
-        styles.comment,
-        isReply && styles.reply,
-        isPending && styles.pending,
-      )}
+      className={clsx(styles.comment, isPending && styles.pending)}
     >
       <div className={styles.head}>
         <Avatar size={32} name={node.authorName} src={node.authorAvatar} />

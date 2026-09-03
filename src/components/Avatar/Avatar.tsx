@@ -2,10 +2,10 @@ import Image from 'next/image';
 
 import styles from './Avatar.module.css';
 
-// Docs/4 §3.18 — a small round portrait beside an author's name. When no
-// picture is set it falls back to the person's initials on a parchment disc.
-// Decorative: the name it sits next to is always rendered adjacent, so the
-// whole element is hidden from assistive tech.
+// Docs/4 §3.17 — circle, 32 / 40 / 64px. A photo when one is set; otherwise
+// initials on `--cr-700` / `--text-inv`; a bare `--n-300` circle when there is
+// no name at all (never a stock silhouette). `alt=""` — the name it sits
+// beside is always rendered adjacent, so the element is hidden from AT.
 export function Avatar({
   name,
   src,
@@ -16,6 +16,7 @@ export function Avatar({
   size?: number;
 }) {
   const usable = src && /^https?:\/\//.test(src) ? src : null;
+  const glyph = usable ? null : initials(name);
 
   return (
     <span
@@ -33,15 +34,16 @@ export function Avatar({
           unoptimized
         />
       ) : (
-        <span className={styles.initials}>{initials(name)}</span>
+        glyph && <span className={styles.initials}>{glyph}</span>
       )}
     </span>
   );
 }
 
-function initials(name: string): string {
+/** Initials, or `null` when there is no name (Docs/4 §3.17 — bare circle). */
+function initials(name: string): string | null {
   const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '·';
+  if (parts.length === 0) return null;
   if (parts.length === 1) return [...parts[0]][0]!.toUpperCase();
   return ([...parts[0]][0]! + [...parts[parts.length - 1]][0]!).toUpperCase();
 }
