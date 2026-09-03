@@ -508,4 +508,56 @@ Deviations from the plan above, all recorded in the migrations or here.
 
 ---
 
+## 13. As-built — PR 2 (member auth screens)
+
+Tasks 15–28. Deviations from §5 / the plan, all recorded here or in the code.
+
+- **Branch is `feat/member-auth-screens`, not `feat/member-accounts`.** PR 1
+  shipped on `feat/member-accounts` (→ `main` as #38); PR 2 is a fresh branch
+  off `main`. Same effect; the plan's branch name is stale.
+- **`safeNext` lives in `src/lib/schemas/auth.ts`**, beside `signUpSchema` /
+  `signInSchema` — not a standalone `auth/confirm/safe-next.ts`. One shared
+  module for every member-auth validation concern. Tests in
+  `src/lib/schemas/auth.test.ts`.
+- **The member sign-in page has no `if (user) redirect` guard.** Task 21 added
+  one; it was removed (commit `0067209`). Next re-renders the route hosting a
+  `<form action>` as part of the Server Action response, so the guard re-ran
+  with the just-established session and server-redirected to `/{locale}` —
+  pre-empting the client's navigation to `?next`, sending every sign-in to the
+  home page. `proxy.ts`'s `MEMBER_AUTH` check (Task 26) is the sole bounce for a
+  signed-in visitor who reaches `/signin` directly; `member-accounts.spec.ts`
+  covers both that bounce and the `?next` return. **`welcome/page.tsx` keeps its
+  `if (onboarded_at) redirect` guard** — it has the same latent shape but is
+  dormant (the confirm route hardcodes `?next=/{locale}/welcome`, so onboarding's
+  `next` always resolves to `/{locale}`, which the guard's target matches).
+- **`SignInForm` / `WelcomeForm` navigate with `window.location.assign`, not
+  `router.replace`.** `?next` may be a page the visitor already loaded as a
+  guest; the client Router Cache would otherwise re-serve that gated copy. A
+  full navigation forces a fresh server render with the new session.
+- **`SignInModal` is built (`src/components/SignInModal/`) but wired nowhere —
+  deferred.** `GatedPanel` renders only the baseline `/{locale}/signin?next=…`
+  link (Docs/2 D26's required path; accessible and complete on every viewport).
+  The desktop-overlay enhancement of Docs/9 §5.5 needs a client component that
+  intercepts the link above `--bp-sm` and manages `router.refresh()` on success
+  — a bespoke surface not worth adding unreviewed during the owner's absence.
+  Tracked as a Phase 13 follow-up in `Docs/BACKLOG.md`. The component + its test
+  are kept (not deleted) so wiring it later is a small change.
+- **Confirm route — dead sign-up link.** `auth/confirm/route.ts` sends an
+  expired/used **sign-up** link to `/{locale}/signin?confirm=expired|used`
+  (rather than `/welcome?error=`). **Known gap:** the sign-in page does not yet
+  read `?confirm`, so the visitor lands on a bare sign-in form with no
+  explanation. Docs/9 §5.3 / Docs/5 §16.1 want the three outcomes distinct;
+  success and the reset flow are, sign-up expired/used is not. Tracked as a
+  Phase 13 follow-up (small: read the param + one `InlineAlert` + 3 message
+  keys).
+- **`702f1d9`** is a follow-up typing fix on the onboarding profile patch.
+- **Message keys** for `auth.*` and `nav.signIn` / `nav.signedInAs` are in all
+  three locales; `zh` / `bo` are machine-generated and ride with the Phase 12
+  Tibetan review (F13.c).
+- **Verification:** `npm run verify` green (92 unit tests); `supabase db reset`
+  clean; full e2e **19/19** (`member-accounts.spec.ts` + the member-session
+  cases added to `restricted-content.spec.ts`).
+
+---
+
 *Prepared for Bodhisamadhi Center. May all sentient beings be happy.*

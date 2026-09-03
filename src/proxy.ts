@@ -55,8 +55,18 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 3. Admin guard.
   const { pathname } = request.nextUrl;
+
+  // A signed-in visitor has no use for signup / signin — send them home.
+  // Convenience only; RLS remains the authorization boundary (Docs/9 §5.15).
+  const MEMBER_AUTH = new RegExp(`^/${LOCALE}/(?:signup|signin)(?:/|$)`);
+  if (user && MEMBER_AUTH.test(pathname)) {
+    return NextResponse.redirect(
+      new URL(`/${localeOf(pathname)}`, request.url),
+    );
+  }
+
+  // 3. Admin guard.
   if (ADMIN_GUARDED.test(pathname)) {
     const locale = localeOf(pathname);
     const signIn = new URL(`/${locale}/admin/signin`, request.url);

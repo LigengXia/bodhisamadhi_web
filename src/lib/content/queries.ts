@@ -232,9 +232,11 @@ export async function getFacetOptions(): Promise<FacetOptions> {
 }
 
 // ── Detail pages ─────────────────────────────────────────────────────
-// Still pinned to `visibility = 'public'`. The members / restricted detail
-// behaviour (the "sign in to watch" panel, restricted → 404) lands with the
-// member-auth screens (Docs/9 §5.10).
+// RLS scopes visibility: a guest gets only public items here, a member also
+// gets members-only, a qualified member also their restricted items. A guest
+// on a members-only URL gets `null` and the caller falls back to
+// `getMembersCard` for the "sign in to watch" panel (Docs/9 §5.10);
+// restricted URLs 404 for the unqualified.
 
 const DETAIL_COLUMNS =
   'id, type, slug, title, description, youtube_id, audio_url, pdf_url, pdf_pages, allow_download, thumbnail_url, duration_seconds, recorded_at, published_at, part_number, status, visibility, teacher:teachers(slug, honorific, name, photo_url), series:series(id, slug, title, description)';
@@ -294,7 +296,6 @@ export async function getPublicContent(
     .eq('slug', slug)
     .eq('type', type)
     .eq('status', 'published')
-    .eq('visibility', 'public')
     .is('deleted_at', null)
     .maybeSingle();
 
@@ -392,7 +393,6 @@ async function hydrateDetail(
       .select('slug, title, part_number, type')
       .eq('series_id', row.series.id)
       .eq('status', 'published')
-      .eq('visibility', 'public')
       .is('deleted_at', null)
       .order('part_number', { ascending: true, nullsFirst: false });
     seriesParts = (parts ?? []) as ContentDetail['seriesParts'];
@@ -542,7 +542,6 @@ export async function getSeries(slug: string): Promise<SeriesDetail | null> {
     .select('slug, title, part_number, type')
     .eq('series_id', data.id)
     .eq('status', 'published')
-    .eq('visibility', 'public')
     .is('deleted_at', null)
     .order('part_number', { ascending: true, nullsFirst: false });
 

@@ -96,6 +96,36 @@
   color: var(--text);
 }
 
+.authDesktop {
+  display: flex;
+  align-items: center;
+}
+.authDesktop form {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.userName {
+  font-size: var(--fs-sm);
+  color: var(--text-mid);
+}
+.signOut {
+  font-size: var(--fs-sm);
+  color: var(--cr-600);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--sp-x);
+}
+.signOut:hover {
+  color: var(--cr-500);
+}
+.drawerAuth {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-x);
+}
+
 .menuButton {
   display: none;
   min-height: 44px;
@@ -157,7 +187,8 @@
 /* Desktop nav below --bp-lg collapses to the drawer. */
 @media (max-width: 960px) {
   .links,
-  .switcherDesktop {
+  .switcherDesktop,
+  .authDesktop {
     display: none;
   }
 

@@ -494,7 +494,9 @@
     "search": "搜寻",
     "schedule": "活动时程",
     "support": "护持",
-    "visit": "参访"
+    "visit": "参访",
+    "signIn": "登入",
+    "signedInAs": "已以 {name} 登入"
   },
   "notFound": {
     "body": "找不到此页面，可能已经移动。请尝试搜索，或从典籍开始。",
@@ -555,5 +557,80 @@
     "playLabel": "播放：{title}",
     "embedBlocked": "您的网络无法显示此影片，您可以改在 YouTube 观看。",
     "watchOnYouTube": "在 YouTube 观看"
+  },
+  "auth": {
+    "signUp": {
+      "title": "创建账户",
+      "emailLabel": "电子邮箱",
+      "passwordLabel": "密码",
+      "passwordHint": "至少 12 个字符，须包含小写字母、大写字母和数字。",
+      "nameLabel": "显示名称",
+      "localeLabel": "偏好语言",
+      "ageLabel": "我已年满 16 岁",
+      "ageHint": "最低年龄尚待中心确认，可能会有变动。",
+      "submit": "创建账户",
+      "submitBusy": "创建中…",
+      "haveAccount": "已有账户？",
+      "signInLink": "登入",
+      "errorInvalid": "请检查下方标记的栏目。",
+      "errorWeakPassword": "此密码不符合上述要求。",
+      "errorGeneric": "我们这边出了点问题，请稍后再试。"
+    },
+    "checkInbox": {
+      "title": "查收邮件",
+      "body": "我们已向 {email} 发送了链接。请打开以完成账户创建。",
+      "resend": "重新发送链接",
+      "resendCountdown": "{seconds} 秒后可重发",
+      "resent": "链接已再次发送。"
+    },
+    "welcome": {
+      "title": "欢迎",
+      "intro": "您的账户已就绪。确认几项设置，或直接进入典藏。",
+      "localeLabel": "偏好语言",
+      "reminderLabel": "周六开示前给我发邮件提醒",
+      "continue": "保存并继续",
+      "skip": "暂时跳过"
+    },
+    "signIn": {
+      "title": "登入",
+      "emailLabel": "电子邮箱",
+      "passwordLabel": "密码",
+      "submit": "登入",
+      "submitBusy": "登入中…",
+      "errorBadCredentials": "邮箱或密码不正确。",
+      "errorUnverified": "请先确认您的电子邮箱。请在收件箱中查看确认链接。",
+      "errorGeneric": "我们这边出了点问题，请稍后再试。",
+      "forgotPassword": "忘记密码？",
+      "noAccount": "初次使用？",
+      "signUpLink": "创建账户",
+      "modalTitle": "登入",
+      "modalClose": "关闭"
+    },
+    "signOut": {
+      "label": "登出"
+    },
+    "reset": {
+      "title": "重置密码",
+      "intro": "输入您账户的电子邮箱，我们将发送重置链接。",
+      "emailLabel": "电子邮箱",
+      "submit": "发送重置链接",
+      "submitBusy": "发送中…",
+      "sent": "若该邮箱已注册账户，重置链接即将送达。",
+      "backToSignIn": "返回登入"
+    },
+    "newPassword": {
+      "setTitle": "设置新密码",
+      "newPasswordLabel": "新密码",
+      "confirmPasswordLabel": "确认新密码",
+      "passwordHint": "至少 12 个字符，须包含小写字母、大写字母和数字。",
+      "passwordMismatch": "两次输入的密码不一致。",
+      "submit": "保存新密码",
+      "submitBusy": "保存中…",
+      "expiredTitle": "此链接已失效",
+      "expiredBody": "密码重置链接有效期很短，请重新申请。",
+      "expiredAction": "申请新链接",
+      "usedTitle": "此链接已被使用",
+      "usedAction": "前往登入"
+    }
   }
 }

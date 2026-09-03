@@ -6,7 +6,10 @@ import { ContentDetailView } from '@/components/ContentDetailView/ContentDetailV
 import {
   CONTENT_TYPES,
   getPublicContent,
+  getMembersCard,
+  type ContentDetail,
   type ContentType,
+  type MembersCard,
 } from '@/lib/content/queries';
 import { pickLocale } from '@/lib/i18n-json';
 import type { Locale } from '@/i18n/routing';
@@ -21,6 +24,32 @@ import styles from './detail.module.css';
 
 function isContentType(v: string): v is ContentType {
   return (CONTENT_TYPES as string[]).includes(v);
+}
+
+/** A members-only advertising card in the shape ContentDetailView reads. */
+function lockedShape(card: MembersCard): ContentDetail {
+  return {
+    ...card,
+    youtube_id: null,
+    audio_url: null,
+    pdf_url: null,
+    pdf_pages: null,
+    allow_download: false,
+    status: 'published',
+    visibility: 'members',
+    teacher: card.teacher ? { ...card.teacher, photo_url: null } : null,
+    series: card.series
+      ? {
+          id: '',
+          slug: card.series.slug,
+          title: card.series.title,
+          description: {},
+        }
+      : null,
+    tags: [],
+    seriesParts: [],
+    related: [],
+  };
 }
 
 export async function generateMetadata({
@@ -69,9 +98,15 @@ export default async function ContentDetailPage({
   setRequestLocale(locale);
   if (!isContentType(type)) notFound();
 
-  const detail = await getPublicContent(type, slug);
-  if (!detail) notFound();
+  // RLS scopes what `getPublicContent` returns. `null` for a guest on a
+  // members-only item → the advertising projection + the "sign in" panel;
+  // `null` for anyone on a restricted item they may not see → 404 (Docs/9 §5.10).
+  const full = await getPublicContent(type, slug);
+  const card = full ? null : await getMembersCard(slug);
+  if (!full && (!card || card.type !== type)) notFound();
 
+  const detail = full ?? lockedShape(card!);
+  const locked = !full;
   const t = await getTranslations('library');
 
   return (
@@ -83,7 +118,12 @@ export default async function ContentDetailPage({
           { label: pickLocale(detail.title, locale) || t('untitled') },
         ]}
       />
-      <ContentDetailView detail={detail} locale={locale as Locale} />
+      <ContentDetailView
+        detail={detail}
+        locale={locale as Locale}
+        locked={locked}
+        lockedNext={`/${locale}/teachings/${type}/${slug}`}
+      />
     </div>
   );
 }

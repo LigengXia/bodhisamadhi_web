@@ -5,6 +5,9 @@ import { PublicNav } from '@/components/PublicNav/PublicNav';
 import { PublicFooter } from '@/components/PublicFooter/PublicFooter';
 import { LiveBannerSlot } from '@/components/LiveBanner/LiveBannerSlot';
 import { AudioProvider } from '@/components/AudioPlayer/AudioProvider';
+import { createClient } from '@/lib/supabase/server';
+
+import { signOutAction } from './sign-out-action';
 
 // Docs/7 §3.2 — the chrome present on every public screen: skip link, nav,
 // <main>, footer. The live-banner slot (§3.21) is never activated in the
@@ -23,13 +26,27 @@ export default async function PublicLayout({
   setRequestLocale(locale);
   const t = await getTranslations('a11y');
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  let navUser: { name: string } | null = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name')
+      .eq('id', user.id)
+      .maybeSingle();
+    navUser = { name: profile?.display_name ?? user.email ?? '' };
+  }
+
   return (
     <AudioProvider>
       <a href="#main" className="skipLink">
         {t('skipToContent')}
       </a>
       <LiveBannerSlot />
-      <PublicNav />
+      <PublicNav user={navUser} signOut={signOutAction} />
       <main id="main">{children}</main>
       <PublicFooter />
     </AudioProvider>

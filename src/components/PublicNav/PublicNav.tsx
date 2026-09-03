@@ -44,8 +44,15 @@ const HASH_LINKS = [
   { hash: 'visit', key: 'visit' as const },
 ];
 
-export function PublicNav() {
+export function PublicNav({
+  user,
+  signOut,
+}: {
+  user: { name: string } | null;
+  signOut: () => Promise<void>;
+}) {
   const t = useTranslations('nav');
+  const tAuth = useTranslations('auth.signOut');
   const locale = useLocale();
   const pathname = usePathname();
   const isHome = pathname === '/';
@@ -141,6 +148,20 @@ export function PublicNav() {
           <div className={styles.switcherDesktop}>
             <LanguageSwitcher />
           </div>
+          <div className={styles.authDesktop}>
+            {user ? (
+              <form action={signOut}>
+                <span className={styles.userName}>{user.name}</span>
+                <button type="submit" className={styles.signOut}>
+                  {tAuth('label')}
+                </button>
+              </form>
+            ) : (
+              <Link href="/signin" className={styles.link}>
+                {t('signIn')}
+              </Link>
+            )}
+          </div>
           <button
             ref={toggleRef}
             type="button"
@@ -194,6 +215,18 @@ export function PublicNav() {
           >
             {t('search')}
           </Link>
+          {user ? (
+            <form action={signOut} className={styles.drawerAuth}>
+              <span className={styles.userName}>{user.name}</span>
+              <button type="submit" className={styles.drawerLink}>
+                {tAuth('label')}
+              </button>
+            </form>
+          ) : (
+            <Link href="/signin" className={styles.drawerLink} onClick={close}>
+              {t('signIn')}
+            </Link>
+          )}
         </nav>
         <div className={styles.drawerSwitcher}>
           <LanguageSwitcher />
