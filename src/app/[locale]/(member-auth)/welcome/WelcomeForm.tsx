@@ -1,7 +1,6 @@
 'use client';
 
 import { useActionState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/Button/Button';
@@ -20,15 +19,16 @@ export function WelcomeForm({
   next?: string;
 }) {
   const t = useTranslations('auth.welcome');
-  const router = useRouter();
   const [state, formAction, pending] = useActionState(
     completeOnboardingAction,
     initial,
   );
 
   useEffect(() => {
-    if (state.redirectTo) router.replace(state.redirectTo);
-  }, [state.redirectTo, router]);
+    // Full navigation, not router.replace: the destination may be a page the
+    // visitor loaded as a guest, and the client Router Cache would re-serve it.
+    if (state.redirectTo) window.location.assign(state.redirectTo);
+  }, [state.redirectTo]);
 
   return (
     <>

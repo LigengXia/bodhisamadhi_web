@@ -1,7 +1,4 @@
-import { redirect } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
-
-import { createClient } from '@/lib/supabase/server';
 
 import { SignInForm } from './SignInForm';
 
@@ -17,11 +14,12 @@ export default async function SignInPage({
   const { next } = await searchParams;
   const t = await getTranslations('auth.signIn');
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) redirect(`/${locale}`);
+  // A signed-in visitor who navigates here directly is bounced to `/{locale}`
+  // by proxy.ts (the MEMBER_AUTH check). Deliberately no page-level `if (user)
+  // redirect` guard: it would also fire on the Server Action's post-submit
+  // re-render of this route and pre-empt the client's navigation to `next`,
+  // sending every successful sign-in to the home page instead of the page the
+  // visitor was trying to reach.
 
   return (
     <>

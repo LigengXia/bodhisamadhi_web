@@ -1,7 +1,6 @@
 'use client';
 
 import { useActionState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/Button/Button';
@@ -16,15 +15,17 @@ const initial: MemberSignInState = {};
 
 export function SignInForm({ next }: { next?: string }) {
   const t = useTranslations('auth.signIn');
-  const router = useRouter();
   const [state, formAction, pending] = useActionState(
     memberSignInAction,
     initial,
   );
 
   useEffect(() => {
-    if (state.redirectTo) router.replace(state.redirectTo);
-  }, [state.redirectTo, router]);
+    // Full navigation, not router.replace: `next` may be a page the visitor
+    // already loaded as a guest, and the client Router Cache would re-serve
+    // that (gated) copy.
+    if (state.redirectTo) window.location.assign(state.redirectTo);
+  }, [state.redirectTo]);
 
   return (
     <form action={formAction} noValidate>
