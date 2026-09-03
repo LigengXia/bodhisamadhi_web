@@ -1,4 +1,4 @@
-import { format, parseISO } from 'date-fns';
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { enUS, zhCN } from 'date-fns/locale';
 
 import type { Locale } from '@/i18n/routing';
@@ -20,6 +20,22 @@ export function formatDate(
   if (!value) return '';
   const date = value.length === 10 ? parseISO(value) : new Date(value);
   return format(date, 'PPP', { locale: DF_LOCALE[locale] });
+}
+
+/**
+ * A `created_at` value rendered as a relative phrase ("about 2 hours ago"),
+ * for comment timestamps (Docs/4 §3.18). The absolute date belongs in the
+ * element's `title`; use `formatDate` for that.
+ */
+export function formatRelativeTime(
+  value: string | null | undefined,
+  locale: Locale,
+): string {
+  if (!value) return '';
+  return formatDistanceToNow(new Date(value), {
+    locale: DF_LOCALE[locale],
+    addSuffix: true,
+  });
 }
 
 /** Seconds → `H:MM:SS` or `M:SS` (Docs/7 §3.9). */
