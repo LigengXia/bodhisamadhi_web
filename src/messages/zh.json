@@ -306,6 +306,7 @@
     "pendingBadge": "待审核 — 仅您可见",
     "pendingHint": "您的留言将在管理员审核后显示。",
     "rateLimited": "请稍候片刻再发布。",
+    "errorRequired": "请先写点内容。",
     "errorGeneric": "我们这边出了点问题，请稍后再试。若持续发生，请来信 bodhisamadhicenter@gmail.com 告知我们。",
     "signInToComment": "登入后即可分享心得。",
     "signInAction": "登入"

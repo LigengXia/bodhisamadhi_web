@@ -306,6 +306,7 @@
     "pendingBadge": "Pending review — visible to you",
     "pendingHint": "Your comment will appear once a moderator has reviewed it.",
     "rateLimited": "Please wait a little before posting again.",
+    "errorRequired": "Please write something first.",
     "errorGeneric": "Something went wrong on our side. Please try again in a moment. If it keeps happening, please let us know at bodhisamadhicenter@gmail.com.",
     "signInToComment": "Sign in to share a reflection.",
     "signInAction": "Sign in"

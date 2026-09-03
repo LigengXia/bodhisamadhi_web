@@ -1,0 +1,11 @@
+/* Layout only — every value is a token (CLAUDE.md hard rule). */
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--sp-1);
+}
