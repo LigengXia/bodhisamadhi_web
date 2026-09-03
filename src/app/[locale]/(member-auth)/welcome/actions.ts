@@ -21,13 +21,16 @@ export async function completeOnboardingAction(
   } = await supabase.auth.getUser();
   if (!user) return { redirectTo: `/${currentLocale}/signin` };
 
-  const patch: Record<string, unknown> = {
-    onboarded_at: new Date().toISOString(),
-  };
+  const patch: {
+    onboarded_at: string;
+    preferred_locale?: (typeof LOCALES)[number];
+    reminder_opt_in?: boolean;
+  } = { onboarded_at: new Date().toISOString() };
+
   if (intent === 'continue') {
     const loc = String(formData.get('locale') ?? '');
     if ((LOCALES as readonly string[]).includes(loc)) {
-      patch.preferred_locale = loc;
+      patch.preferred_locale = loc as (typeof LOCALES)[number];
     }
     patch.reminder_opt_in = formData.get('reminder') === 'on';
   }
