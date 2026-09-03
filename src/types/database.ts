@@ -75,6 +75,80 @@ export type Database = {
           },
         ]
       }
+      comments: {
+        Row: {
+          author_id: string
+          body: string
+          content_item_id: string
+          created_at: string
+          deleted_at: string | null
+          flagged_at: string | null
+          id: string
+          moderated_at: string | null
+          moderated_by: string | null
+          parent_id: string | null
+          status: Database["public"]["Enums"]["comment_status"]
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          content_item_id: string
+          created_at?: string
+          deleted_at?: string | null
+          flagged_at?: string | null
+          id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          parent_id?: string | null
+          status?: Database["public"]["Enums"]["comment_status"]
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          content_item_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          flagged_at?: string | null
+          id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          parent_id?: string | null
+          status?: Database["public"]["Enums"]["comment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_moderated_by_fkey"
+            columns: ["moderated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_items: {
         Row: {
           allow_download: boolean
@@ -499,6 +573,7 @@ export type Database = {
     }
     Functions: {
       admin_queue_counts: { Args: never; Returns: Json }
+      count_admin_comments: { Args: { _status?: string }; Returns: number }
       count_library_cards: {
         Args: {
           _lineage_slugs?: string[]
@@ -509,6 +584,7 @@ export type Database = {
         }
         Returns: number
       }
+      dismiss_comment_flag: { Args: { _id: string }; Returns: undefined }
       get_members_card: {
         Args: { _slug: string }
         Returns: {
@@ -537,6 +613,23 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_master: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      list_admin_comments: {
+        Args: { _limit?: number; _offset?: number; _status?: string }
+        Returns: {
+          author_avatar: string
+          author_is_master: boolean
+          author_name: string
+          body: string
+          created_at: string
+          flagged_at: string
+          id: string
+          item_slug: string
+          item_title: Json
+          item_type: Database["public"]["Enums"]["content_type"]
+          parent_id: string
+          status: Database["public"]["Enums"]["comment_status"]
+        }[]
+      }
       list_admin_users: {
         Args: never
         Returns: {
@@ -546,6 +639,20 @@ export type Database = {
           id: string
           qualifications: string[]
           roles: string[]
+        }[]
+      }
+      list_comments: {
+        Args: { _content_item_id: string }
+        Returns: {
+          author_avatar: string
+          author_is_master: boolean
+          author_name: string
+          body: string
+          created_at: string
+          id: string
+          is_own: boolean
+          parent_id: string
+          status: Database["public"]["Enums"]["comment_status"]
         }[]
       }
       list_library_cards: {
@@ -577,6 +684,14 @@ export type Database = {
           youtube_id: string
         }[]
       }
+      moderate_comments: {
+        Args: {
+          _ids: string[]
+          _new_status: Database["public"]["Enums"]["comment_status"]
+        }
+        Returns: undefined
+      }
+      report_comment: { Args: { _id: string }; Returns: undefined }
       search_content: {
         Args: { _locale?: Database["public"]["Enums"]["locale"]; _q: string }
         Returns: {
@@ -617,6 +732,7 @@ export type Database = {
     }
     Enums: {
       app_role: "master" | "admin"
+      comment_status: "pending" | "approved" | "rejected"
       content_status: "draft" | "published" | "archived"
       content_type: "video" | "audio" | "script"
       locale: "en" | "zh" | "bo"
@@ -753,6 +869,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["master", "admin"],
+      comment_status: ["pending", "approved", "rejected"],
       content_status: ["draft", "published", "archived"],
       content_type: ["video", "audio", "script"],
       locale: ["en", "zh", "bo"],
