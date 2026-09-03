@@ -1,0 +1,14 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.alt {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+  text-align: center;
+}
+.alt a {
+  color: var(--cr-600);
+}
