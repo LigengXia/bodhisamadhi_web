@@ -138,8 +138,10 @@ Recorded 2026-09-03. Owner is away ~1 month from 2026-09-02; executed autonomous
 
 | Action | Notes |
 |---|---|
-| `moderateCommentsAction(ids: string[], to: 'approved' \| 'rejected')` | `update comments set status = to, moderated_by = (select auth.uid()), moderated_at = now() where id = any(ids)` — RLS `staff moderate comments`. Audited by `write_audit`. `revalidatePath('/[locale]/admin/comments')` + the affected item paths where cheap; otherwise the queue only. |
-| `dismissFlagAction(id: string)` | `update comments set flagged_at = null where id = ?` — staff only. Audited. |
+| `moderateCommentsAction(ids: string[], to: 'approved' \| 'rejected')` | `rpc('moderate_comments', { _ids: ids, _new_status: to })` — a `security definer` function (§6.4), `is_staff()`-gated, that sets `status`, `moderated_by = (select auth.uid())`, `moderated_at = now()`. Audited by `write_audit`. `revalidatePath('/[locale]/admin/comments')`. |
+| `dismissFlagAction(id: string)` | `rpc('dismiss_comment_flag', { _id: id })` — `security definer`, `is_staff()`-gated, `flagged_at = null`. Audited. |
+
+**Why RPCs, not a direct `update`:** `Docs/5` §13.5's `revoke update on public.comments from authenticated; grant update (deleted_at) …` confines *every* `authenticated` role — staff included — to updating only `deleted_at`. Direct staff `update … set status` is refused at the column-grant level, before RLS runs. So moderation writes go through `security definer` functions owned by `postgres` (the same pattern as `report_comment`, `list_admin_users`, and Phase 13's helpers). The §13.5 `"staff moderate comments"` RLS `UPDATE` policy is transcribed as written but is inert under the column grant — kept as documented intent / defense-in-depth.
 
 ### 5.8 AdminShell + work queue
 
@@ -247,7 +249,7 @@ grant execute on function public.list_admin_comments(text, int, int) to authenti
 
 A companion `count_admin_comments(_status text default 'pending') returns bigint` runs the same `WHERE` (minus `limit`/`offset`) for pagination, `security definer`, `is_staff()`-gated, granted to `authenticated`.
 
-### 6.4 ✚ `report_comment` and `admin_queue_counts`
+### 6.4 ✚ `report_comment`, `moderate_comments`, `dismiss_comment_flag`, `admin_queue_counts`
 
 ```sql
 create or replace function public.report_comment(_id uuid)
@@ -263,7 +265,46 @@ $$;
 
 revoke execute on function public.report_comment(uuid) from anon;
 grant execute on function public.report_comment(uuid) to authenticated;
+
+create or replace function public.moderate_comments(
+  _ids uuid[], _new_status public.comment_status
+) returns void language plpgsql volatile security definer set search_path = ''
+as $$
+begin
+  if not public.is_staff() then
+    raise exception 'not_staff';
+  end if;
+  if _new_status not in ('approved', 'rejected') then
+    raise exception 'invalid_status';
+  end if;
+  update public.comments
+     set status = _new_status,
+         moderated_by = (select auth.uid()),
+         moderated_at = now()
+   where id = any(_ids)
+     and deleted_at is null;
+end;
+$$;
+
+revoke execute on function public.moderate_comments(uuid[], public.comment_status) from anon;
+grant execute on function public.moderate_comments(uuid[], public.comment_status) to authenticated;
+
+create or replace function public.dismiss_comment_flag(_id uuid)
+returns void language plpgsql volatile security definer set search_path = ''
+as $$
+begin
+  if not public.is_staff() then
+    raise exception 'not_staff';
+  end if;
+  update public.comments set flagged_at = null where id = _id;
+end;
+$$;
+
+revoke execute on function public.dismiss_comment_flag(uuid) from anon;
+grant execute on function public.dismiss_comment_flag(uuid) to authenticated;
 ```
+
+`write_audit()` fires on the `UPDATE` these functions run; `auth.uid()` is still the staff member (a `security definer` function does not change the request JWT), so the audit row records the right actor.
 
 `admin_queue_counts()` — `create or replace`, keep `drafts` / `published`, add:
 
@@ -283,13 +324,14 @@ grant execute on function public.report_comment(uuid) to authenticated;
 4. The author selects their own `pending` comment; a *different* member selects 0 rows for it.
 5. `anon` selects only `approved` comments.
 6. `update comments set body = …` as the author is refused (column grant); `set deleted_at = now()` succeeds.
-7. Staff `update … set status = 'approved'` succeeds; a plain member's does not.
+7. `moderate_comments('{id}', 'approved')` as staff flips the row to `approved`; as a plain member it raises `not_staff`. A direct `update comments set status='approved'` as staff is refused (column grant).
 8. The 5th insert within 10 minutes raises `comment_rate_limited`.
 9. `list_comments` returns `author_name` and `author_is_master` with **no** `profiles` row exposed and **no** `flagged_at` column.
 10. `report_comment` sets `flagged_at` on an approved comment; a second call is a no-op; the author's own comment is not flagged; a `pending` comment is not flagged.
-11. `list_admin_comments('pending')` as a plain member raises / returns nothing; as staff returns the pending rows; `('flagged')` returns only approved+flagged.
+11. `list_admin_comments('pending')` as a plain member returns 0 rows (the `is_staff()` guard in the `WHERE`); as staff returns the pending rows; `('flagged')` returns only approved+flagged.
 12. `admin_queue_counts()` carries `pending_comments` and `flagged_comments`.
-13. `write_audit` writes a row when staff approve a comment.
+13. `write_audit` writes a row when `moderate_comments` approves a comment.
+14. `dismiss_comment_flag` clears `flagged_at` as staff; raises `not_staff` for a plain member.
 
 Also re-run the existing RLS suite — the `comments` policies are new, nothing else changes.
 
