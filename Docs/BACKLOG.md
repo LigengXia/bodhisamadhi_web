@@ -1,4 +1,4 @@
-# Bodhisamadhi Center — backlog as of 2026-09-02
+# Bodhisamadhi Center — backlog as of 2026-09-03
 
 ## Where things stand
 
@@ -6,6 +6,11 @@ MVP (Phases 0–10) and Phase 11 (hardening & launch) are built, merged to `main
 and deployed to `bodhisamadhi-web.vercel.app`. The site is locked behind
 `noindex` + `robots.txt` `Disallow: /` (`SITE_INDEXABLE` unset) with ~5
 reproducible content items.
+
+**Phase 13** (member accounts + `members` / `restricted` content gating) is
+built — PR 1 merged (#38), PR 2 (member auth screens) open on
+`feat/member-auth-screens`. Executed autonomously during the owner's ~1-month
+absence (`Docs/9` D13.3). See the "Phase 13" section below.
 
 **There is no hard Claude-side blocker.** Everything that gates a real launch is
 a decision or an input only the owner can supply, and `Docs/6` §5 explicitly says
@@ -236,9 +241,33 @@ Listed so the whole picture is in one place. From `CLAUDE.md` "Known unresolved"
 | 3.11 | **Enable signup on the hosted Supabase project** (`[auth] enable_signup` / `enable_confirmations`) | Sign-up on the deployed site | Phase 13 F13.b. Local + CI e2e cover the flow. Set via the Management API (needs a fresh `SUPABASE_ACCESS_TOKEN` — the current one is dead) or the dashboard. |
 | 3.12 | **Geshe-la confirms the empowerments catalogue** (`Docs/9` D13.7) | Restricted content beyond Yamantaka / Vajrayogini | Phase 13 F13.e. Seeded with those two, flagged. Admins add more via `/admin/empowerments`; the zh/bo names ride with the Tibetan review (3.1). |
 
-## Phase 13 follow-ups (post-merge, not blocking)
+## Phase 13 — status (2026-09-03)
 
-- **Google OAuth + identity linking** (`Docs/9` D13.1 / F13.d) — deferred from Phase 13; email+password ships first. Add when the owner can configure the Google provider in the Supabase dashboard.
+PR 1 (gating & admin) merged as #38. **PR 2 (member auth screens) built** on
+`feat/member-auth-screens` — signup / check-inbox / `/welcome` / `/signin`,
+the `members` gated panel + lock badge, public-nav sign-in/out, `proxy.ts`
+bounce. `npm run verify` + pgTAP + full e2e (19) green. As-built: `Docs/9`
+§12–13. Open for review, not yet merged.
+
+F13.a (min age) → shipped as flagged "16 or older" checkbox. F13.c (zh/bo for
+the new strings) → rides with the Tibetan review (3.1).
+
+### Phase 13 follow-ups (not blocking)
+
+- **Wire the desktop sign-in modal.** `SignInModal` is built and tested but
+  rendered nowhere — `GatedPanel` uses only the baseline `/signin?next=` link
+  (accessible, works everywhere). The Docs/9 §5.5 desktop overlay needs a
+  client component that intercepts the link above `--bp-sm` and does
+  `router.refresh()` on success. Deferred during the owner's absence rather
+  than add a bespoke surface unreviewed. `Docs/9` §13.
+- **Dead sign-up confirmation link shows nothing.** `auth/confirm/route.ts`
+  redirects an expired/used sign-up link to `/{locale}/signin?confirm=…`, but
+  the sign-in page doesn't read `?confirm` — the visitor gets a bare form.
+  Docs/9 §5.3 wants the three outcomes distinct. Small fix: read the param +
+  one `InlineAlert` + 3 message keys. `Docs/9` §13.
+- **Google OAuth + identity linking** (`Docs/9` D13.1 / F13.d) — deferred from
+  Phase 13; email+password ships first. Add when the owner can configure the
+  Google provider in the Supabase dashboard.
 
 ---
 
@@ -248,8 +277,9 @@ Listed so the whole picture is in one place. From `CLAUDE.md` "Known unresolved"
 these will be re-planned once Phase 12 tells you what the Master actually
 wants."*
 
-- **Phase 13** — member accounts, Google OAuth, the members-only gate (activates
-  the locked-card behaviour that is currently dormant).
+- ~~**Phase 13**~~ — **built** (PR 1 #38 + PR 2 open). Member accounts, the
+  `members` + `restricted` gate, admin qualification surfaces. Google OAuth and
+  the desktop sign-in modal are deferred (see Phase 13 follow-ups above).
 - **Phase 14** — comments + moderation queue.
 - **Phase 15** — service request forms + the pastoral disclaimer flow.
 - **Phase 16** — live streaming (confirm Zoom RTMP simulcast *before* starting).

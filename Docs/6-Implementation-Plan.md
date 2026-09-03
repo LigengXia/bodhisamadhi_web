@@ -74,7 +74,7 @@ Items 1–4 should be done before Phase 1 starts. Each returns a set of secrets;
 
 | # | Phase | Output |
 |---|---|---|
-| 13 | Member accounts & gating | Public signup, members-only + restricted content. **In progress** — spec `Docs/9`; PR 1 (gating & admin) built. |
+| 13 | Member accounts & gating | Public signup, members-only + restricted content. **Built** — spec `Docs/9`; PR 1 merged (#38), PR 2 (member auth screens) open. As-built `Docs/9` §12–13. |
 | 14 | Comments & moderation | Threaded comments, admin queue |
 | 15 | Service requests | Nine services, request form, staff workflow |
 | 16 | Live streaming | Live page, Q&A, archive |
@@ -378,6 +378,8 @@ Lower resolution deliberately — these will be re-planned once Phase 12 tells y
 Public signup with email verification (App Flow D24), onboarding (D25), the modal/full-page sign-in pattern (D26), and the members-only gate switched on. The schema already carries `visibility`; this phase adds the accounts to enforce it against, plus the locked-card states from design system §4.2. Google OAuth with identity linking (backend §16.2).
 
 **First, because** comments, bookings and the account area all assume accounts exist.
+
+**Status: PR 1 merged, PR 2 open.** Spec `Docs/9`; plan `docs/superpowers/plans/2026-09-02-phase-13-member-accounts-and-gating.md` (28 tasks, 2 PRs). **PR 1** (gating & admin) — `main` #38, migrations `0008`–`0011`. **PR 2** (member auth screens) — branch `feat/member-auth-screens`. As-built notes: `Docs/9` §12 (PR 1), §13 (PR 2). Deviations of note: three-tier model `public` / `members` / `restricted` (the last a hard per-empowerment gate, hidden entirely); **email + password only — Google OAuth deferred** (D13.1, `Docs/BACKLOG.md`); the desktop **sign-in modal is built but not wired** (deferred, `Docs/9` §13); age acknowledgement ships as a flagged "16 or older" checkbox (D13.2); empowerments catalogue seeded `yamantaka` + `vajrayogini`, pending Geshe-la (D13.7). `npm run verify` green; pgTAP + full e2e (19) green.
 
 ### Phase 14 — Comments & moderation
 

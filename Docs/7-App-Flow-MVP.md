@@ -579,8 +579,8 @@ Where this document corrects or extends design system §3/§5 or backend §15, p
 
 | # | Point | Resolution |
 |---|---|---|
-| R1 | **Nav "Sign in / avatar"** (App Flow A1, design system §3.20) | Removed from the public nav in the MVP — there are no member accounts. Staff reach `/{locale}/admin/signin` directly. Re-add in Phase 13. |
-| R2 | **Nav "Teachings ▾" dropdown** (App Flow A2, design system §3.20) | No dropdown in the MVP. `Teachings` is a plain link to `/{locale}/teachings`; the tabs there cover Video / Audio / Scripts. |
+| R1 | **Nav "Sign in / avatar"** (App Flow A1, design system §3.20) | ~~Removed from the public nav in the MVP — there are no member accounts.~~ **Re-added in Phase 13** (`Docs/9` §5.9, PR 2). A guest sees a "Sign in" link at the trailing edge by the language switch; a signed-in member sees their display name (initials / a neutral circle — no avatar upload until Phase 18) with a "Sign out" control. Still **no "Account" link** — the account area is Phase 18. Staff continue to reach `/{locale}/admin/signin` directly. |
+| R2 | **Nav "Teachings ▾" dropdown** (App Flow A2, design system §3.20) | No dropdown, in the MVP or Phase 13. `Teachings` is a plain link to `/{locale}/teachings`; the tabs there cover Video / Audio / Scripts. |
 | R3 | **Members-only locked cards** (App Flow B16, design system §4.2, backend §13.4) | ~~Not rendered in the MVP.~~ **Activated in Phase 13** (`Docs/9`). The admin form now offers Public / Members-only / **Restricted** (per-empowerment, hidden entirely); `list_library_cards` returns the locked-card projection for guests. `queries.ts` no longer pins `visibility='public'` — RLS scopes it. |
 | R4 | **"Services" / "Live" / "Schedule" / "Support" as nav routes** (App Flow A1) | In the MVP these are Home sections only. The nav links resolve to `/{locale}#anchor`. Real routes arrive in Phases 15 / 16. |
 | R5 | **Work-queue counters** (App Flow H50, design system §3.23) | The MVP shows Drafts / Published only. Comments, bookings, e-Transfers and live status are omitted until their features exist. Analytics stay off this screen, as specified. |
@@ -635,7 +635,7 @@ These are unchanged by this document and still block the phase named. From `6-Im
 
 Documented in full when their phase is planned (`6-Implementation-Plan.md` §5). Flagged here so no one builds toward them now:
 
-- **Member accounts** (Phase 13): sign-up with e-mail verification, onboarding, the modal / full-page sign-in pattern, Google OAuth with identity linking, and the members-only gate — which turns on R3 above.
+- ~~**Member accounts** (Phase 13)~~ **Built and merged** (`Docs/9`, PRs #38 + PR 2): sign-up with e-mail verification, the one-step `/welcome` onboarding, the full-page `/{locale}/signin` pattern (the desktop sign-in **modal** is built but deferred — see `Docs/9` §13), the `members` gated panel + lock badge, and the `restricted` per-empowerment tier with its admin surfaces. **Not** in Phase 13: Google OAuth / identity linking (F13.d), the account area (Phase 18). R1 above is re-added; R3 is live.
 - **Comments** (Phase 14): threaded one level, pending-visible-to-author, the admin moderation queue, and the work-queue counter becoming real.
 - **Service requests** (Phase 15): nine service pages, the request form, guest submission, the pastoral disclaimer above the fields, staff notes, two booking e-mails.
 - **Live** (Phase 16): the six page states, the waiting room, post-moderated Q&A, the sitewide live banner activating, the archive hand-off into the library.
