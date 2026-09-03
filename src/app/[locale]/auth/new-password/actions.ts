@@ -29,5 +29,8 @@ export async function setPasswordAction(
     return { error: error.code === 'weak_password' ? 'weak' : 'generic' };
   }
 
-  return { redirectTo: `/${locale}/admin` };
+  // Shared by staff and members (Docs/9 D13.4): staff land in the admin, a
+  // member returns to the site.
+  const { data: isStaff } = await supabase.rpc('is_staff');
+  return { redirectTo: isStaff ? `/${locale}/admin` : `/${locale}` };
 }
