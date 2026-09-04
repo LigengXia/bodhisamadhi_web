@@ -243,6 +243,71 @@ export async function memberId(email: string): Promise<string> {
   return id;
 }
 
+/**
+ * Seed a comment straight into `public.comments` past RLS (Phase 14 e2e).
+ *
+ * The service client bypasses RLS but NOT triggers, so every seeded row is
+ * back-dated 20 minutes: `limit_comment_rate` counts rows in the last 10
+ * minutes, and a spec that seeds two or three would otherwise trip it.
+ *
+ * `status: 'approved'` inserts as `pending` (the row's author is a plain
+ * member, so `auto_approve_staff_comment` leaves it alone) then a direct
+ * `update … set status` promotes it — the service role is not `authenticated`,
+ * so the `grant update (deleted_at)` column grant does not confine it.
+ *
+ * Returns the new comment id (for `#comment-<id>` selectors).
+ */
+export async function seedComment(opts: {
+  itemSlug: string;
+  authorEmail: string;
+  body: string;
+  status?: 'pending' | 'approved';
+  parentBody?: string;
+}): Promise<string> {
+  const db = serviceClient();
+  const contentItemId = await fixtureId(opts.itemSlug);
+  const authorId = await memberId(opts.authorEmail);
+
+  let parentId: string | null = null;
+  if (opts.parentBody) {
+    const { data: parent } = await db
+      .from('comments')
+      .select('id')
+      .eq('content_item_id', contentItemId)
+      .eq('body', opts.parentBody)
+      .single();
+    if (!parent) {
+      throw new Error(`seedComment: no parent with body ${opts.parentBody}`);
+    }
+    parentId = parent.id as string;
+  }
+
+  const backdated = new Date(Date.now() - 20 * 60 * 1000).toISOString();
+  const { data: inserted, error } = await db
+    .from('comments')
+    .insert({
+      content_item_id: contentItemId,
+      author_id: authorId,
+      parent_id: parentId,
+      body: opts.body,
+      created_at: backdated,
+    })
+    .select('id')
+    .single();
+  if (error) throw error;
+  const id = inserted.id as string;
+
+  if (opts.status === 'approved') {
+    const { error: upErr } = await db
+      .from('comments')
+      .update({ status: 'approved', moderated_at: new Date().toISOString() })
+      .eq('id', id);
+    if (upErr) throw upErr;
+  }
+
+  return id;
+}
+
 /** Confirm a just-signed-up account by email (skips the mail round-trip). */
 export async function confirmUser(email: string): Promise<string> {
   const db = serviceClient();
@@ -264,6 +329,9 @@ export async function removeSignupUsers(prefix: string) {
 
 export async function resetFixtures() {
   const db = serviceClient();
+  // Seeded comments (Phase 14). The `content_items` FK cascades on the delete
+  // below, but every seeded body is `e2e-…`, so clear them explicitly first.
+  await db.from('comments').delete().like('body', 'e2e-%');
   const slugs = Object.values(FIXTURES).map((f) => f.slug);
   const { data } = await db
     .from('content_items')
