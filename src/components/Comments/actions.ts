@@ -62,22 +62,21 @@ export async function postCommentAction(
 }
 
 /**
- * Soft-delete the caller's own comment. RLS plus the `deleted_at`-only column
- * grant (migration 0012) confine this to the author's own row and to that one
- * column — there is no restore path (Docs/5 §13.5).
+ * Soft-delete the caller's own comment. `authenticated` holds no UPDATE grant
+ * on `comments` at all (migration 0012), so the withdrawal goes through the
+ * `security definer` `withdraw_comment()` RPC, which sets `deleted_at` only on
+ * a row the caller authored and has not already withdrawn. A call on anyone
+ * else's id is a silent no-op. There is no restore path (Docs/5 §13.5).
  */
 export async function deleteOwnCommentAction(
   id: string,
   itemPath: string,
 ): Promise<{ ok?: boolean; error?: 'generic' }> {
   const supabase = await createClient();
-  const { error } = await supabase
-    .from('comments')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id);
+  const { error } = await supabase.rpc('withdraw_comment', { _id: id });
 
   if (error) {
-    console.error('[deleteOwnCommentAction] update failed', { error });
+    console.error('[deleteOwnCommentAction] rpc failed', { error });
     return { error: 'generic' };
   }
 

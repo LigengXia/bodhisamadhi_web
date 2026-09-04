@@ -1,6 +1,6 @@
 -- ═══════════════════════════════════════════════════════════════════════
 -- 0012 · Comments — table, triggers, RLS, rate limit, moderation RPCs
--- Docs/10 §6.5. Fourteen assertions, one pgTAP test each.
+-- Docs/10 §6.5. Twenty-two assertions, one pgTAP test each.
 --
 --   npm run db:test        (supabase test db)
 --
@@ -11,11 +11,18 @@
 -- on return — so the compound assertions use plpgsql helpers that switch
 -- *identity* (the request JWT) only, and run as the superuser so the raw
 -- table reads are not scoped by RLS.
+--
+-- Fixture comments that need a known `id` are inserted as the **superuser**
+-- (identity still set through the JWT, so the triggers behave exactly as they
+-- would for that member). `authenticated` holds a per-column INSERT grant
+-- covering only (content_item_id, author_id, parent_id, body) — the columns
+-- the app actually writes — so naming `id` from that role is refused by
+-- design. Tests 17/18 assert that grant directly.
 -- ═══════════════════════════════════════════════════════════════════════
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(15);
+select plan(22);
 
 -- ── Fixtures (as the test superuser) ────────────────────────────────
 -- Start from an empty world so the counts are exact regardless of seed
@@ -48,7 +55,23 @@ insert into public.content_items
   (id, type, status, visibility, slug, title, youtube_id, created_by, published_at)
 values
   ('cccccccc-0000-0000-0000-000000000001', 'video', 'published', 'public',
-   't14-item', '{"en":"T14"}', 'AAAAAAAAAAA', 'd0d00000-0000-0000-0000-000000000001', null);
+   't14-item', '{"en":"T14"}', 'AAAAAAAAAAA', 'd0d00000-0000-0000-0000-000000000001', null),
+  -- A second published item, for the cross-item reply guard (test 20).
+  ('cccccccc-0000-0000-0000-000000000002', 'video', 'published', 'public',
+   't14-item-2', '{"en":"T14b"}', 'BBBBBBBBBBB', 'd0d00000-0000-0000-0000-000000000001', null),
+  -- A draft item, for the "list_comments requires a published item" guard
+  -- (test 21).
+  ('cccccccc-0000-0000-0000-000000000003', 'video', 'draft', 'public',
+   't14-draft', '{"en":"T14 draft"}', 'CCCCCCCCCCC', 'd0d00000-0000-0000-0000-000000000001', null);
+
+-- An approved comment sitting on the draft item. Inserted as the superuser:
+-- the "members may comment" policy would refuse an unpublished item, and the
+-- point of test 21 is that list_comments hides the row anyway. Back-dated so
+-- it does not consume member A's rate-limit budget.
+insert into public.comments (id, content_item_id, author_id, body, status, created_at) values
+  ('c0000000-0000-0000-0000-0000000000d1', 'cccccccc-0000-0000-0000-000000000003',
+   'd0d00000-0000-0000-0000-00000000000a', 'On a draft item', 'approved',
+   now() - interval '1 hour');
 
 -- ── Helpers ────────────────────────────────────────────────────────
 -- plpgsql so the bodies are not checked until the migration exists; run as
@@ -131,20 +154,82 @@ begin
 end;
 $$;
 
+create function pg_temp.item15_withdraw() returns boolean
+  language plpgsql as $$
+declare
+  own_deleted   timestamptz;
+  other_deleted timestamptz;
+  still_listed  bigint;
+begin
+  -- As member B: withdraw their own comment, then try someone else's.
+  perform set_config('request.jwt.claims',
+    '{"sub":"d0d00000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+  perform public.withdraw_comment('c0000000-0000-0000-0000-0000000000b1');  -- own
+  perform public.withdraw_comment('c0000000-0000-0000-0000-0000000000a2');  -- member A's
+  select deleted_at into own_deleted
+    from public.comments where id = 'c0000000-0000-0000-0000-0000000000b1';
+  select deleted_at into other_deleted
+    from public.comments where id = 'c0000000-0000-0000-0000-0000000000a2';
+  select count(*) into still_listed
+    from public.list_comments('cccccccc-0000-0000-0000-000000000001')
+    where id = 'c0000000-0000-0000-0000-0000000000b1';
+  return own_deleted is not null and other_deleted is null and still_listed = 0;
+end;
+$$;
+
+create function pg_temp.item19_staff_sees_pending() returns boolean
+  language plpgsql as $$
+declare
+  seen_by_admin bigint;
+  seen_by_other bigint;
+begin
+  perform set_config('request.jwt.claims',
+    '{"sub":"d0d00000-0000-0000-0000-000000000002","role":"authenticated"}', true);
+  select count(*) into seen_by_admin
+    from public.list_comments('cccccccc-0000-0000-0000-000000000001')
+    where id = 'c0000000-0000-0000-0000-0000000000a2';
+  perform set_config('request.jwt.claims',
+    '{"sub":"d0d00000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+  select count(*) into seen_by_other
+    from public.list_comments('cccccccc-0000-0000-0000-000000000001')
+    where id = 'c0000000-0000-0000-0000-0000000000a2';
+  return seen_by_admin = 1 and seen_by_other = 0;
+end;
+$$;
+
+create function pg_temp.item22_master_moderates() returns boolean
+  language plpgsql as $$
+declare
+  moved        text;
+  master_queue bigint;
+begin
+  perform set_config('request.jwt.claims',
+    '{"sub":"d0d00000-0000-0000-0000-000000000001","role":"authenticated"}', true);
+  perform public.moderate_comments(
+    array['c0000000-0000-0000-0000-0000000000c3']::uuid[], 'approved');
+  select status::text into moved
+    from public.comments where id = 'c0000000-0000-0000-0000-0000000000c3';
+  select count(*) into master_queue from public.list_admin_comments('pending');
+  return moved = 'approved' and master_queue > 0;
+end;
+$$;
+
 -- ═══════════════════════════════════════════════════════════════════════
 -- 1 · enforce_single_reply_level — a reply to a reply raises
 -- ═══════════════════════════════════════════════════════════════════════
 reset role;
-set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"d0d00000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
 
+-- Fixture rows (superuser — they name `id`, see the header note).
 insert into public.comments (id, content_item_id, author_id, body) values
   ('c0000000-0000-0000-0000-0000000000a1', 'cccccccc-0000-0000-0000-000000000001',
    'd0d00000-0000-0000-0000-00000000000a', 'A top-level reflection');
 insert into public.comments (id, content_item_id, author_id, parent_id, body) values
   ('c0000000-0000-0000-0000-0000000000a2', 'cccccccc-0000-0000-0000-000000000001',
    'd0d00000-0000-0000-0000-00000000000a', 'c0000000-0000-0000-0000-0000000000a1', 'A first-level reply');
+
+set local role authenticated;
 
 select throws_ok(
   $$ insert into public.comments (content_item_id, author_id, parent_id, body)
@@ -159,7 +244,6 @@ select throws_ok(
 -- 2 · auto_approve_staff_comment — a master's comment is approved
 -- ═══════════════════════════════════════════════════════════════════════
 reset role;
-set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"d0d00000-0000-0000-0000-000000000001","role":"authenticated"}', true);
 
@@ -176,7 +260,6 @@ select is(
 -- 3 · auto_approve_staff_comment — an admin's comment is approved
 -- ═══════════════════════════════════════════════════════════════════════
 reset role;
-set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"d0d00000-0000-0000-0000-000000000002","role":"authenticated"}', true);
 
@@ -193,7 +276,6 @@ select is(
 -- 4 · a plain member's comment starts pending
 -- ═══════════════════════════════════════════════════════════════════════
 reset role;
-set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"d0d00000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
 
@@ -241,13 +323,12 @@ select ok(
   (select status::text from public.comments where id = 'c0000000-0000-0000-0000-0000000000b1') = 'approved'
   and pg_temp.raised($$ select public.moderate_comments(array['c0000000-0000-0000-0000-0000000000a1']::uuid[], 'rejected') $$)
   and pg_temp.raised($$ update public.comments set status = 'rejected' where id = 'c0000000-0000-0000-0000-0000000000a1' $$),
-  '7. moderate_comments approves as staff, raises for a member, and a direct status update is denied by the column grant');
+  '7. moderate_comments approves as staff, raises for a member, and a direct status update is denied by the revoked UPDATE grant');
 
 -- ═══════════════════════════════════════════════════════════════════════
 -- 8 · limit_comment_rate — the fifth comment in ten minutes raises
 -- ═══════════════════════════════════════════════════════════════════════
 reset role;
-set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"d0d00000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
 
@@ -256,6 +337,8 @@ insert into public.comments (id, content_item_id, author_id, body) values
   ('c0000000-0000-0000-0000-0000000000c2', 'cccccccc-0000-0000-0000-000000000001', 'd0d00000-0000-0000-0000-00000000000c', 'two'),
   ('c0000000-0000-0000-0000-0000000000c3', 'cccccccc-0000-0000-0000-000000000001', 'd0d00000-0000-0000-0000-00000000000c', 'three'),
   ('c0000000-0000-0000-0000-0000000000c4', 'cccccccc-0000-0000-0000-000000000001', 'd0d00000-0000-0000-0000-00000000000c', 'four');
+
+set local role authenticated;
 
 select throws_ok(
   $$ insert into public.comments (content_item_id, author_id, body)
@@ -348,33 +431,111 @@ select ok(
   '14. dismiss_comment_flag clears the flag as staff and raises for a member');
 
 -- ═══════════════════════════════════════════════════════════════════════
--- 15 · authors may withdraw their own comment — deleted_at succeeds, a
---      body edit is still refused (column grant), and the row leaves the
---      thread. Guards the RLS interaction where the "authors see their own
---      comments" SELECT policy must NOT filter deleted_at, or Postgres
---      rejects the withdraw UPDATE (the resulting row would be invisible
---      to its own author).
+-- 15 · withdraw_comment — the author's own row is withdrawn and leaves the
+--      thread; a call on another member's comment is a silent no-op.
+--      `authenticated` holds no UPDATE grant at all, so the withdrawal has
+--      to go through this security-definer function (Docs/5 §13.5).
+-- ═══════════════════════════════════════════════════════════════════════
+reset role;
+select ok(pg_temp.item15_withdraw(),
+  '15. withdraw_comment withdraws the caller''s own comment and removes it from the thread; another member''s id is a no-op');
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- 16 · a member holds no UPDATE grant on comments — neither a body edit
+--      nor a direct deleted_at write is permitted
+-- ═══════════════════════════════════════════════════════════════════════
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub":"d0d00000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+
+select ok(
+  pg_temp.raised($$ update public.comments set body = 'edited'
+                    where id = 'c0000000-0000-0000-0000-0000000000a1' $$)
+  and pg_temp.raised($$ update public.comments set deleted_at = now()
+                        where id = 'c0000000-0000-0000-0000-0000000000a1' $$),
+  '16. a member cannot update a comment''s body or deleted_at directly — the UPDATE grant is fully revoked');
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- 17 · INSERT column grant — naming `status` is refused, so a member
+--      cannot self-approve past moderation
+-- ═══════════════════════════════════════════════════════════════════════
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub":"d0d00000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+
+select throws_ok(
+  $$ insert into public.comments (content_item_id, author_id, body, status)
+     values ('cccccccc-0000-0000-0000-000000000001',
+             'd0d00000-0000-0000-0000-00000000000a',
+             'Self-approved', 'approved') $$,
+  '42501',
+  null,
+  '17. a member naming `status` in an INSERT is refused by the column grant');
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- 18 · the app-shaped insert still works and lands pending
+-- ═══════════════════════════════════════════════════════════════════════
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub":"d0d00000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+
+insert into public.comments (content_item_id, author_id, body)
+values ('cccccccc-0000-0000-0000-000000000001',
+        'd0d00000-0000-0000-0000-00000000000a', 'App-shaped insert');
+
+select is(
+  (select status::text from public.comments where body = 'App-shaped insert'),
+  'pending',
+  '18. the app-shaped member insert (content_item_id, author_id, body) succeeds and lands pending');
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- 19 · list_comments — staff see a pending comment authored by someone
+--      else, so the admin queue's "view in context" anchor resolves
+-- ═══════════════════════════════════════════════════════════════════════
+reset role;
+select ok(pg_temp.item19_staff_sees_pending(),
+  '19. list_comments returns another member''s pending comment to staff, and not to a plain member');
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- 20 · enforce_single_reply_level — a reply must sit on the same content
+--      item as its parent
 -- ═══════════════════════════════════════════════════════════════════════
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"d0d00000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
 
--- The withdraw runs as its own statement so the assertion below reads a
--- settled snapshot (a mid-statement write from a volatile helper is not
--- visible to a STABLE function called later in the same statement).
-update public.comments set deleted_at = now()
-  where id = 'c0000000-0000-0000-0000-0000000000b1';
+select throws_ok(
+  $$ insert into public.comments (content_item_id, author_id, parent_id, body)
+     values ('cccccccc-0000-0000-0000-000000000002',
+             'd0d00000-0000-0000-0000-00000000000b',
+             'c0000000-0000-0000-0000-0000000000a1', 'Cross-item reply') $$,
+  'P0001',
+  'A reply must be on the same content item as its parent',
+  '20. a reply whose parent lives on a different content item is rejected');
 
-select ok(
-  (select deleted_at from public.comments
-     where id = 'c0000000-0000-0000-0000-0000000000b1') is not null
-  and pg_temp.raised($$ update public.comments set body = 'edited'
-                        where id = 'c0000000-0000-0000-0000-0000000000b1' $$)
-  and (select count(*)
-         from public.list_comments('cccccccc-0000-0000-0000-000000000001')
-         where id = 'c0000000-0000-0000-0000-0000000000b1') = 0,
-  '15. an author withdraws their own comment: deleted_at succeeds, a body edit is refused, the row leaves the thread');
+-- ═══════════════════════════════════════════════════════════════════════
+-- 21 · list_comments — nothing is returned for an item that is not
+--      published, even with an approved comment on it
+-- ═══════════════════════════════════════════════════════════════════════
+reset role;
+set local role anon;
+select set_config('request.jwt.claims', '', true);
+
+select is(
+  (select count(*) from public.list_comments('cccccccc-0000-0000-0000-000000000003')),
+  0::bigint,
+  '21. list_comments returns nothing for a draft item that carries an approved comment');
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- 22 · D14.4 — a master (not an admin) moderates and sees the queue
+-- ═══════════════════════════════════════════════════════════════════════
+reset role;
+select ok(pg_temp.item22_master_moderates(),
+  '22. a master-role user moderates a comment and list_admin_comments returns the pending queue to them');
 
 select * from finish();
 rollback;

@@ -729,6 +729,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      withdraw_comment: { Args: { _id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "master" | "admin"
