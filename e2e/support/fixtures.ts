@@ -253,7 +253,8 @@ export async function memberId(email: string): Promise<string> {
  * `status: 'approved'` inserts as `pending` (the row's author is a plain
  * member, so `auto_approve_staff_comment` leaves it alone) then a direct
  * `update … set status` promotes it — the service role is not `authenticated`,
- * so the `grant update (deleted_at)` column grant does not confine it.
+ * so neither the revoked UPDATE grant nor the per-column INSERT grant (which
+ * would refuse `created_at`/`status` from a member) confines it.
  *
  * Returns the new comment id (for `#comment-<id>` selectors).
  */

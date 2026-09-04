@@ -2,9 +2,10 @@ import { createClient } from '@/lib/supabase/server';
 import type { Json } from '@/types/database';
 import { resolvePage, PAGE_SIZE } from '@/lib/content/queries';
 
-// Admin comments listing and moderation (Docs/9 §5.15). `list_admin_comments()` and
-// `count_admin_comments()` are security-definer RPCs that return all comments
-// flagged or awaiting moderation; they raise unless the caller is an admin.
+// Admin comments listing and moderation (Docs/10 §6.3). `list_admin_comments()`
+// and `count_admin_comments()` are security-definer RPCs that return all
+// comments flagged or awaiting moderation; they return zero rows unless the
+// caller is staff (`is_staff()` — master or admin, D14.4).
 
 export type AdminCommentStatus =
   'pending' | 'flagged' | 'approved' | 'rejected' | 'all';

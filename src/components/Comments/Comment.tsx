@@ -42,8 +42,12 @@ export function Comment({
 }: Props) {
   const t = useTranslations('comments');
 
-  const isPending = node.status === 'pending';
   const isApproved = node.status === 'approved';
+  // Anything not approved is "not public" — a `pending` row (its author, or a
+  // moderator following the admin queue's in-context link) and a `rejected`
+  // one alike. Rejection is silent (D14.6), so a rejected comment must not
+  // render identically to a live one or its author concludes it is public.
+  const isPending = !isApproved;
   const canReply = !isReply && viewerSignedIn;
   const replies = !isReply && isNode(node) ? node.replies : [];
 

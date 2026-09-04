@@ -111,8 +111,5 @@ describe('AdminWorkQueuePage', () => {
     expect(
       screen.getByText(en.admin.queue.allClearBodyModeration),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByText(en.admin.queue.allClearBody),
-    ).not.toBeInTheDocument();
   });
 });

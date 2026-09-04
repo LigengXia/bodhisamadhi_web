@@ -6,8 +6,8 @@ import { getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 
 // Moderation writes go through `security definer` RPCs, never a direct
-// `update` — Docs/5 §13.5's column grant confines every `authenticated` role
-// (staff included) to updating only `deleted_at`. Docs/10 §5.7.
+// `update` — Docs/5 §13.5 revokes UPDATE on `comments` from `authenticated`
+// entirely (staff included). Docs/10 §5.7.
 
 function revalidate(locale: string) {
   revalidatePath(`/${locale}/admin/comments`);
@@ -18,7 +18,7 @@ function revalidate(locale: string) {
 export async function moderateCommentsAction(
   ids: string[],
   to: 'approved' | 'rejected',
-): Promise<{ ok?: boolean; error?: string }> {
+): Promise<{ ok?: boolean; error?: 'generic' }> {
   if (ids.length === 0) return { ok: true };
 
   const supabase = await createClient();
@@ -28,8 +28,10 @@ export async function moderateCommentsAction(
   });
 
   if (error) {
+    // An opaque token: the caller only ever renders `errorBody`, and raw
+    // Postgres text must not reach the browser.
     console.error('[moderateCommentsAction] rpc failed', { error });
-    return { error: error.message };
+    return { error: 'generic' };
   }
 
   revalidate(await getLocale());
