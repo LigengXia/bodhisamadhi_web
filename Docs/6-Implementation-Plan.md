@@ -75,7 +75,7 @@ Items 1–4 should be done before Phase 1 starts. Each returns a set of secrets;
 | # | Phase | Output |
 |---|---|---|
 | 13 | Member accounts & gating | Public signup, members-only + restricted content. **Built** — spec `Docs/9`; PR 1 merged (#38), PR 2 (member auth screens) open. As-built `Docs/9` §12–13. |
-| 14 | Comments & moderation | Threaded comments, admin queue |
+| 14 | Comments & moderation | Threaded comments, admin queue. **Built** — spec `Docs/10`; one PR open on `feat/comments`. As-built `Docs/10` §12. |
 | 15 | Service requests | Nine services, request form, staff workflow |
 | 16 | Live streaming | Live page, Q&A, archive |
 | 17 | Donations | Stripe, PayPal, EMT, CRA receipts |
@@ -386,6 +386,8 @@ Public signup with email verification (App Flow D24), onboarding (D25), the moda
 `comments` table, the one-reply-level trigger, the staff auto-approve trigger, `list_comments`. Threaded UI per design system §3.18, pending-visible-to-author state, admin moderation queue with bulk actions, and the work-queue counter becomes real.
 
 **Second, because** it is self-contained, it exercises the moderation workflow that live Q&A will reuse, and it is the cheapest way to find out whether anyone is actually watching.
+
+**Status: built, one PR open.** Spec `Docs/10`; plan `Docs/superpowers/plans/2026-09-03-phase-14-comments-and-moderation.md` (15 tasks, 1 PR); as-built `Docs/10` §12. Branch `feat/comments`. `npm run verify` green (129 vitest); 15 pgTAP on `0012`; 23 e2e. Deviations of note: **`Docs/5` §13.5 correction** — the `"authors see their own pending comments"` SELECT policy dropped its `deleted_at is null` filter (it made the delete-own-comment path unreachable, 42501); benign new exposure, **pending owner sign-off, do not merge until answered** (`Docs/10` §12.2). `comment_status` enum is created in `0012`, not `0001` (§12.1). Rate-limit trigger exempts staff. `0012` was revised in place — branch users run `db reset`; **`0012` must be `supabase db push`ed to the hosted project on merge** or content-detail pages 500 (as Phase 13). zh/bo machine-generated — Geshe-la (F14.b); rate-limit numbers a guess (F14.a); public thread unpaginated (F14.c); `SignInModal` still unwired (F14.d).
 
 ### Phase 15 — Service requests
 

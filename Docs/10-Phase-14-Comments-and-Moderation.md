@@ -44,7 +44,7 @@ Recorded 2026-09-03. Owner is away ~1 month from 2026-09-02; executed autonomous
 
 | Piece | Where | State |
 |---|---|---|
-| `comment_status` enum `('pending','approved','rejected')` | `supabase/migrations/0001_extensions_and_enums.sql` | **Complete.** |
+| ~~`comment_status` enum `('pending','approved','rejected')`~~ | ~~`supabase/migrations/0001_extensions_and_enums.sql`~~ | **Corrected (as-built §12.1): not in `0001`. `0012` creates it**, per `Docs/5` §3. |
 | The entire `comments` design — table, indexes, `enforce_single_reply_level()`, `auto_approve_staff_comment()`, RLS §13.5, the `revoke update … grant update (deleted_at)` column grant, `list_comments()` | `Docs/5` §7.3, §13.5 — **written as SQL, never applied.** | Transcribe into `0012` verbatim; §6 lists the two additions. |
 | `admin_queue_counts()` — `security definer`, `is_staff()`-gated, returns `drafts` / `published` | `supabase/migrations/0007_admin_queue.sql` | `create or replace` to add two counts (§6.4). |
 | Work-queue landing page — `Counts` type, `<Counter>` cards, all-clear branch | `src/app/[locale]/admin/(shell)/page.tsx` | Extend with the two counts + the §7.7 "moderation queue is clear" all-clear body (§5.7). |
@@ -415,6 +415,66 @@ New keys, all three locales, `en` canonical, `zh` / `bo` machine-generated and *
 Branch `feat/comments`. **One** squash-merged PR into `main`, after CI is green (verify + database + e2e), per D13.3 / `Docs/6` §7. The plan (`Docs/superpowers/plans/2026-09-03-phase-14-comments-and-moderation.md`) splits the work into ~15 tasks: migration + pgTAP, types, the RPC wrappers, messages, the five `Comments/` components + actions, `ContentDetailView` wiring, the admin queue page + table + actions, `AdminShell` + work-queue counters, component tests, e2e, docs.
 
 PR body flags: **F14.b** (zh/bo need Geshe-la), **F14.a** (rate-limit numbers are a guess), **F14.d** (`SignInModal` still unwired).
+
+---
+
+## 12. As-built
+
+Built on `feat/comments` in 15 tasks (SDD; ledger at `.superpowers/sdd/2026-09-03-phase-14-comments-and-moderation/progress.md`). One PR into `main`. `npm run verify` green (129 vitest); 23 Playwright e2e; 15 pgTAP added to `0012` (58 total). This section records every deviation from §1–§11 as it actually landed.
+
+### 12.1 Schema / migration
+
+- **`comment_status` enum is created in `0012`, not pre-existing.** §3's "What already exists" table said `0001_extensions_and_enums.sql` shipped `comment_status ('pending','approved','rejected')` — it did not. `0001` shipped only its MVP enum subset (`app_role`, `content_type`, `content_status`, `visibility`, `tag_kind`, `locale`); grep-confirmed `comment_status` absent from `0001`–`0011`. `0012` now runs `create type public.comment_status as enum ('pending','approved','rejected')` first, matching the definition in `Docs/5` §3. **§3 table row is corrected: `comment_status` — created in `0012`.**
+- **Moderation writes go through `security definer` RPCs** (`moderate_comments(_ids uuid[], _new_status public.comment_status)` / `dismiss_comment_flag(_id uuid)`), never a direct `update`. This was a mid-spec refinement (commit `acd1acd`, already reflected in §5.7 and §6.4); recording that it landed exactly as built — the `revoke update … grant update (deleted_at)` column grant refuses a direct staff `update … set status` before RLS runs, so the `"staff moderate comments"` RLS policy is transcribed but inert (defense-in-depth / documented intent).
+- **`count_admin_comments(_status text default 'pending') returns bigint`** was added as the §6.3 companion to `list_admin_comments` — same `WHERE`, no `limit`/`offset`, `security definer`, `is_staff()`-gated, granted to `authenticated`. Drives the admin queue's pagination count.
+- **`limit_comment_rate()` exempts staff** — the trigger body opens with `if not public.is_staff() then … end if;` around the count check. §6.2's literal SQL snippet has **no staff guard** and is **superseded**: staff (master or admin) are not rate-limited (settled in the Q&A follow-ups — a moderator posting several approvals-in-context or a master answering a burst of questions must not trip a member-scale limit). The 4-per-10-minutes number for non-staff is unchanged (F14.a).
+
+### 12.2 RLS — deviation from `Docs/5` §13.5, pending owner sign-off
+
+**The `"authors see their own pending comments"` SELECT policy dropped its `and deleted_at is null` filter and was renamed `"authors see their own comments"`.**
+
+`Docs/5` §13.5 as written:
+
+```sql
+create policy "authors see their own pending comments" on public.comments
+  for select to authenticated
+  using ((select auth.uid()) = author_id and deleted_at is null);
+```
+
+As built in `0012`:
+
+```sql
+create policy "authors see their own comments" on public.comments
+  for select to authenticated
+  using ((select auth.uid()) = author_id);
+```
+
+**Why.** Postgres applies a table's SELECT policies to the *resulting row* of an `UPDATE` (as an implicit `WITH CHECK`). With `deleted_at is null` in the only SELECT policy an author holds, the moment `deleteOwnCommentAction` runs `update comments set deleted_at = now()` the new row matches **no** SELECT policy the author has — Postgres refuses the UPDATE with `42501` ("new row violates row-level security policy"). The `"authors may withdraw own comment"` UPDATE policy could therefore **never fire**; the entire delete-your-own-comment path (`Docs/2` E33, a locked decision) was dead code. Caught by the Phase 14 e2e (`e2e/comments.spec.ts` — a member's withdraw returned `42501` every time).
+
+**New exposure (assessed benign).** An author can now `select` their *own* soft-deleted comment rows via a direct table query. They cannot see anyone else's. `list_comments()` still filters `deleted_at is null`, so a withdrawn comment never renders on a thread for any reader. The app never queries `comments` outside `list_comments` / `list_admin_comments`. Staff already saw every row. The worst case is an author enumerating the bodies of comments they themselves wrote and then deleted — low.
+
+**⚠ This deviates from `Docs/5` §13.5 as written and is pending owner sign-off.** `Docs/5` §13.5 has been updated with the corrected policy and a dated note; the SDD ledger records the ruling to accept it. **The PR must not be merged until the owner has signed off on this relaxation.**
+
+### 12.3 Components / app
+
+- **`<Toaster>` (sonner) is mounted in `src/app/[locale]/(public)/layout.tsx`.** The Report acknowledgement toast (§5.4, `comments.reportThanks`) had no toaster on public pages — sonner was only mounted in the admin shell. Added at the public layout root.
+- **A minimal `src/components/Avatar/` was created.** `Comment` (§5.3) needs a 32px avatar and no earlier component provided one. Built to `Docs/4` §3.17 — image when `avatar_url` is set, otherwise initials on `--cr-700` / `--text-inv`, otherwise a plain `--n-300` circle with no glyph.
+- **`Comment` and `CommentList` are *synchronous* Server Components using `useTranslations`**, not `async` + `getTranslations`. The reply tree is recursive (`CommentList` → `Comment` → `CommentList` for replies) and a recursive component cannot be `await`ed. `CommentsSection` (the data-fetching root) is `async`. This is the first sync-SC-with-`useTranslations` pattern in the repo; component tests wrap in `NextIntlClientProvider`.
+- **`Textarea` field component added** at `src/components/Field/Textarea.tsx` — `Docs/4` §3.3 (label always visible, `min-height: 120px`). §3's "do not rebuild" table listed `Textarea`/`Field` as existing; only `Field` (single-line) did.
+- New message keys **beyond the §7 table**, all with machine `zh`/`bo` (F14.b): `comments.errorRequired` (empty-body validation), `comments.masterBadge` ("Teacher"), `admin.comments.selectedCount`.
+
+### 12.4 Migration hygiene
+
+- **`0012` was revised in place mid-branch** rather than adding a `0013` — the §13.5 policy fix and the pgTAP additions edited `0012_comments.sql` / `0012_comments.test.sql` directly. Acceptable for a migration that has never been applied outside the branch (Phase 13's `0011` set the precedent). **Anyone with the branch checked out must `npx supabase db reset`** — the migration file changed under them.
+- **`0012` is owed to the hosted Supabase project on merge** (`supabase db push`). If it is not pushed, every content-detail page 500s the moment the Vercel deploy of this code lands — the exact failure mode Phase 13 hit (memory `hosted-migrations-lag-deployed-code`; incident recorded in the ledger 2026-09-03).
+
+### 12.5 Deferred minors (non-blocking — carried to `Docs/BACKLOG.md`)
+
+- The admin queue's `.flag` indicator hand-rolls a badge (no `Badge` `flagged` variant); no `master`-author indicator in the queue rows.
+- `CommentList`'s wrapper is a bare `<div>`, not a semantic list (`<ul>`/`<li>`).
+- Relative timestamps ("2 hours ago") are frozen at server render — no client `<RelativeTime>` refresh. Absolute date is in `title`.
+- Pre-existing `background:#fff` raw hex in `src/app/[locale]/admin/(shell)/comments/queue.module.css:32` (`.card`) — **not introduced by Phase 14** (predates the branch); flagged for a separate token-cleanup pass.
+- A linked work-queue `<Counter>` card's hover treatment is a token-only choice — `Docs/4` has no spec for a linked counter. `drafts` / `published` remain non-links (Ruling 2).
 
 ---
 
