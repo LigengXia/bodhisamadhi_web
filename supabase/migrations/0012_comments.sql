@@ -115,9 +115,19 @@ create policy "approved comments are public" on public.comments
   for select to anon, authenticated
   using (status = 'approved' and deleted_at is null);
 
-create policy "authors see their own pending comments" on public.comments
+-- An author sees their own comments. This deliberately does NOT filter
+-- `deleted_at`: Postgres re-checks an UPDATE's resulting row against the
+-- SELECT policies (as an implicit WITH CHECK), so with `deleted_at is null`
+-- here the "authors may withdraw own comment" policy below can never fire —
+-- the moment `deleted_at` is set the row becomes invisible to its own author
+-- and the UPDATE fails with "new row violates row-level security policy".
+-- `list_comments()` still filters `deleted_at is null`, so a withdrawn
+-- comment never renders on the thread (Docs/10 §4). Departs from the
+-- verbatim Docs/5 §13.5 transcription to make §13.5's own withdraw policy
+-- work — flagged for review.
+create policy "authors see their own comments" on public.comments
   for select to authenticated
-  using ((select auth.uid()) = author_id and deleted_at is null);
+  using ((select auth.uid()) = author_id);
 
 create policy "staff see all comments" on public.comments
   for select to authenticated using (public.is_staff());

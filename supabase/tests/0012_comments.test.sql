@@ -15,7 +15,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(14);
+select plan(15);
 
 -- ── Fixtures (as the test superuser) ────────────────────────────────
 -- Start from an empty world so the counts are exact regardless of seed
@@ -346,6 +346,35 @@ select ok(
   (select flagged_at from public.comments where id = 'c0000000-0000-0000-0000-0000000000b1') is null
   and pg_temp.raised($$ select public.dismiss_comment_flag('c0000000-0000-0000-0000-0000000000b1') $$),
   '14. dismiss_comment_flag clears the flag as staff and raises for a member');
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- 15 · authors may withdraw their own comment — deleted_at succeeds, a
+--      body edit is still refused (column grant), and the row leaves the
+--      thread. Guards the RLS interaction where the "authors see their own
+--      comments" SELECT policy must NOT filter deleted_at, or Postgres
+--      rejects the withdraw UPDATE (the resulting row would be invisible
+--      to its own author).
+-- ═══════════════════════════════════════════════════════════════════════
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub":"d0d00000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+
+-- The withdraw runs as its own statement so the assertion below reads a
+-- settled snapshot (a mid-statement write from a volatile helper is not
+-- visible to a STABLE function called later in the same statement).
+update public.comments set deleted_at = now()
+  where id = 'c0000000-0000-0000-0000-0000000000b1';
+
+select ok(
+  (select deleted_at from public.comments
+     where id = 'c0000000-0000-0000-0000-0000000000b1') is not null
+  and pg_temp.raised($$ update public.comments set body = 'edited'
+                        where id = 'c0000000-0000-0000-0000-0000000000b1' $$)
+  and (select count(*)
+         from public.list_comments('cccccccc-0000-0000-0000-000000000001')
+         where id = 'c0000000-0000-0000-0000-0000000000b1') = 0,
+  '15. an author withdraws their own comment: deleted_at succeeds, a body edit is refused, the row leaves the thread');
 
 select * from finish();
 rollback;
