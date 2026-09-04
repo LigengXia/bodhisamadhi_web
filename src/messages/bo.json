@@ -258,6 +258,7 @@
       "bulkReject": "{count} བཀག",
       "selectAll": "ཡོངས་འདེམས།",
       "selectRow": "བསམ་ཚུལ་འདི་འདེམས།",
+      "selectedCount": "{count} བདམས་ཟིན།",
       "statusPending": "སྒུག་བཞིན།",
       "statusApproved": "ཆོག་མཆན་ཐོབ།",
       "statusRejected": "བཀག་པ།",

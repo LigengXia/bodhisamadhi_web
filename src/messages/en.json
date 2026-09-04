@@ -258,6 +258,7 @@
       "bulkReject": "Reject {count}",
       "selectAll": "Select all",
       "selectRow": "Select this comment",
+      "selectedCount": "{count} selected",
       "statusPending": "Pending",
       "statusApproved": "Approved",
       "statusRejected": "Rejected",

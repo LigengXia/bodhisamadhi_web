@@ -258,6 +258,7 @@
       "bulkReject": "拒绝 {count} 条",
       "selectAll": "全选",
       "selectRow": "选择此留言",
+      "selectedCount": "已选 {count} 条",
       "statusPending": "待审核",
       "statusApproved": "已通过",
       "statusRejected": "已拒绝",
