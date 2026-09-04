@@ -43,7 +43,11 @@ export default async function ContentPreviewPage({
 
       {/* Own provider — the admin shell is outside the public AudioProvider. */}
       <AudioProvider>
-        <ContentDetailView detail={detail} locale={locale as Locale} />
+        <ContentDetailView
+          detail={detail}
+          locale={locale as Locale}
+          comments={false}
+        />
       </AudioProvider>
     </div>
   );

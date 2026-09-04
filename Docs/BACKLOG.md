@@ -12,6 +12,10 @@ built — PR 1 merged (#38), PR 2 (member auth screens) open on
 `feat/member-auth-screens`. Executed autonomously during the owner's ~1-month
 absence (`Docs/9` D13.3). See the "Phase 13" section below.
 
+**Phase 14** (threaded comments + moderation) is built — one PR open on
+`feat/comments`, **not merged**: it carries a `Docs/5` §13.5 RLS relaxation
+that needs the owner's sign-off. See the "Phase 14 — status" section below.
+
 **There is no hard Claude-side blocker.** Everything that gates a real launch is
 a decision or an input only the owner can supply, and `Docs/6` §5 explicitly says
 to re-plan the post-MVP phases *after* Geshe-la sees the MVP (Phase 12). So the
@@ -240,6 +244,7 @@ Listed so the whole picture is in one place. From `CLAUDE.md` "Known unresolved"
 | 3.9 | **R2 bucket CORS** lists the production origin | Media on the live domain | R2 bucket CORS is a dashboard setting the API token cannot make (memory: `r2-token-object-scope-only`). Add the real domain when chosen or PDFs/audio fail silently in production. |
 | 3.11 | **Enable signup on the hosted Supabase project** (`[auth] enable_signup` / `enable_confirmations`) | Sign-up on the deployed site | Phase 13 F13.b. Local + CI e2e cover the flow. Set via the Management API (needs a fresh `SUPABASE_ACCESS_TOKEN` — the current one is dead) or the dashboard. |
 | 3.12 | **Geshe-la confirms the empowerments catalogue** (`Docs/9` D13.7) | Restricted content beyond Yamantaka / Vajrayogini | Phase 13 F13.e. Seeded with those two, flagged. Admins add more via `/admin/empowerments`; the zh/bo names ride with the Tibetan review (3.1). |
+| 3.13 | **Push `0012_comments.sql` to the hosted Supabase project** (`supabase db push`) **when the Phase 14 PR merges** | Content-detail pages on the deployed site | Vercel auto-deploys `main`; hosted Supabase does **not** auto-migrate. If `0012` is not pushed the moment this code deploys, every `/teachings/[type]/[slug]` 500s (the detail view calls `list_comments`) — the exact failure Phase 13 hit for ~24h. Memory: `hosted-migrations-lag-deployed-code`. `0012` also creates the `comment_status` enum and revises `admin_queue_counts`. |
 
 ## Phase 13 — status (2026-09-03)
 
@@ -269,6 +274,60 @@ the new strings) → rides with the Tibetan review (3.1).
   Phase 13; email+password ships first. Add when the owner can configure the
   Google provider in the Supabase dashboard.
 
+The three Phase 13 follow-ups above are **unchanged** by Phase 14 — the
+`SignInModal` is still built-but-unwired (Phase 14 adds a second natural call
+site, the "Sign in to comment" prompt; F14.d), and the dead sign-up
+confirmation link is untouched.
+
+---
+
+## Phase 14 — status (2026-09-03)
+
+**Comments & moderation — built** on `feat/comments`. **One PR, open** into
+`main` (not merged — the owner must sign off on the `Docs/5` §13.5 RLS
+relaxation first; see below). Spec `Docs/10`; plan
+`Docs/superpowers/plans/2026-09-03-phase-14-comments-and-moderation.md` (15
+tasks); as-built `Docs/10` §12.
+
+Shipped: threaded comments one level deep (DB-enforced), pre-moderation with
+pending-visible-to-author, master auto-approve + badge, delete-your-own, a
+lightweight report flag (`flagged_at`, no reason / no reporter), the
+`/admin/comments` queue with select-multiple bulk approve/reject and dismiss
+flag, and the work-queue *Comments to review* / *Flagged comments* counters.
+
+Green: `npm run verify` (129 vitest) · 15 pgTAP on `0012` (58 total) · 23
+Playwright e2e (`e2e/comments.spec.ts` covers post → pending → approve →
+visible, one-level reply, delete-own, report → flagged queue, guest prompt,
+bulk approve).
+
+**`Docs/5` §13.5 correction — NEEDS OWNER SIGN-OFF.** The `"authors see their
+own pending comments"` SELECT policy dropped its `and deleted_at is null`
+filter (renamed `"authors see their own comments"`). With the filter, an
+author's `update … set deleted_at = now()` produced a row matching no SELECT
+policy they held, so Postgres refused the UPDATE (42501) — the entire
+delete-your-own-comment path (`Docs/2` E33) was dead. Caught by the Phase 14
+e2e. New exposure is benign: an author can `select` their *own* soft-deleted
+rows via a direct query; `list_comments` still hides them from every reader;
+the app never queries `comments` outside the RPCs. `Docs/5` §13.5 and
+`Docs/10` §12.2 both record it. **Do not merge until the owner answers.**
+
+### Phase 14 follow-ups (non-blocking — from `Docs/10` §12.5)
+
+- **`Badge` `flagged` / `master` variants for the admin queue.** The queue's
+  `.flag` indicator hand-rolls a badge; there is no master-author indicator on
+  a queue row.
+- **Semantic list for the comment thread.** `CommentList`'s wrapper is a bare
+  `<div>`, not `<ul>`/`<li>`.
+- **`<RelativeTime>` client refinement.** Relative timestamps are frozen at
+  server render; absolute date is in `title`.
+- **`background:#fff` raw hex** in
+  `src/app/[locale]/admin/(shell)/comments/queue.module.css:32` (`.card`) —
+  **pre-existing, not introduced by Phase 14**; fold into a token-cleanup
+  pass. Reference the custom property (`--n-000` / equivalent per `Docs/4`
+  §2.1).
+- A linked work-queue `<Counter>` card's hover is a token-only choice — no
+  `Docs/4` spec for a linked counter; flag to design.
+
 ---
 
 ## Tier 4 — after Phase 12, not before
@@ -280,7 +339,9 @@ wants."*
 - ~~**Phase 13**~~ — **built** (PR 1 #38 + PR 2 open). Member accounts, the
   `members` + `restricted` gate, admin qualification surfaces. Google OAuth and
   the desktop sign-in modal are deferred (see Phase 13 follow-ups above).
-- **Phase 14** — comments + moderation queue.
+- ~~**Phase 14**~~ — **built** (one PR open on `feat/comments`). Comments +
+  moderation queue. Merge gated on the owner's §13.5 sign-off — see the
+  "Phase 14 — status" section above.
 - **Phase 15** — service request forms + the pastoral disclaimer flow.
 - **Phase 16** — live streaming (confirm Zoom RTMP simulcast *before* starting).
 - **Phase 17** — donations (blocked on CRA receipt fields + EMT process, in

@@ -1,0 +1,87 @@
+/* Layout only — every colour, space and size is a token (CLAUDE.md hard rules). */
+.comment {
+  padding: var(--sp-2);
+  border-radius: var(--r-sm);
+}
+
+.comment + .comment {
+  margin-top: var(--sp-1);
+}
+
+/* A pending comment is shown to its author alone (Docs/4 §3.18, Docs/10 §5.3). */
+.pending {
+  background: var(--warning-bg);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.author {
+  font-weight: var(--fw-medium);
+  color: var(--text-mid);
+}
+
+.time {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+.body {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-mid);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  margin-top: var(--sp-x);
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+}
+
+.action {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--text-mid);
+  text-decoration: underline;
+}
+
+.action:disabled {
+  color: var(--n-300);
+  cursor: default;
+  text-decoration: none;
+}
+
+.replyComposer {
+  margin-top: var(--sp-1);
+}
+
+/* One level of indent only — never a second (Docs/4 §3.18). */
+.replies {
+  margin-top: var(--sp-1);
+  margin-inline-start: var(--sp-4);
+  padding-inline-start: var(--sp-2);
+  border-inline-start: 2px solid var(--n-200);
+}

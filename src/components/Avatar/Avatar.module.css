@@ -1,0 +1,32 @@
+/* Layout only — every colour and size is a token (CLAUDE.md hard rules). */
+/* Docs/4 §3.17: the no-name state is a bare --n-300 circle; initials sit on
+   --cr-700 / --text-inv. */
+.avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--r-full);
+  background: var(--n-300);
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--cr-700);
+  color: var(--text-inv);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semi);
+  line-height: 1;
+  user-select: none;
+}

@@ -42,7 +42,7 @@ It is written for the project owner and for the developer who will build from it
 |---|---|---|
 | Member sign-up, sign-in, accounts, onboarding | 13 | The public site has **no "Sign in" affordance** in the MVP. Only staff authenticate, and only at `/{locale}/admin/signin`. |
 | Members-only content gating | 13 | See §3.5 — the schema keeps `visibility`, but the MVP admin form offers **Public only**, and the library never renders a locked card. |
-| Comments | 14 | Item detail pages reserve no space for a comments region in the MVP. |
+| ~~Comments~~ | 14 | ~~Item detail pages reserve no space for a comments region in the MVP.~~ **Built** (`Docs/10`). Item detail pages now carry a `#comments` region — threaded one level, pre-moderated, master auto-approve, delete-own, lightweight report flag, `/admin/comments` queue. |
 | Service request forms, service detail pages, the pastoral disclaimer flow | 15 | Home keeps v4's static "what we offer" section; it links to nothing. |
 | Live page, Q&A, the sitewide live banner | 16 | The banner **slot** exists in the layout (design system §3.21) and is never activated. |
 | Donations, tax receipts, "Sponsor a Puja" | 17 | Home keeps v4's static "give" teaser; its buttons link to `mailto:` / the Home contact block, exactly as v4 does today. |
@@ -636,7 +636,7 @@ These are unchanged by this document and still block the phase named. From `6-Im
 Documented in full when their phase is planned (`6-Implementation-Plan.md` §5). Flagged here so no one builds toward them now:
 
 - ~~**Member accounts** (Phase 13)~~ **Built and merged** (`Docs/9`, PRs #38 + PR 2): sign-up with e-mail verification, the one-step `/welcome` onboarding, the full-page `/{locale}/signin` pattern (the desktop sign-in **modal** is built but deferred — see `Docs/9` §13), the `members` gated panel + lock badge, and the `restricted` per-empowerment tier with its admin surfaces. **Not** in Phase 13: Google OAuth / identity linking (F13.d), the account area (Phase 18). R1 above is re-added; R3 is live.
-- **Comments** (Phase 14): threaded one level, pending-visible-to-author, the admin moderation queue, and the work-queue counter becoming real.
+- ~~**Comments** (Phase 14)~~ **Built** (`Docs/10`, one PR open on `feat/comments`): threaded one level (DB-enforced), pending-visible-to-author, master auto-approve + badge, delete-your-own, a lightweight report flag, the `/admin/comments` moderation queue with bulk actions, and the work-queue *Comments to review* / *Flagged comments* counters becoming real. Item detail pages carry a `#comments` region. As-built `Docs/10` §12 — note the `Docs/5` §13.5 withdraw-policy correction (pending owner sign-off) and that `0012` must reach the hosted project on merge.
 - **Service requests** (Phase 15): nine service pages, the request form, guest submission, the pastoral disclaimer above the fields, staff notes, two booking e-mails.
 - **Live** (Phase 16): the six page states, the waiting room, post-moderated Q&A, the sitewide live banner activating, the archive hand-off into the library.
 - **Donations** (Phase 17): Stripe Checkout, PayPal, EMT with generated reference codes and admin reconciliation, CRA receipts, the monthly-gift portal.

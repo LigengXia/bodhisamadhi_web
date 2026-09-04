@@ -133,6 +133,8 @@ Plus **Delete Account** (see D28).
 
 **E34. Masters' comments** — **[DEFAULT]** Carry a visual badge and bypass the moderation queue.
 
+> Implemented in Phase 14 — see `Docs/10`. E30 (pending-visible-to-author), E31 (silent reject), E32 (one reply level, DB-enforced), E33 (delete-own yes / edit no / report via a lightweight flag), E34 (master badge + auto-approve) all shipped.
+
 ---
 
 ## F. Services & booking

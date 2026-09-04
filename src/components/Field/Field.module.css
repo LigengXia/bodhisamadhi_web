@@ -50,6 +50,13 @@
   outline-color: var(--error);
 }
 
+/* Docs/4 §3.3 — textarea: taller, padded on the block axis, resizable vertically. */
+.textarea {
+  min-height: 120px;
+  padding-block: var(--sp-1);
+  resize: vertical;
+}
+
 .select {
   appearance: none;
   padding-inline-end: calc(var(--field-px) + 20px);

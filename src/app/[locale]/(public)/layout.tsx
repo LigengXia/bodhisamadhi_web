@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
+import { Toaster } from 'sonner';
 
 import { PublicNav } from '@/components/PublicNav/PublicNav';
 import { PublicFooter } from '@/components/PublicFooter/PublicFooter';
@@ -49,6 +50,10 @@ export default async function PublicLayout({
       <PublicNav user={navUser} signOut={signOutAction} />
       <main id="main">{children}</main>
       <PublicFooter />
+      {/* Comment "Report" (Docs/10 §5.4) surfaces its acknowledgement as a
+          quiet sonner toast; mirror AdminShell's mount. Docs/4 §3.12 — full
+          restyling deferred. */}
+      <Toaster position="bottom-right" toastOptions={{ duration: 5000 }} />
     </AudioProvider>
   );
 }

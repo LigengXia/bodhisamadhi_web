@@ -932,14 +932,22 @@ Note what this function does **not** return: `youtube_id`, `audio_url`, `pdf_url
 
 ### 13.5 Comments
 
+> **Corrected 2026-09-03 (Phase 14):** the `deleted_at is null` filter on `"authors see their own pending comments"` made `"authors may withdraw own comment"` unreachable — an author's UPDATE that sets `deleted_at` produces a row that matches no SELECT policy they hold, so Postgres refuses it (42501). Removing the filter (and renaming the policy `"authors see their own comments"`) fixes the withdraw path; `list_comments` still hides withdrawn comments from every reader. Built in migration `0012`; **the relaxation is pending owner sign-off** — see `Docs/10` §12.2.
+
 ```sql
 create policy "approved comments are public" on public.comments
   for select to anon, authenticated
   using (status = 'approved' and deleted_at is null);
 
-create policy "authors see their own pending comments" on public.comments
+-- No `deleted_at is null` filter here: Postgres re-checks an UPDATE's
+-- resulting row against the SELECT policies, so filtering deleted rows out
+-- would make "authors may withdraw own comment" below unreachable — an
+-- author setting deleted_at would produce a row matching no SELECT policy
+-- they hold, and the UPDATE fails with 42501. list_comments() still filters
+-- deleted_at, so a withdrawn comment never renders for any reader.
+create policy "authors see their own comments" on public.comments
   for select to authenticated
-  using ((select auth.uid()) = author_id and deleted_at is null);
+  using ((select auth.uid()) = author_id);
 
 create policy "staff see all comments" on public.comments
   for select to authenticated using (public.is_staff());
