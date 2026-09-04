@@ -1,0 +1,62 @@
+/* Layout only — every colour, space and size is a token (CLAUDE.md hard rules). */
+
+.section {
+  margin-top: var(--sp-3);
+  max-width: var(--wrap-text);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.heading {
+  font-family: var(--ff-heading);
+  font-size: var(--fs-h3);
+}
+
+.count {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+.prompt {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  border-radius: var(--r-md);
+  background: var(--n-100);
+}
+
+.promptText {
+  font-size: var(--fs-body);
+  color: var(--text-mid);
+}
+
+/* A `secondary` link (Docs/4 §3.1 secondary skin), built the GatedPanel way. */
+.signInLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--sp-3);
+  border-radius: var(--r-full);
+  background: var(--n-50);
+  border: 1px solid var(--field-border);
+  box-shadow: var(--sh-card);
+  color: var(--cr-600);
+  font-family: var(--ff-body);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+}
+
+.signInLink:hover {
+  border-color: var(--field-border-hov);
+}
