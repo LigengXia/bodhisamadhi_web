@@ -34,6 +34,19 @@
   border-radius: var(--r-sm);
 }
 
+.cardLink {
+  composes: card;
+  text-decoration: none;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast);
+}
+
+.cardLink:hover {
+  background: var(--n-100);
+  border-color: var(--n-300);
+}
+
 .count {
   font-family: var(--ff-body);
   font-size: var(--fs-h2);
