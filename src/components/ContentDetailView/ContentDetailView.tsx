@@ -6,6 +6,7 @@ import { YouTubeEmbed } from '@/components/YouTubeEmbed/YouTubeEmbed';
 import { PdfReader } from '@/components/PdfReader/PdfReader';
 import { AudioDetailPlayer } from '@/components/AudioPlayer/AudioDetailPlayer';
 import { MissingLocaleNote } from '@/components/MissingLocaleNote/MissingLocaleNote';
+import { CommentsSection } from '@/components/Comments/CommentsSection';
 import { pickLocale, pickLocaleMeta } from '@/lib/i18n-json';
 import { formatDate, formatDuration } from '@/lib/format';
 import type { ContentDetail } from '@/lib/content/queries';
@@ -23,11 +24,13 @@ export async function ContentDetailView({
   locale,
   locked = false,
   lockedNext,
+  comments = true,
 }: {
   detail: ContentDetail;
   locale: Locale;
   locked?: boolean;
   lockedNext?: string;
+  comments?: boolean;
 }) {
   const t = await getTranslations('content');
   const tl = await getTranslations('library');
@@ -211,6 +214,14 @@ export async function ContentDetailView({
             ))}
           </div>
         </section>
+      )}
+
+      {comments && (
+        <CommentsSection
+          contentItemId={detail.id}
+          itemPath={`/${locale}/teachings/${detail.type}/${detail.slug}`}
+          locale={locale}
+        />
       )}
     </article>
   );
