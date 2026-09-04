@@ -13,8 +13,10 @@ built — PR 1 merged (#38), PR 2 (member auth screens) open on
 absence (`Docs/9` D13.3). See the "Phase 13" section below.
 
 **Phase 14** (threaded comments + moderation) is built — one PR open on
-`feat/comments`, **not merged**: it carries a `Docs/5` §13.5 RLS relaxation
-that needs the owner's sign-off. See the "Phase 14 — status" section below.
+`feat/comments`. The whole-branch review's fixes are applied; the interim
+`Docs/5` §13.5 RLS relaxation is **gone** (a `security definer`
+`withdraw_comment()` replaces it), so nothing on the branch is waiting on an
+owner ruling. See the "Phase 14 — status" section below.
 
 **There is no hard Claude-side blocker.** Everything that gates a real launch is
 a decision or an input only the owner can supply, and `Docs/6` §5 explicitly says
@@ -281,11 +283,10 @@ confirmation link is untouched.
 
 ---
 
-## Phase 14 — status (2026-09-03)
+## Phase 14 — status (2026-09-04)
 
 **Comments & moderation — built** on `feat/comments`. **One PR, open** into
-`main` (not merged — the owner must sign off on the `Docs/5` §13.5 RLS
-relaxation first; see below). Spec `Docs/10`; plan
+`main`. Spec `Docs/10`; plan
 `Docs/superpowers/plans/2026-09-03-phase-14-comments-and-moderation.md` (15
 tasks); as-built `Docs/10` §12.
 
@@ -295,21 +296,25 @@ lightweight report flag (`flagged_at`, no reason / no reporter), the
 `/admin/comments` queue with select-multiple bulk approve/reject and dismiss
 flag, and the work-queue *Comments to review* / *Flagged comments* counters.
 
-Green: `npm run verify` (129 vitest) · 15 pgTAP on `0012` (58 total) · 23
+Green: `npm run verify` (129 vitest) · 22 pgTAP on `0012` (65 total) · 23
 Playwright e2e (`e2e/comments.spec.ts` covers post → pending → approve →
 visible, one-level reply, delete-own, report → flagged queue, guest prompt,
 bulk approve).
 
-**`Docs/5` §13.5 correction — NEEDS OWNER SIGN-OFF.** The `"authors see their
-own pending comments"` SELECT policy dropped its `and deleted_at is null`
-filter (renamed `"authors see their own comments"`). With the filter, an
-author's `update … set deleted_at = now()` produced a row matching no SELECT
-policy they held, so Postgres refused the UPDATE (42501) — the entire
-delete-your-own-comment path (`Docs/2` E33) was dead. Caught by the Phase 14
-e2e. New exposure is benign: an author can `select` their *own* soft-deleted
-rows via a direct query; `list_comments` still hides them from every reader;
-the app never queries `comments` outside the RPCs. `Docs/5` §13.5 and
-`Docs/10` §12.2 both record it. **Do not merge until the owner answers.**
+**Final whole-branch review (2026-09-04) — seven fixes applied, no open
+ruling.** One blocker: `authenticated` held INSERT on *every* column of
+`public.comments` while the `"members may comment"` policy never constrained
+`status`, so a member could `POST` `status:'approved'` and bypass moderation
+(or forge `created_at` / `moderated_by`). Fixed with a per-column INSERT grant.
+The interim `Docs/5` §13.5 SELECT-policy relaxation was **removed** and
+replaced by a `security definer` `withdraw_comment()` RPC — §13.5's policies
+are verbatim again and `authenticated` now holds **no** UPDATE grant on
+`comments` at all. Also: `list_comments` gained `or public.is_staff()` (the
+admin queue's in-context anchor was dead for moderators) and a published-item
+check; `enforce_single_reply_level()` is `security definer` and refuses a
+cross-item reply; `moderateCommentsAction` no longer returns raw Postgres error
+text; three dead message keys removed. Full record in `Docs/10` §12 and
+`Docs/5` §7.3 / §13.5.
 
 ### Phase 14 follow-ups (non-blocking — from `Docs/10` §12.5)
 
@@ -319,9 +324,14 @@ the app never queries `comments` outside the RPCs. `Docs/5` §13.5 and
 - **Semantic list for the comment thread.** `CommentList`'s wrapper is a bare
   `<div>`, not `<ul>`/`<li>`.
 - **`<RelativeTime>` client refinement.** Relative timestamps are frozen at
-  server render; absolute date is in `title`.
+  server render; absolute date is in `title`. (Final-review finding #8.)
+- **A distinct "rejected" badge / label.** `Comment` currently gives every
+  non-approved row the `pendingBadge` / `pendingHint` treatment — honest ("not
+  public") for both an author and a moderator reading in context, but a
+  rejected comment reads as still-in-queue. Needs new copy in all three
+  catalogues; naturally belongs with the Phase 18 "My Comments" view.
 - **`background:#fff` raw hex** in
-  `src/app/[locale]/admin/(shell)/comments/queue.module.css:32` (`.card`) —
+  `src/app/[locale]/admin/(shell)/queue.module.css:32` (`.card`) —
   **pre-existing, not introduced by Phase 14**; fold into a token-cleanup
   pass. Reference the custom property (`--n-000` / equivalent per `Docs/4`
   §2.1).
@@ -340,8 +350,8 @@ wants."*
   `members` + `restricted` gate, admin qualification surfaces. Google OAuth and
   the desktop sign-in modal are deferred (see Phase 13 follow-ups above).
 - ~~**Phase 14**~~ — **built** (one PR open on `feat/comments`). Comments +
-  moderation queue. Merge gated on the owner's §13.5 sign-off — see the
-  "Phase 14 — status" section above.
+  moderation queue; the final whole-branch review's fixes are applied and no
+  owner ruling is outstanding — see the "Phase 14 — status" section above.
 - **Phase 15** — service request forms + the pastoral disclaimer flow.
 - **Phase 16** — live streaming (confirm Zoom RTMP simulcast *before* starting).
 - **Phase 17** — donations (blocked on CRA receipt fields + EMT process, in

@@ -397,15 +397,25 @@ create index on public.comments (author_id) where deleted_at is null;
 
 **One reply level only** (design system §3.18), enforced in the database rather than trusted to the UI:
 
+> **Corrected 2026-09-04 (Phase 14):** the function is `security definer`. Without it the parent lookup runs under the caller's RLS, so a parent the caller cannot select reads as absent and the nesting check silently passes — this trigger is the stated DB guarantee for `Docs/2` E32, so it must see every row. It also now refuses a reply whose parent sits on a *different* content item (`buildThread()` would otherwise drop it silently).
+
 ```sql
 create or replace function public.enforce_single_reply_level()
-returns trigger language plpgsql set search_path = ''
+returns trigger language plpgsql security definer set search_path = ''
 as $$
+declare
+  parent record;
 begin
   if new.parent_id is not null then
-    if exists (select 1 from public.comments
-               where id = new.parent_id and parent_id is not null) then
-      raise exception 'Replies may not be nested more than one level deep';
+    select c.parent_id, c.content_item_id into parent
+      from public.comments c where c.id = new.parent_id;
+    if found then
+      if parent.parent_id is not null then
+        raise exception 'Replies may not be nested more than one level deep';
+      end if;
+      if parent.content_item_id <> new.content_item_id then
+        raise exception 'A reply must be on the same content item as its parent';
+      end if;
     end if;
   end if;
   return new;
@@ -932,22 +942,16 @@ Note what this function does **not** return: `youtube_id`, `audio_url`, `pdf_url
 
 ### 13.5 Comments
 
-> **Corrected 2026-09-03 (Phase 14):** the `deleted_at is null` filter on `"authors see their own pending comments"` made `"authors may withdraw own comment"` unreachable — an author's UPDATE that sets `deleted_at` produces a row that matches no SELECT policy they hold, so Postgres refuses it (42501). Removing the filter (and renaming the policy `"authors see their own comments"`) fixes the withdraw path; `list_comments` still hides withdrawn comments from every reader. Built in migration `0012`; **the relaxation is pending owner sign-off** — see `Docs/10` §12.2.
+> **Corrected 2026-09-04 (Phase 14):** added the missing per-column INSERT grant — `authenticated` previously held INSERT on every column and the `"members may comment"` policy did not constrain `status`, allowing a member to self-approve. Also note: withdrawal (`deleted_at`) now goes through the `security definer` `withdraw_comment()` function; `authenticated` has no UPDATE grant on `comments` at all. The SELECT policies below stand as originally written — an interim relaxation of `"authors see their own pending comments"` (dropping `and deleted_at is null` to make a direct withdraw UPDATE possible) was built and then removed; `withdraw_comment()` replaces it. `list_comments()` also gained an `is_staff()` clause and a published-item check — see the note below it.
 
 ```sql
 create policy "approved comments are public" on public.comments
   for select to anon, authenticated
   using (status = 'approved' and deleted_at is null);
 
--- No `deleted_at is null` filter here: Postgres re-checks an UPDATE's
--- resulting row against the SELECT policies, so filtering deleted rows out
--- would make "authors may withdraw own comment" below unreachable — an
--- author setting deleted_at would produce a row matching no SELECT policy
--- they hold, and the UPDATE fails with 42501. list_comments() still filters
--- deleted_at, so a withdrawn comment never renders for any reader.
-create policy "authors see their own comments" on public.comments
+create policy "authors see their own pending comments" on public.comments
   for select to authenticated
-  using ((select auth.uid()) = author_id);
+  using ((select auth.uid()) = author_id and deleted_at is null);
 
 create policy "staff see all comments" on public.comments
   for select to authenticated using (public.is_staff());
@@ -971,11 +975,32 @@ create policy "staff moderate comments" on public.comments
   using (public.is_staff()) with check (public.is_staff());
 ```
 
-Authors cannot edit (design system §3.18) — enforced by column grant, so the policy above can only ever touch `deleted_at`:
+Both UPDATE policies above are **inert**: `authenticated` holds no UPDATE grant on `comments` at all. Authors cannot edit (design system §3.18); moderation goes through `moderate_comments()` and withdrawal through `withdraw_comment()`, both `security definer`. The policies are kept as documented intent and defence in depth.
+
+INSERT is likewise confined by column grant. Without it `authenticated` holds INSERT on every column and `"members may comment"` does not constrain `status` — a member could POST `status = 'approved'` and bypass moderation, or forge `created_at` (evading `limit_comment_rate`) or `moderated_by` / `moderated_at`. Column grants police only the columns *named in the INSERT statement*, so `auto_approve_staff_comment()` — which sets `NEW.status` in a trigger — is unaffected.
 
 ```sql
-revoke update on public.comments from authenticated;
-grant update (deleted_at) on public.comments to authenticated;
+revoke update on public.comments from anon, authenticated;
+
+revoke insert on public.comments from anon, authenticated;
+grant insert (content_item_id, author_id, parent_id, body)
+  on public.comments to authenticated;
+```
+
+An author withdraws their own comment through a `security definer` function. It runs above both the revoked UPDATE grant and the `"authors see their own pending comments"` SELECT policy — Postgres re-checks an UPDATE's resulting row against the caller's SELECT policies, and a just-withdrawn row would fail that check. A call on anyone else's id is a silent no-op:
+
+```sql
+create or replace function public.withdraw_comment(_id uuid)
+returns void language sql volatile security definer set search_path = ''
+as $$
+  update public.comments set deleted_at = now()
+   where id = _id
+     and author_id = (select auth.uid())
+     and deleted_at is null;
+$$;
+
+revoke execute on function public.withdraw_comment(uuid) from anon;
+grant execute on function public.withdraw_comment(uuid) to authenticated;
 ```
 
 Reading a thread with author names, without exposing `profiles`:
@@ -997,12 +1022,19 @@ as $$
   join public.profiles p on p.id = c.author_id
   where c.content_item_id = _content_item_id
     and c.deleted_at is null
-    and (c.status = 'approved' or c.author_id = (select auth.uid()))
+    and (c.status = 'approved'
+         or c.author_id = (select auth.uid())
+         or public.is_staff())
+    and exists (select 1 from public.content_items ci
+                where ci.id = _content_item_id
+                  and ci.status = 'published' and ci.deleted_at is null)
   order by c.created_at asc;
 $$;
 
 grant execute on function public.list_comments to anon, authenticated;
 ```
+
+The `or public.is_staff()` clause exists so a moderator following the admin queue's in-context link (`…#comment-<id>`) actually sees the pending row it anchors on. The `content_items` check exists because the function is granted to `anon` and takes an arbitrary uuid — without it, comments on an item that has since been unpublished or archived stay readable. Both added 2026-09-04 (Phase 14 final review).
 
 ### 13.6 Live
 

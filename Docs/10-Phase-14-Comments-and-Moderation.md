@@ -45,7 +45,7 @@ Recorded 2026-09-03. Owner is away ~1 month from 2026-09-02; executed autonomous
 | Piece | Where | State |
 |---|---|---|
 | ~~`comment_status` enum `('pending','approved','rejected')`~~ | ~~`supabase/migrations/0001_extensions_and_enums.sql`~~ | **Corrected (as-built §12.1): not in `0001`. `0012` creates it**, per `Docs/5` §3. |
-| The entire `comments` design — table, indexes, `enforce_single_reply_level()`, `auto_approve_staff_comment()`, RLS §13.5, the `revoke update … grant update (deleted_at)` column grant, `list_comments()` | `Docs/5` §7.3, §13.5 — **written as SQL, never applied.** | Transcribe into `0012` verbatim; §6 lists the two additions. |
+| The entire `comments` design — table, indexes, `enforce_single_reply_level()`, `auto_approve_staff_comment()`, RLS §13.5, the column grants, `list_comments()` | `Docs/5` §7.3, §13.5 — **written as SQL, never applied.** | Transcribe into `0012` verbatim; §6 lists the two additions. Five departures found by the final review and folded back into `Docs/5` — see §12.2. |
 | `admin_queue_counts()` — `security definer`, `is_staff()`-gated, returns `drafts` / `published` | `supabase/migrations/0007_admin_queue.sql` | `create or replace` to add two counts (§6.4). |
 | Work-queue landing page — `Counts` type, `<Counter>` cards, all-clear branch | `src/app/[locale]/admin/(shell)/page.tsx` | Extend with the two counts + the §7.7 "moderation queue is clear" all-clear body (§5.7). |
 | `AdminShell` sidebar — `NAV` list, active-item treatment | `src/components/AdminShell/AdminShell.tsx` | Add a *Comments* entry after *Content* (§5.6). |
@@ -70,7 +70,8 @@ Recorded 2026-09-03. Owner is away ~1 month from 2026-09-02; executed autonomous
 | **pending** (master/admin-authored) | never happens — `auto_approve_staff_comment()` sets `approved` on insert | — |
 | **deleted** (`deleted_at`, by author or moderator) | nobody — removed entirely, not tombstoned (`Docs/4` §3.18) | — |
 
-- **One reply level only** — `parent_id` may point only at a top-level comment; `enforce_single_reply_level()` raises otherwise (`Docs/2` E32, DB-enforced).
+- **One reply level only** — `parent_id` may point only at a top-level comment, and only at one on the *same* content item; `enforce_single_reply_level()` raises otherwise (`Docs/2` E32, DB-enforced).
+- **Withdrawing a top-level comment hides its approved replies too.** `deleted_at` is set on the parent only, but `buildThread()` attaches a reply to its parent, and the parent is gone from `list_comments` — so the replies drop out of the rendered thread while remaining approved rows in the table. Accepted for MVP: the alternative (re-parenting or tombstoning) contradicts `Docs/4` §3.18's "removed entirely, not tombstoned".
 - **Guests** read approved comments anywhere (including a members-only item's gated page, D14.5) but cannot post, reply, delete, or report — those require an account (`Docs/5` §13.5; the gated-action pattern from `Docs/9`).
 - **Reporting** flags an *approved* comment that is not the reporter's own. Idempotent (`flagged_at is null` guard). A staff *Dismiss flag* clears `flagged_at`; a later report re-flags.
 - The comment `body` is **plain text**, 1–4000 characters, line breaks preserved on render (`Docs/4` §3.18). No markdown, no HTML — React escapes on output.
@@ -181,7 +182,7 @@ Transcribe **verbatim** from `Docs/5` §7.3 and §13.5:
 - `touch_updated_at` trigger (from `0005`); `write_audit()` trigger (`Docs/5` §12.2 lists `comments`).
 - `alter table public.comments enable row level security;`
 - All six policies from `Docs/5` §13.5: *approved comments are public* (anon + authenticated), *authors see their own pending comments*, *staff see all comments*, *members may comment* (insert; published item + `author = (select auth.uid())`), *authors may withdraw own comment* (update), *staff moderate comments* (update).
-- `revoke update on public.comments from authenticated; grant update (deleted_at) on public.comments to authenticated;` — the column grant is what makes "no edit" real.
+- ~~`revoke update on public.comments from authenticated; grant update (deleted_at) on public.comments to authenticated;`~~ — **Corrected (as-built §12.2):** `revoke update … from anon, authenticated` with **no** re-grant, plus `revoke insert … ; grant insert (content_item_id, author_id, parent_id, body) … to authenticated`. The column grants are what make "no edit" and "no self-approve" real; withdrawal goes through `withdraw_comment()`.
 
 ### 6.2 ✚ Rate-limit trigger
 
@@ -323,8 +324,8 @@ grant execute on function public.dismiss_comment_flag(uuid) to authenticated;
 3. A plain member's comment is `pending` on insert.
 4. The author selects their own `pending` comment; a *different* member selects 0 rows for it.
 5. `anon` selects only `approved` comments.
-6. `update comments set body = …` as the author is refused (column grant); `set deleted_at = now()` succeeds.
-7. `moderate_comments('{id}', 'approved')` as staff flips the row to `approved`; as a plain member it raises `not_staff`. A direct `update comments set status='approved'` as staff is refused (column grant).
+6. ~~`update comments set body = …` as the author is refused (column grant); `set deleted_at = now()` succeeds.~~ **Corrected (as-built §12.2):** both direct updates are refused — `authenticated` holds no UPDATE grant; `withdraw_comment()` is the withdrawal path.
+7. `moderate_comments('{id}', 'approved')` as staff flips the row to `approved`; as a plain member it raises `not_staff`. A direct `update comments set status='approved'` as staff is refused (the revoked UPDATE grant).
 8. The 5th insert within 10 minutes raises `comment_rate_limited`.
 9. `list_comments` returns `author_name` and `author_is_master` with **no** `profiles` row exposed and **no** `flagged_at` column.
 10. `report_comment` sets `flagged_at` on an approved comment; a second call is a no-op; the author's own comment is not flagged; a `pending` comment is not flagged.
@@ -332,6 +333,8 @@ grant execute on function public.dismiss_comment_flag(uuid) to authenticated;
 12. `admin_queue_counts()` carries `pending_comments` and `flagged_comments`.
 13. `write_audit` writes a row when `moderate_comments` approves a comment.
 14. `dismiss_comment_flag` clears `flagged_at` as staff; raises `not_staff` for a plain member.
+
+**Added by the final review (as-built — 22 assertions in total):** `withdraw_comment` withdraws the caller's own row and no-ops on another member's; a member's direct `set body` / `set deleted_at` are both refused; a member INSERT naming `status` raises `42501` while the app-shaped `(content_item_id, author_id, body)` insert lands `pending`; `list_comments` returns another member's `pending` comment to staff; a reply whose parent sits on a different content item raises; `list_comments` returns 0 rows for a draft item carrying an approved comment; a **`master`**-role user (D14.4, not an admin) moderates and sees the pending queue.
 
 Also re-run the existing RLS suite — the `comments` policies are new, nothing else changes.
 
@@ -420,7 +423,19 @@ PR body flags: **F14.b** (zh/bo need Geshe-la), **F14.a** (rate-limit numbers ar
 
 ## 12. As-built
 
-Built on `feat/comments` in 15 tasks (SDD; ledger at `.superpowers/sdd/2026-09-03-phase-14-comments-and-moderation/progress.md`). One PR into `main`. `npm run verify` green (129 vitest); 23 Playwright e2e; 15 pgTAP added to `0012` (58 total). This section records every deviation from §1–§11 as it actually landed.
+Built on `feat/comments` in 15 tasks (SDD; ledger at `.superpowers/sdd/2026-09-03-phase-14-comments-and-moderation/progress.md`), then one consolidated fix pass from the whole-branch review (2026-09-04). One PR into `main`. `npm run verify` green (129 vitest); 23 Playwright e2e; 22 pgTAP added to `0012` (65 total). This section records every deviation from §1–§11 as it actually landed.
+
+**Final-review fixes (2026-09-04).** Seven, all folded back into `0012` in place (§12.4) and into `Docs/5`:
+
+| # | Fix | Where |
+|---|---|---|
+| 1 | **Per-column INSERT grant on `comments`** — `authenticated` held INSERT on every column and `"members may comment"` never constrained `status`, so a member could self-approve past moderation (or forge `created_at` / `moderated_by`). *Blocker.* | §12.2 |
+| 2 | **`withdraw_comment()` `security definer` RPC** replaces the interim §13.5 SELECT-policy relaxation; `Docs/5` §13.5's policies are verbatim again and `authenticated` has no UPDATE grant on `comments` at all. | §12.2 |
+| 3 | **`list_comments` gained `or public.is_staff()`** — the admin queue's in-context link (`…#comment-<id>`) anchored on a row a moderator could not see. `Comment` now gives every non-approved row (`rejected` included) the pending treatment, so a silently rejected comment does not read as public to its author (D14.6). | §12.2, §12.3 |
+| 4 | **`enforce_single_reply_level()` is `security definer`** — its parent lookup ran under the caller's RLS, so an invisible parent read as absent and the nesting check passed. It also refuses a reply whose parent sits on a different content item. | §12.2 |
+| 5 | **`list_comments` requires the item published** — granted to `anon` and taking an arbitrary uuid, it kept serving comments on an item that had since been unpublished or archived. | §12.2 |
+| 6 | **`moderateCommentsAction` no longer returns raw Postgres error text** — `{ error: 'generic' }`, logged server-side. | §12.3 |
+| 7 | **Three dead message keys removed** from all three catalogues: `admin.comments.viewInContext`, `comments.replyingTo`, `admin.queue.allClearBody`. | §12.3 |
 
 ### 12.1 Schema / migration
 
@@ -429,31 +444,31 @@ Built on `feat/comments` in 15 tasks (SDD; ledger at `.superpowers/sdd/2026-09-0
 - **`count_admin_comments(_status text default 'pending') returns bigint`** was added as the §6.3 companion to `list_admin_comments` — same `WHERE`, no `limit`/`offset`, `security definer`, `is_staff()`-gated, granted to `authenticated`. Drives the admin queue's pagination count.
 - **`limit_comment_rate()` exempts staff** — the trigger body opens with `if not public.is_staff() then … end if;` around the count check. §6.2's literal SQL snippet has **no staff guard** and is **superseded**: staff (master or admin) are not rate-limited (settled in the Q&A follow-ups — a moderator posting several approvals-in-context or a master answering a burst of questions must not trip a member-scale limit). The 4-per-10-minutes number for non-staff is unchanged (F14.a).
 
-### 12.2 RLS — deviation from `Docs/5` §13.5, pending owner sign-off
+### 12.2 RLS — `Docs/5` §13.5 as written, plus two grant fixes
 
-**The `"authors see their own pending comments"` SELECT policy dropped its `and deleted_at is null` filter and was renamed `"authors see their own comments"`.**
+**Final state (after the whole-branch review, 2026-09-04): `Docs/5` §13.5's SELECT policies are transcribed verbatim.** An interim relaxation — dropping `and deleted_at is null` from `"authors see their own pending comments"`, renamed `"authors see their own comments"` — was built mid-branch and has been **removed**. It is recorded here only so the reasoning is not rediscovered.
 
-`Docs/5` §13.5 as written:
+**Why the relaxation existed.** Postgres applies a table's SELECT policies to the *resulting row* of an `UPDATE` (as an implicit `WITH CHECK`). With `deleted_at is null` in the only SELECT policy an author holds, `update comments set deleted_at = now()` produces a row matching **no** SELECT policy the author has, and Postgres refuses it with `42501`. The `"authors may withdraw own comment"` UPDATE policy could never fire; the delete-your-own-comment path (`Docs/2` E33, a locked decision) was dead. Caught by `e2e/comments.spec.ts`.
 
-```sql
-create policy "authors see their own pending comments" on public.comments
-  for select to authenticated
-  using ((select auth.uid()) = author_id and deleted_at is null);
-```
-
-As built in `0012`:
+**What replaced it — `withdraw_comment()`.** A `security definer` function, granted to `authenticated` only:
 
 ```sql
-create policy "authors see their own comments" on public.comments
-  for select to authenticated
-  using ((select auth.uid()) = author_id);
+create or replace function public.withdraw_comment(_id uuid)
+returns void language sql volatile security definer set search_path = ''
+as $$
+  update public.comments set deleted_at = now()
+   where id = _id
+     and author_id = (select auth.uid())
+     and deleted_at is null;
+$$;
 ```
 
-**Why.** Postgres applies a table's SELECT policies to the *resulting row* of an `UPDATE` (as an implicit `WITH CHECK`). With `deleted_at is null` in the only SELECT policy an author holds, the moment `deleteOwnCommentAction` runs `update comments set deleted_at = now()` the new row matches **no** SELECT policy the author has — Postgres refuses the UPDATE with `42501` ("new row violates row-level security policy"). The `"authors may withdraw own comment"` UPDATE policy could therefore **never fire**; the entire delete-your-own-comment path (`Docs/2` E33, a locked decision) was dead code. Caught by the Phase 14 e2e (`e2e/comments.spec.ts` — a member's withdraw returned `42501` every time).
+It runs above both the SELECT policy and the grant, is confined to the caller's own not-yet-withdrawn row, and is a silent no-op on anyone else's id. `deleteOwnCommentAction` calls it (`supabase.rpc('withdraw_comment', { _id })`). No new read exposure: an author cannot select their own soft-deleted rows any more, and `list_comments()` still filters `deleted_at is null`.
 
-**New exposure (assessed benign).** An author can now `select` their *own* soft-deleted comment rows via a direct table query. They cannot see anyone else's. `list_comments()` still filters `deleted_at is null`, so a withdrawn comment never renders on a thread for any reader. The app never queries `comments` outside `list_comments` / `list_admin_comments`. Staff already saw every row. The worst case is an author enumerating the bodies of comments they themselves wrote and then deleted — low.
+**Grant fixes (final review).**
 
-**⚠ This deviates from `Docs/5` §13.5 as written and is pending owner sign-off.** `Docs/5` §13.5 has been updated with the corrected policy and a dated note; the SDD ledger records the ruling to accept it. **The PR must not be merged until the owner has signed off on this relaxation.**
+- **`revoke update on public.comments from anon, authenticated;` with no re-grant.** `Docs/5` §13.5's `grant update (deleted_at)` is gone: `authenticated` now holds **no** UPDATE grant on `comments` at all. Both UPDATE policies (`"authors may withdraw own comment"`, `"staff moderate comments"`) are therefore inert, kept as documented intent; the two write paths are `withdraw_comment()` and `moderate_comments()`, both `security definer`.
+- **Per-column INSERT grant (blocker — nothing in `Docs/5` covered it).** `authenticated` held INSERT on *every* column, and `"members may comment"` checks only `author_id` and the item's published state — never `status`. A member could `POST` a comment with `status:'approved'` and bypass moderation outright, or forge `created_at` (evading `limit_comment_rate`) or `moderated_by` / `moderated_at`. Fixed with `revoke insert … ; grant insert (content_item_id, author_id, parent_id, body) on public.comments to authenticated;` — exactly the columns `postCommentAction` writes. Column grants police only the columns *named in the INSERT statement*, so `auto_approve_staff_comment()` (a trigger setting `NEW.status`) is unaffected, and the e2e `seedComment` fixture (service role) is unaffected. `Docs/5` §13.5 has been corrected with a dated note.
 
 ### 12.3 Components / app
 
@@ -462,6 +477,9 @@ create policy "authors see their own comments" on public.comments
 - **`Comment` and `CommentList` are *synchronous* Server Components using `useTranslations`**, not `async` + `getTranslations`. The reply tree is recursive (`CommentList` → `Comment` → `CommentList` for replies) and a recursive component cannot be `await`ed. `CommentsSection` (the data-fetching root) is `async`. This is the first sync-SC-with-`useTranslations` pattern in the repo; component tests wrap in `NextIntlClientProvider`.
 - **`Textarea` field component added** at `src/components/Field/Textarea.tsx` — `Docs/4` §3.3 (label always visible, `min-height: 120px`). §3's "do not rebuild" table listed `Textarea`/`Field` as existing; only `Field` (single-line) did.
 - New message keys **beyond the §7 table**, all with machine `zh`/`bo` (F14.b): `comments.errorRequired` (empty-body validation), `comments.masterBadge` ("Teacher"), `admin.comments.selectedCount`.
+- **`Comment` treats every non-approved status as "not public"** (final review): `--warning-bg` plus the `pendingBadge` / `pendingHint` copy now cover `rejected` as well as `pending`. Rejection is silent (D14.6), so a rejected comment rendering identically to a live one would tell its author the opposite of the truth. No new copy — the existing pending strings are the honest signal for both an author and a moderator reading in context. A distinct "rejected" label is a Phase 18 concern (the "My Comments" view).
+- **`moderateCommentsAction` returns `{ error: 'generic' }`**, not `error.message` (final review) — the caller only ever renders `admin.comments.errorBody`, and raw Postgres text must not reach the browser. The real error is `console.error`'d server-side.
+- **Three dead message keys removed** from `en` / `zh` / `bo` (final review, `parity.test.ts` green): `admin.comments.viewInContext` (the item-title link *is* the in-context link — no separate affordance renders), `comments.replyingTo` (`CommentActions` never renders it), `admin.queue.allClearBody` (the all-clear body switched unconditionally to `allClearBodyModeration`; the negative assertion that named the old key was dropped from `page.test.tsx`).
 
 ### 12.4 Migration hygiene
 
@@ -473,7 +491,7 @@ create policy "authors see their own comments" on public.comments
 - The admin queue's `.flag` indicator hand-rolls a badge (no `Badge` `flagged` variant); no `master`-author indicator in the queue rows.
 - `CommentList`'s wrapper is a bare `<div>`, not a semantic list (`<ul>`/`<li>`).
 - Relative timestamps ("2 hours ago") are frozen at server render — no client `<RelativeTime>` refresh. Absolute date is in `title`.
-- Pre-existing `background:#fff` raw hex in `src/app/[locale]/admin/(shell)/comments/queue.module.css:32` (`.card`) — **not introduced by Phase 14** (predates the branch); flagged for a separate token-cleanup pass.
+- Pre-existing `background:#fff` raw hex in `src/app/[locale]/admin/(shell)/queue.module.css` (`.card`) — **not introduced by Phase 14** (predates the branch); flagged for a separate token-cleanup pass.
 - A linked work-queue `<Counter>` card's hover treatment is a token-only choice — `Docs/4` has no spec for a linked counter. `drafts` / `published` remain non-links (Ruling 2).
 
 ---
