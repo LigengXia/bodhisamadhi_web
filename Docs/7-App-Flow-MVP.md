@@ -626,7 +626,7 @@ These are unchanged by this document and still block the phase named. From `6-Im
 | 4 | **Real schedule / stats** — the Saturday time(s), whether v4's count-up figures are accurate | Phase 9 (Home). |
 | 5 | **5–10 real lectures + 1–2 practice texts** | Phase 12 (Master review); useful for realistic seed data earlier. |
 | 6 | **Hosting: AWS vs Vercel** | Not blocking the MVP build. Still open. |
-| ~~—~~ | ~~**Domain**~~ | **Decided 2026-09-02** — launch origin is `https://bodhisamadhi-web.vercel.app` (`NEXT_PUBLIC_SITE_URL` in Vercel); real domain is a later migration. Unblocks the §3.1 canonical / hreflang addresses and the sitemap. |
+| ~~—~~ | ~~**Domain**~~ | **Decided 2026-09-02** — launch origin is `https://bodhisamadhi-web.vercel.app` (`NEXT_PUBLIC_SITE_URL` in Vercel); **migrated 2026-10-12 to `https://www.bodhisamadhicenter.com`**. Unblocks the §3.1 canonical / hreflang addresses and the sitemap. |
 | ~~7~~ | ~~**R2 bucket name**~~ | **Resolved** — `R2_BUCKET=bodhisamadhi`, confirmed against the Cloudflare dashboard; in `.env.local`, `.env.hosted` and Vercel. |
 
 ---

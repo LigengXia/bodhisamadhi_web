@@ -136,7 +136,7 @@ These are open questions, not oversights. Do not pick an answer.
 | Item | Notes |
 |---|---|
 | **Hosting: AWS vs Vercel** | An external stakeholder requires AWS. Supabase already runs on AWS and offers `ca-central-1`; AWS Amplify does not support Next.js 16. Unresolved — build portable (`output: 'standalone'`, no Vercel-only APIs). |
-| **Domain name** | Not registered. **Decided 2026-09-02:** launch on `https://bodhisamadhi-web.vercel.app` (set as `NEXT_PUBLIC_SITE_URL` in Vercel), migrate to a real domain later. v4's metadata still assumes `bodhisamadhi.ca`. |
+| **Domain name** | **Decided 2026-10-12:** `https://www.bodhisamadhicenter.com` (registered at Hostinger; DNS on Vercel nameservers; bare domain redirects to `www`). Set as `NEXT_PUBLIC_SITE_URL` in Vercel. Supersedes the 2026-09-02 interim `bodhisamadhi-web.vercel.app`. v4's metadata still assumes `bodhisamadhi.ca` — ignore it. |
 | CRA tax-receipt fields · EMT reconciliation owner | Blocks the donations phase entirely. |
 | Minimum age and guardian consent | Blocks the account area. |
 | Zoom RTMP simulcast capability | Blocks the live streaming phase — confirm before starting it, not during. |
