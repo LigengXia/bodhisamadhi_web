@@ -5,7 +5,7 @@ Tibetan Buddhist dharma centre in Toronto. It is in three languages — English,
 中文, བོད་ཡིག — and its purpose is to hold the centre's recorded teachings, chanted
 audio and practice texts, and to let anyone find and use them freely.
 
-- **Live site:** https://www.bodhisamadhicenter.com
+- **Live site:** https://bodhisamadhicenter.com
 - **The full specification is in [`Docs/`](./Docs).** [`CLAUDE.md`](./CLAUDE.md)
   is the index. Read the relevant document before changing anything — the
   terminology, the honorifics and the tone are part of the specification.
@@ -22,7 +22,7 @@ to install anything.
 
 ## Signing in
 
-1. Go to **https://www.bodhisamadhicenter.com/en/admin**
+1. Go to **https://bodhisamadhicenter.com/en/admin**
 2. Enter your email and password.
 
 Two accounts exist. If you have never signed in, ask whoever set the site up for
@@ -158,7 +158,7 @@ git.
 | `NEXT_PUBLIC_SUPABASE_URL` / `_ANON_KEY` | local + Vercel | Supabase project. Local values are Supabase's fixed dev keys (from `supabase status`). |
 | `SUPABASE_SERVICE_ROLE_KEY` | local + Vercel | **Server only.** Bypasses every RLS policy — used by route handlers after a processor confirms, and by seed scripts. Never import into a Server Component or log it. |
 | `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` / `R2_ENDPOINT` | local + Vercel | **Server only.** Cloudflare R2 (PDF + audio). Private bucket; files reached through short-lived signed URLs. |
-| `NEXT_PUBLIC_SITE_URL` | local + Vercel | Local: `http://localhost:3000`. Vercel (Production): `https://www.bodhisamadhicenter.com`. Sets the origin for canonical, Open Graph and sitemap URLs — without it they point at localhost. |
+| `NEXT_PUBLIC_SITE_URL` | local + Vercel | Local: `http://localhost:3000`. Vercel (Production): `https://bodhisamadhicenter.com`. Sets the origin for canonical, Open Graph and sitemap URLs — without it they point at localhost. |
 | `SITE_INDEXABLE` | Vercel, at launch | Unset = the whole site is `noindex` + `robots.txt: Disallow: /`. Set to `true` and redeploy to open it to search engines. |
 | `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN` | Vercel | Error monitoring. All optional — with no DSN, Sentry is a no-op and the build skips it. The `SENTRY_*` three are only for readable (de-minified) stack traces. |
 

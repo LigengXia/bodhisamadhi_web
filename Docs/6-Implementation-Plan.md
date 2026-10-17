@@ -480,7 +480,7 @@ In each case: stop, write down what was found, and ask. **Do not resolve a docum
 |---|---|---|
 | ~~1~~ | ~~Chinese name~~ **Decided 2026-09-02 — 菩提禅院** | — |
 | 2 | Tibetan review by Geshe-la | Phase 12 (gate on any public launch) |
-| ~~3~~ | ~~Domain name~~ **Decided 2026-09-02** — launch on `https://bodhisamadhi-web.vercel.app` (`NEXT_PUBLIC_SITE_URL` in Vercel), migrate to a real domain later. **Migrated 2026-10-12** → `https://www.bodhisamadhicenter.com` | — |
+| ~~3~~ | ~~Domain name~~ **Decided 2026-09-02** — launch on `https://bodhisamadhi-web.vercel.app` (`NEXT_PUBLIC_SITE_URL` in Vercel), migrate to a real domain later. **Migrated 2026-10-12** → `https://bodhisamadhicenter.com` | — |
 | 4 | Service-request response-time promise | Phase 15 |
 | 5 | Zoom RTMP simulcast capability | Phase 16 |
 | 6 | CRA receipt fields · EMT process and owner | Phase 17 |
